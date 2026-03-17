@@ -18,7 +18,6 @@
     <ItemGroup>
       <Content Include="Assets/**" CopyToOutputDirectory="Always" />
       <Folder Include="Assets\Shaders\Compiled\" />
-      <Folder Include="Src\" />
     </ItemGroup>
 
 </Project>

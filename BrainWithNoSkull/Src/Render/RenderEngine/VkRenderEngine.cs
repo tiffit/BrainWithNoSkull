@@ -27,6 +27,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
     private PhysicalDevice _physicalDevice;
     private Device _logicalDevice;
 
+    private QueueFamilies _queueFamilies;
     private Queue _graphicsQueue;
     private Queue _presentQueue;
 
@@ -41,16 +42,13 @@ public unsafe class VkRenderEngine : IRenderEngine {
     private Extent2D _extent;
 
     private RenderPass _renderPass;
-    private PipelineLayout _pipelineLayout;
-    private Pipeline _pipeline;
+
+    private readonly Dictionary<ShaderDetails, VkShaderPipeline> _pipelines = [];
 
     private Framebuffer[]? _framebuffers;
 
     private CommandPool _commandPool;
     private CommandBuffer[] _commandBuffers = [];
-
-    private Buffer _buffer;
-    private DeviceMemory _vertexBufferMemory;
 
     private Semaphore[] _imageAvailableSemaphore = [];
     private Semaphore[] _renderFinishedSemaphore = [];
@@ -88,10 +86,16 @@ public unsafe class VkRenderEngine : IRenderEngine {
         CreateSwapChain();
         CreateImageViews();
         CreateRenderPass();
-        CreateGraphicsPipeline();
+        foreach (ShaderDetails details in ShaderDetails.AllShaders) {
+            VkShaderProgram program = CreateShader(details);
+            VkShaderPipeline pipeline = new VkShaderPipeline(program);
+            CreateDescriptorSetLayout(pipeline);
+            CreateGraphicsPipeline(pipeline);
+            CreateVertexBuffer(pipeline);
+            _pipelines[details] = pipeline;
+        }
         CreateFramebuffers();
         CreateCommandPool();
-        CreateVertexBuffer();
         CreateCommandBuffer();
         CreateSyncObjects();
     }
@@ -166,9 +170,9 @@ public unsafe class VkRenderEngine : IRenderEngine {
     }
 
     private void CreateLogicalDevice(){
-        QueueFamilies indices = FindQueueFamilies(_physicalDevice);
+        _queueFamilies = FindQueueFamilies(_physicalDevice);
 
-        DeviceQueueCreateInfo* createInfoPtr = CreateQueueFamilyStructs(indices, out uint numQueueFamilies, out GlobalMemory queueMemory);
+        DeviceQueueCreateInfo* createInfoPtr = CreateQueueFamilyStructs(_queueFamilies, out uint numQueueFamilies, out GlobalMemory queueMemory);
         PhysicalDeviceFeatures deviceFeatures = new();
 
         PhysicalDeviceVulkan13Features features13 = new(){
@@ -190,8 +194,8 @@ public unsafe class VkRenderEngine : IRenderEngine {
             throw new Exception("Unable to create logical device!");
         }
 
-        _vk.GetDeviceQueue(_logicalDevice, indices.Graphics!.Value, 0, out _graphicsQueue);
-        _vk.GetDeviceQueue(_logicalDevice, indices.Present!.Value, 0, out _presentQueue);
+        _vk.GetDeviceQueue(_logicalDevice, _queueFamilies.Graphics!.Value, 0, out _graphicsQueue);
+        _vk.GetDeviceQueue(_logicalDevice, _queueFamilies.Present!.Value, 0, out _presentQueue);
         SilkMarshal.Free((nint)createInfo.PpEnabledExtensionNames);
         queueMemory.Dispose();
     }
@@ -336,10 +340,9 @@ public unsafe class VkRenderEngine : IRenderEngine {
             OldSwapchain = default
         };
 
-        QueueFamilies indices = FindQueueFamilies(_physicalDevice);
-        uint* queueFamilyIndices = stackalloc[]{ indices.Graphics!.Value, indices.Present!.Value };
+        uint* queueFamilyIndices = stackalloc[]{ _queueFamilies.Graphics!.Value, _queueFamilies.Present!.Value };
 
-        if (indices.Graphics != indices.Present) {
+        if (_queueFamilies.Graphics != _queueFamilies.Present) {
             createInfo.ImageSharingMode = SharingMode.Concurrent;
             createInfo.QueueFamilyIndexCount = 2;
             createInfo.PQueueFamilyIndices = queueFamilyIndices;
@@ -401,17 +404,33 @@ public unsafe class VkRenderEngine : IRenderEngine {
         }
     }
 
-    private void CreateGraphicsPipeline(){
-        VkShaderProgram shader = CreateShader(ShaderDetails.Shader);
-
-        PipelineShaderStageCreateInfo* shaderStages = stackalloc[]{
-            shader.VertStage,
-            shader.FragStage
+    private void CreateDescriptorSetLayout(VkShaderPipeline shaderPipeline){
+        DescriptorSetLayoutBinding layoutBinding = new(){
+            Binding = 0,
+            DescriptorType = DescriptorType.UniformBuffer,
+            DescriptorCount = 1,
+            StageFlags = ShaderStageFlags.VertexBit
         };
 
-        VkVertexConsumer consumer = new VkVertexConsumer();
-        VertexInputBindingDescription bindingDescription = consumer.GetBindingDescription(shader.Details);
-        VertexInputAttributeDescription[] attributeDescriptions = consumer.GetAttributeDescriptions(shader.Details);
+        DescriptorSetLayoutCreateInfo createInfo = new(){
+            SType = StructureType.DescriptorSetLayoutCreateInfo,
+            BindingCount = 1,
+            PBindings = &layoutBinding
+        };
+        
+        if (_vk.CreateDescriptorSetLayout(_logicalDevice, &createInfo, null, out shaderPipeline.DescriptorSetLayout) != Result.Success) {
+            throw new Exception("Unable to create descriptor set layout");
+        }
+    }
+
+    private void CreateGraphicsPipeline(VkShaderPipeline shaderPipeline){
+        PipelineShaderStageCreateInfo* shaderStages = stackalloc[]{
+            shaderPipeline.ShaderProgram.VertStage,
+            shaderPipeline.ShaderProgram.FragStage
+        };
+
+        VertexInputBindingDescription bindingDescription = shaderPipeline.GetBindingDescription();
+        VertexInputAttributeDescription[] attributeDescriptions = shaderPipeline.GetAttributeDescriptions();
 
         PipelineVertexInputStateCreateInfo vertexInput = new(){
             SType = StructureType.PipelineVertexInputStateCreateInfo,
@@ -481,11 +500,14 @@ public unsafe class VkRenderEngine : IRenderEngine {
             PAttachments = &colorBlendAttachment
         };
 
-        PipelineLayoutCreateInfo pipelineLayout = new(){
-            SType = StructureType.PipelineLayoutCreateInfo
+        DescriptorSetLayout* descriptorSetLayout = stackalloc[]{ shaderPipeline.DescriptorSetLayout };
+        PipelineLayoutCreateInfo pipelineLayoutInfo = new(){
+            SType = StructureType.PipelineLayoutCreateInfo,
+            SetLayoutCount = 1,
+            PSetLayouts = descriptorSetLayout
         };
 
-        if (_vk.CreatePipelineLayout(_logicalDevice, in pipelineLayout, null, out _pipelineLayout) != Result.Success) {
+        if (_vk.CreatePipelineLayout(_logicalDevice, in pipelineLayoutInfo, null, out shaderPipeline.PipelineLayout) != Result.Success) {
             throw new Exception("Unable to create pipeline layout");
         }
 
@@ -500,16 +522,16 @@ public unsafe class VkRenderEngine : IRenderEngine {
             PMultisampleState = &multisample,
             PColorBlendState = &colorBlend,
             PDynamicState = &dynamicState,
-            Layout = _pipelineLayout,
+            Layout = shaderPipeline.PipelineLayout,
             RenderPass = _renderPass,
             Subpass = 0
         };
 
-        if (_vk!.CreateGraphicsPipelines(_logicalDevice, default, 1, in createInfo, null, out _pipeline) != Result.Success) {
+        if (_vk!.CreateGraphicsPipelines(_logicalDevice, default, 1, in createInfo, null, out shaderPipeline.GraphicsPipeline) != Result.Success) {
             throw new Exception("Unable to create pipeline");
         }
 
-        shader.DisposeModules(_logicalDevice);
+        shaderPipeline.ShaderProgram.DisposeModules(_logicalDevice);
     }
 
     private VkShaderProgram CreateShader(ShaderDetails details){
@@ -592,41 +614,22 @@ public unsafe class VkRenderEngine : IRenderEngine {
         CommandPoolCreateInfo createInfo = new(){
             SType = StructureType.CommandPoolCreateInfo,
             Flags = CommandPoolCreateFlags.ResetCommandBufferBit,
-            QueueFamilyIndex = FindQueueFamilies(_physicalDevice).Graphics!.Value
+            QueueFamilyIndex = _queueFamilies.Graphics!.Value
         };
         if (_vk.CreateCommandPool(_logicalDevice, in createInfo, null, out _commandPool) != Result.Success) {
             throw new Exception("Unable to create graphics command pool");
         }
     }
 
-    private void CreateVertexBuffer(){
-        VertexBuilder builder = new VertexBuilder(this, ShaderDetails.Shader);
-        builder.Pos(0, -0.5f, 0).Color(1, 0, 0).Build();
-        builder.Pos(0.5f, 0.5f, 0).Color(0, 1, 0).Build();
-        builder.Pos(-0.5f, 0.5f, 0).Color(0, 0, 1).Build();
-        
-        builder.Pos(-0.9f, 0, 0).Color(1, 0, 0).Build();
-        builder.Pos(-0.8f, 0.1f, 0).Color(0, 1, 0).Build();
-        builder.Pos(-1f, 0.1f, 0).Color(0, 0, 1).Build();
-        float[] vertices = builder.Pack();
-        ulong bufferSize = ShaderDetails.Shader.BufferSize * 4 * (ulong)vertices.Length;
+    private void CreateVertexBuffer(VkShaderPipeline pipeline){
+        ulong bufferSize = pipeline.ShaderProgram.Details.BufferSize;
         VkBuffers.CreateBuffer(_vk, _logicalDevice, _physicalDevice, bufferSize,
             BufferUsageFlags.TransferSrcBit | BufferUsageFlags.VertexBufferBit, MemoryPropertyFlags.HostVisibleBit | MemoryPropertyFlags.HostCoherentBit,
-            out Buffer stagingBuffer, out DeviceMemory stagingBufferMemory);
-
-        void* data;
-        _vk.MapMemory(_logicalDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
-        vertices.AsSpan().CopyTo(new Span<float>(data, vertices.Length));
-        _vk.UnmapMemory(_logicalDevice, stagingBufferMemory);
+            out pipeline.StagingVertexBuffer, out pipeline.StagingVertexBufferMemory);
 
         VkBuffers.CreateBuffer(_vk, _logicalDevice, _physicalDevice, bufferSize,
             BufferUsageFlags.TransferDstBit | BufferUsageFlags.VertexBufferBit, MemoryPropertyFlags.DeviceLocalBit,
-            out _buffer, out _vertexBufferMemory);
-        
-        VkBuffers.CopyBuffer(_vk, _graphicsQueue, FindQueueFamilies(_physicalDevice), _logicalDevice, stagingBuffer, _buffer, bufferSize);
-        
-        _vk.DestroyBuffer(_logicalDevice, stagingBuffer, null);
-        _vk.FreeMemory(_logicalDevice, stagingBufferMemory, null);
+            out pipeline.VertexBuffer, out pipeline.VertexBufferMemory);
     }
 
     private void CreateCommandBuffer(){
@@ -666,30 +669,51 @@ public unsafe class VkRenderEngine : IRenderEngine {
         };
 
         _vk.CmdBeginRenderPass(buffer, &renderPassBegin, SubpassContents.Inline);
-        _vk.CmdBindPipeline(buffer, PipelineBindPoint.Graphics, _pipeline);
+        foreach ((ShaderDetails details, VkShaderPipeline pipeline) in _pipelines) {
+            MatrixStack stack = new MatrixStack();
+            VertexBuilder builder = new VertexBuilder(this, pipeline.ShaderProgram.Details, stack);
+            builder.Pos(0, -0.5f, 0).Color(1, 0, 0).Build();
+            builder.Pos(0.5f, 0.5f, 0).Color(0, 1, 0).Build();
+            builder.Pos(-0.5f, 0.5f, 0).Color(0, 0, 1).Build();
+            
+            builder.Pos(-0.9f, 0, 0).Color(1, 0, 0).Build();
+            builder.Pos(-0.8f, 0.1f, 0).Color(0, 1, 0).Build();
+            builder.Pos(-1f, 0.1f, 0).Color(0, 0, 1).Build();
+            float[] vertices = builder.Pack();
+            
+            void* data;
+            ulong dataSize = (ulong)vertices.Length * 4;
+            _vk.MapMemory(_logicalDevice, pipeline.StagingVertexBufferMemory, 0, dataSize, 0, &data);
+            vertices.AsSpan().CopyTo(new Span<float>(data, vertices.Length));
+            _vk.UnmapMemory(_logicalDevice, pipeline.StagingVertexBufferMemory);
+            VkBuffers.CopyBuffer(_vk, _graphicsQueue, _queueFamilies, _logicalDevice, pipeline.StagingVertexBuffer, pipeline.VertexBuffer, dataSize);
+            
+            // _vk.CmdBindDescriptorSets(buffer, PipelineBindPoint.Graphics, pipeline.PipelineLayout, 0, 1, DescriptorSetLayout);
+            _vk.CmdBindPipeline(buffer, PipelineBindPoint.Graphics, pipeline.GraphicsPipeline);
 
-        fixed (Buffer* bufferPtr = new[]{ _buffer }) {
-            ulong offset = 0;
-            _vk.CmdBindVertexBuffers(buffer, 0, 1, bufferPtr, ref offset);
+            fixed (Buffer* bufferPtr = new[]{ pipeline.VertexBuffer }) {
+                ulong offset = 0;
+                _vk.CmdBindVertexBuffers(buffer, 0, 1, bufferPtr, ref offset);
+            }
+
+            Viewport viewport = new(){
+                X = 0f,
+                Y = 0f,
+                Width = _extent.Width,
+                Height = _extent.Height,
+                MinDepth = 0,
+                MaxDepth = 1
+            };
+            _vk.CmdSetViewport(buffer, 0, 1, &viewport);
+
+            Rect2D scissor = new(){
+                Offset = new Offset2D(0, 0),
+                Extent = _extent
+            };
+            _vk.CmdSetScissor(buffer, 0, 1, &scissor);
+
+            _vk.CmdDraw(buffer, builder.VerticesCount, 1, 0, 0);
         }
-
-        Viewport viewport = new(){
-            X = 0f,
-            Y = 0f,
-            Width = _extent.Width,
-            Height = _extent.Height,
-            MinDepth = 0,
-            MaxDepth = 1
-        };
-        _vk.CmdSetViewport(buffer, 0, 1, &viewport);
-
-        Rect2D scissor = new(){
-            Offset = new Offset2D(0, 0),
-            Extent = _extent
-        };
-        _vk.CmdSetScissor(buffer, 0, 1, &scissor);
-
-        _vk.CmdDraw(buffer, (uint)3, 1, 0, 0);
 
         _vk.CmdEndRenderPass(buffer);
         if (_vk.EndCommandBuffer(buffer) != Result.Success) {
@@ -798,12 +822,10 @@ public unsafe class VkRenderEngine : IRenderEngine {
 
     public void Cleanup(){
         CleanupSwapChain();
-        _vk.DestroyBuffer(_logicalDevice, _buffer, null);
-        _vk.FreeMemory(_logicalDevice, _vertexBufferMemory, null);
         _vk.DestroyCommandPool(_logicalDevice, _commandPool, null);
-
-        _vk.DestroyPipeline(_logicalDevice, _pipeline, null);
-        _vk.DestroyPipelineLayout(_logicalDevice, _pipelineLayout, null);
+        foreach (VkShaderPipeline pipeline in _pipelines.Values) {
+            pipeline.Destroy(_vk, _logicalDevice);
+        }
         _vk.DestroyRenderPass(_logicalDevice, _renderPass, null);
 
         _vk.DestroyDevice(_logicalDevice, null);
