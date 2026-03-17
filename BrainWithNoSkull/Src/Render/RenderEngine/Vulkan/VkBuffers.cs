@@ -1,0 +1,82 @@
+﻿using Silk.NET.Vulkan;
+using Buffer = Silk.NET.Vulkan.Buffer;
+
+namespace BrainWithNoSkull.Render.RenderEngine.Vulkan;
+
+public unsafe class VkBuffers {
+    public static void CreateBuffer(Vk vk, Device device, PhysicalDevice physicalDevice, ulong size, BufferUsageFlags usageFlags, MemoryPropertyFlags propFlags, out Buffer buffer, out DeviceMemory memory){
+        BufferCreateInfo createInfo = new(){
+            SType = StructureType.BufferCreateInfo,
+            Size = size,
+            Usage = usageFlags,
+            SharingMode = SharingMode.Exclusive
+        };
+        if (vk.CreateBuffer(device, in createInfo, null, out buffer) != Result.Success) {
+            throw new Exception("Unable to create buffer");
+        }
+        vk.GetBufferMemoryRequirements(device, buffer, out MemoryRequirements memRequirements);
+        MemoryAllocateInfo allocateInfo = new(){
+            SType = StructureType.MemoryAllocateInfo,
+            AllocationSize = memRequirements.Size,
+            MemoryTypeIndex = FindBufferMemoryType(vk, physicalDevice, memRequirements.MemoryTypeBits, propFlags)
+        };
+        if (vk.AllocateMemory(device, &allocateInfo, null, out memory) != Result.Success) {
+            throw new Exception("Unable to allocate buffer memory");
+        }
+        vk.BindBufferMemory(device, buffer, memory, 0);
+    }
+    
+    private static uint FindBufferMemoryType(Vk vk, PhysicalDevice device, uint filter, MemoryPropertyFlags props){
+        vk.GetPhysicalDeviceMemoryProperties(device, out PhysicalDeviceMemoryProperties memProperties);
+
+        for (int i = 0; i < memProperties.MemoryTypeCount; i++) {
+            if ((filter & (1 << i)) != 0 && (memProperties.MemoryTypes[i].PropertyFlags & props) == props) {
+                return (uint)i;
+            }
+        }
+
+        throw new Exception("Unable to find suitable memory type");
+    }
+
+    public static void CopyBuffer(Vk vk, Queue graphicsQueue, QueueFamilies families, Device device, Buffer src, Buffer dst, ulong size){
+        CommandPoolCreateInfo createInfo = new(){
+            SType = StructureType.CommandPoolCreateInfo,
+            Flags = CommandPoolCreateFlags.TransientBit,
+            QueueFamilyIndex = families.Graphics!.Value
+        };
+        if (vk.CreateCommandPool(device, in createInfo, null, out CommandPool pool) != Result.Success) {
+            throw new Exception("Unable to create buffer command pool");
+        }
+
+        CommandBufferAllocateInfo allocateInfo = new(){
+            SType = StructureType.CommandBufferAllocateInfo,
+            Level = CommandBufferLevel.Primary,
+            CommandPool = pool,
+            CommandBufferCount = 1
+        };
+        vk.AllocateCommandBuffers(device, &allocateInfo, out CommandBuffer cmdBuffer);
+
+        CommandBufferBeginInfo beginInfo = new(){
+            SType = StructureType.CommandBufferBeginInfo,
+            Flags = CommandBufferUsageFlags.OneTimeSubmitBit
+        };
+        vk.BeginCommandBuffer(cmdBuffer, &beginInfo);
+        
+        BufferCopy copyCmd = new(0, 0, size);
+        vk.CmdCopyBuffer(cmdBuffer, src, dst, 1, &copyCmd);
+
+        vk.EndCommandBuffer(cmdBuffer);
+
+        SubmitInfo submitInfo = new(){
+            SType = StructureType.SubmitInfo,
+            CommandBufferCount = 1,
+            PCommandBuffers = &cmdBuffer
+        };
+        
+        vk.QueueSubmit(graphicsQueue, 1, &submitInfo, default);
+        vk.QueueWaitIdle(graphicsQueue);
+        
+        vk.FreeCommandBuffers(device, pool, 1, &cmdBuffer);
+        vk.DestroyCommandPool(device, pool, null);
+    }
+}
