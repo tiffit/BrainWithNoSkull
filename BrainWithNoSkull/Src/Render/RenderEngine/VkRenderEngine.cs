@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using BrainWithNoSkull.Render.Data;
 using BrainWithNoSkull.Render.RenderEngine.Vulkan;
@@ -36,8 +37,8 @@ public unsafe class VkRenderEngine : IRenderEngine {
 
     private SwapchainKHR _swapChain;
     private KhrSwapchain? _swapChainExtension;
-    private Image[]? _swapChainImages;
-    private ImageView[]? _swapChainImageViews;
+    private Image[] _swapChainImages = [];
+    private ImageView[] _swapChainImageViews = [];
     private SurfaceFormatKHR _format;
     private Extent2D _extent;
 
@@ -53,6 +54,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
     private Semaphore[] _imageAvailableSemaphore = [];
     private Semaphore[] _renderFinishedSemaphore = [];
     private Fence[] _fence = [];
+    private uint _imageCount;
     private int _frameIndex;
     private bool _hasResized;
     private bool _minimized;
@@ -63,7 +65,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
     public void Init(){
         WindowOptions windowOptions = WindowOptions.DefaultVulkan with{
             Size = new Vector2D<int>(800, 600),
-            Title = "Brain with no Skull"
+            Title = "a"
         };
         _window = Window.Create(windowOptions);
         _window.FramebufferResize += size => {
@@ -92,6 +94,9 @@ public unsafe class VkRenderEngine : IRenderEngine {
             CreateDescriptorSetLayout(pipeline);
             CreateGraphicsPipeline(pipeline);
             CreateVertexBuffer(pipeline);
+            CreateUniformBuffers(pipeline);
+            CreateDescriptorPool(pipeline);
+            CreateDescriptorSets(pipeline);
             _pipelines[details] = pipeline;
         }
         CreateFramebuffers();
@@ -113,7 +118,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
     }
 
     private void CreateVkInstance(){
-        byte* appName = (byte*)Marshal.StringToHGlobalAnsi("Brain with no Skull");
+        byte* appName = (byte*)Marshal.StringToHGlobalAnsi("a");
         if (_enableValidationLayer && !CheckValidationLayerSupport()) {
             Console.Error.WriteLine("Validation layers requested, but not available!");
             _enableValidationLayer = false;
@@ -137,6 +142,14 @@ public unsafe class VkRenderEngine : IRenderEngine {
         if (_enableValidationLayer) {
             createInfo.EnabledLayerCount = (uint)ValidationLayers.Length;
             createInfo.PpEnabledLayerNames = (byte**)SilkMarshal.StringArrayToPtr(ValidationLayers);
+
+            ValidationFeatureEnableEXT* enabledFeatures = stackalloc[]{ ValidationFeatureEnableEXT.DebugPrintfExt };
+            ValidationFeaturesEXT validationFeatures = new(){
+                SType = StructureType.ValidationFeaturesExt,
+                EnabledValidationFeatureCount = 1,
+                PEnabledValidationFeatures = enabledFeatures
+            };
+            createInfo.PNext = &validationFeatures;
         }
 
         if (_vk.CreateInstance(in createInfo, null, out _instance) != Result.Success) {
@@ -359,11 +372,10 @@ public unsafe class VkRenderEngine : IRenderEngine {
             throw new Exception("Unable to create swap chain");
         }
 
-        uint imageCount = 0;
-        _swapChainExtension.GetSwapchainImages(_logicalDevice, _swapChain, ref imageCount, null);
-        _swapChainImages = new Image[imageCount];
+        _swapChainExtension.GetSwapchainImages(_logicalDevice, _swapChain, ref _imageCount, null);
+        _swapChainImages = new Image[_imageCount];
         fixed (Image* swapChainImagesPtr = _swapChainImages) {
-            _swapChainExtension.GetSwapchainImages(_logicalDevice, _swapChain, ref imageCount, swapChainImagesPtr);
+            _swapChainExtension.GetSwapchainImages(_logicalDevice, _swapChain, ref _imageCount, swapChainImagesPtr);
         }
     }
 
@@ -381,12 +393,12 @@ public unsafe class VkRenderEngine : IRenderEngine {
     }
 
     private void CreateImageViews(){
-        _swapChainImageViews = new ImageView[_swapChainImages!.Length];
+        _swapChainImageViews = new ImageView[_imageCount];
 
         for (int i = 0; i < _swapChainImageViews.Length; i++) {
             ImageViewCreateInfo createInfo = new(){
                 SType = StructureType.ImageViewCreateInfo,
-                Image = _swapChainImages[i],
+                Image = _swapChainImages![i],
                 ViewType = ImageViewType.Type2D,
                 Format = _format.Format,
                 Components = new ComponentMapping(ComponentSwizzle.Identity, ComponentSwizzle.Identity, ComponentSwizzle.Identity, ComponentSwizzle.Identity),
@@ -589,9 +601,9 @@ public unsafe class VkRenderEngine : IRenderEngine {
     }
 
     private void CreateFramebuffers(){
-        _framebuffers = new Framebuffer[_swapChainImageViews!.Length];
+        _framebuffers = new Framebuffer[_imageCount];
         for (var i = 0; i < _framebuffers.Length; i++) {
-            ImageView[] attachments = [_swapChainImageViews[i]];
+            ImageView[] attachments = [_swapChainImageViews![i]];
 
             fixed (ImageView* attachmentsPtr = attachments) {
                 FramebufferCreateInfo createInfo = new(){
@@ -632,8 +644,76 @@ public unsafe class VkRenderEngine : IRenderEngine {
             out pipeline.VertexBuffer, out pipeline.VertexBufferMemory);
     }
 
+    private void CreateUniformBuffers(VkShaderPipeline pipeline){
+        ulong bufferSize = UniformBufferObject.SizeInBytes;
+        pipeline.UniformBuffers = new Buffer[_imageCount];
+        pipeline.UniformBuffersMemory = new DeviceMemory[_imageCount];
+        pipeline.UniformBufferMappedMemory = new void*[_imageCount];
+        for (int i = 0; i < _imageCount; i++) {
+            VkBuffers.CreateBuffer(_vk, _logicalDevice, _physicalDevice, bufferSize,
+                BufferUsageFlags.UniformBufferBit, MemoryPropertyFlags.HostVisibleBit | MemoryPropertyFlags.HostCoherentBit,
+                out pipeline.UniformBuffers[i], out pipeline.UniformBuffersMemory[i]);
+            fixed (void** mappedMemory = pipeline.UniformBufferMappedMemory) {
+                _vk.MapMemory(_logicalDevice, pipeline.UniformBuffersMemory[i], 0, bufferSize, 0, &mappedMemory[i]);
+            }
+        }
+    }
+
+    private void CreateDescriptorPool(VkShaderPipeline pipeline){
+        DescriptorPoolSize poolSize = new(){
+            Type = DescriptorType.UniformBuffer,
+            DescriptorCount = _imageCount
+        };
+        
+        DescriptorPoolCreateInfo createInfo = new(){
+            SType = StructureType.DescriptorPoolCreateInfo,
+            PoolSizeCount = 1,
+            PPoolSizes = &poolSize,
+            MaxSets = _imageCount
+        };
+        if (_vk.CreateDescriptorPool(_logicalDevice, in createInfo, null, out pipeline.DescriptorPool) != Result.Success) {
+            throw new Exception("Unable to create graphics command pool");
+        }
+    }
+
+    private void CreateDescriptorSets(VkShaderPipeline pipeline){
+        DescriptorSetLayout* layouts = stackalloc DescriptorSetLayout[(int)_imageCount];
+        for (int i = 0; i < _imageCount; i++) {
+            layouts[i] = pipeline.DescriptorSetLayout;
+        }
+        
+        DescriptorSetAllocateInfo allocateInfo = new(){
+            SType = StructureType.DescriptorSetAllocateInfo,
+            DescriptorPool = pipeline.DescriptorPool,
+            DescriptorSetCount = _imageCount,
+            PSetLayouts = layouts
+        };
+        pipeline.DescriptorSets = new DescriptorSet[_imageCount];
+        if (_vk.AllocateDescriptorSets(_logicalDevice, &allocateInfo, pipeline.DescriptorSets) != Result.Success) {
+            throw new Exception("Unable to create descriptor sets");
+        }
+        
+        for (int i = 0; i < _imageCount; i++) {
+            DescriptorBufferInfo bufferInfo = new(){
+                Buffer = pipeline.UniformBuffers[i],
+                Offset = 0,
+                Range = Vk.WholeSize
+            };
+            WriteDescriptorSet writeSet = new(){
+                SType = StructureType.WriteDescriptorSet,
+                DstSet = pipeline.DescriptorSets[i],
+                DstBinding = 0,
+                DstArrayElement = 0,
+                DescriptorType = DescriptorType.UniformBuffer,
+                DescriptorCount = 1,
+                PBufferInfo = &bufferInfo
+            };
+            _vk.UpdateDescriptorSets(_logicalDevice, 1, &writeSet, 0, null);
+        }
+    }
+
     private void CreateCommandBuffer(){
-        _commandBuffers = new CommandBuffer[_framebuffers!.Length];
+        _commandBuffers = new CommandBuffer[_imageCount];
         CommandBufferAllocateInfo allocateInfo = new(){
             SType = StructureType.CommandBufferAllocateInfo,
             CommandPool = _commandPool,
@@ -670,15 +750,17 @@ public unsafe class VkRenderEngine : IRenderEngine {
 
         _vk.CmdBeginRenderPass(buffer, &renderPassBegin, SubpassContents.Inline);
         foreach ((ShaderDetails details, VkShaderPipeline pipeline) in _pipelines) {
+            UpdateUniformBuffer((uint)_frameIndex, pipeline);
+            
             MatrixStack stack = new MatrixStack();
             VertexBuilder builder = new VertexBuilder(this, pipeline.ShaderProgram.Details, stack);
             builder.Pos(0, -0.5f, 0).Color(1, 0, 0).Build();
             builder.Pos(0.5f, 0.5f, 0).Color(0, 1, 0).Build();
             builder.Pos(-0.5f, 0.5f, 0).Color(0, 0, 1).Build();
             
-            builder.Pos(-0.9f, 0, 0).Color(1, 0, 0).Build();
-            builder.Pos(-0.8f, 0.1f, 0).Color(0, 1, 0).Build();
-            builder.Pos(-1f, 0.1f, 0).Color(0, 0, 1).Build();
+            builder.Pos(0, -0.5f, 0).Color(1, 0, 0).Build();
+            builder.Pos(-0.5f, 0.5f, 0).Color(0, 0, 1).Build();
+            builder.Pos(0.5f, 0.5f, 0).Color(0, 1, 0).Build();
             float[] vertices = builder.Pack();
             
             void* data;
@@ -688,7 +770,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
             _vk.UnmapMemory(_logicalDevice, pipeline.StagingVertexBufferMemory);
             VkBuffers.CopyBuffer(_vk, _graphicsQueue, _queueFamilies, _logicalDevice, pipeline.StagingVertexBuffer, pipeline.VertexBuffer, dataSize);
             
-            // _vk.CmdBindDescriptorSets(buffer, PipelineBindPoint.Graphics, pipeline.PipelineLayout, 0, 1, DescriptorSetLayout);
+            _vk.CmdBindDescriptorSets(buffer, PipelineBindPoint.Graphics, pipeline.PipelineLayout, 0, 1, ref pipeline.DescriptorSets[_frameIndex], 0, null);
             _vk.CmdBindPipeline(buffer, PipelineBindPoint.Graphics, pipeline.GraphicsPipeline);
 
             fixed (Buffer* bufferPtr = new[]{ pipeline.VertexBuffer }) {
@@ -721,19 +803,35 @@ public unsafe class VkRenderEngine : IRenderEngine {
         }
     }
 
+    private void UpdateUniformBuffer(uint frame, VkShaderPipeline pipeline){
+        float aspectRatio = _extent.Width / (float)_extent.Height;
+        float time = (float)_window!.Time;
+        UniformBufferObject ubo = new UniformBufferObject{
+            Model = Matrix4X4.CreateFromAxisAngle(new Vector3D<float>(0, 0, 1), time * Scalar.DegreesToRadians(90.0f)),
+            View = Matrix4X4.CreateLookAt(new Vector3D<float>(0, 0, 1f), new Vector3D<float>(2, 0, 0), new Vector3D<float>(0f, 1, 0)),
+            Projection = Matrix4X4.CreatePerspectiveFieldOfView(Scalar.DegreesToRadians(90.0f), (float)_extent.Width / _extent.Height, 0.1f, 100.0f),
+        };
+        ubo.Projection.M22 *= -1;
+        
+        float[] data = ubo.ToFloatArray();
+        data.AsSpan().CopyTo(new Span<float>(pipeline.UniformBufferMappedMemory[frame], data.Length));
+        
+    }
+
     private void CreateSyncObjects(){
         SemaphoreCreateInfo semaphoreCreateInfo = new SemaphoreCreateInfo(StructureType.SemaphoreCreateInfo);
         FenceCreateInfo fenceCreateInfo = new(){
             SType = StructureType.FenceCreateInfo,
             Flags = FenceCreateFlags.SignaledBit
         };
-        _imageAvailableSemaphore = new Semaphore[_swapChainImages!.Length];
-        _renderFinishedSemaphore = new Semaphore[_swapChainImages!.Length];
-        _fence = new Fence[_swapChainImages!.Length];
-        for (var i = 0; i < _swapChainImages.Length; i++) {
+        _imageAvailableSemaphore = new Semaphore[_imageCount];
+        _renderFinishedSemaphore = new Semaphore[_imageCount];
+        _fence = new Fence[_imageCount];
+        for (var i = 0; i < _imageCount; i++) {
             if (_vk.CreateSemaphore(_logicalDevice, &semaphoreCreateInfo, null, out _imageAvailableSemaphore[i]) != Result.Success ||
                 _vk.CreateSemaphore(_logicalDevice, &semaphoreCreateInfo, null, out _renderFinishedSemaphore[i]) != Result.Success ||
                 _vk.CreateFence(_logicalDevice, &fenceCreateInfo, null, out _fence[i]) != Result.Success) {
+                throw new Exception("Unable to create sync objects");
             }
         }
     }
@@ -797,11 +895,11 @@ public unsafe class VkRenderEngine : IRenderEngine {
             return;
         }
 
-        _frameIndex = (_frameIndex + 1) % _fence.Length;
+        _frameIndex = (_frameIndex + 1) % (int)_imageCount;
     }
 
     private void CleanupSwapChain(){
-        for (var i = 0; i < _swapChainImageViews?.Length; i++) {
+        for (var i = 0; i < _imageCount; i++) {
             _vk.DestroySemaphore(_logicalDevice, _imageAvailableSemaphore[i], null);
             _vk.DestroySemaphore(_logicalDevice, _renderFinishedSemaphore[i], null);
             _vk.DestroyFence(_logicalDevice, _fence[i], null);
@@ -816,7 +914,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
             _vk.DestroyImageView(_logicalDevice, imageView, null);
         }
 
-        _swapChainImageViews = null;
+        _swapChainImageViews = [];
         _swapChainExtension?.DestroySwapchain(_logicalDevice, _swapChain, null);
     }
 

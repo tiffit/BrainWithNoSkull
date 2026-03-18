@@ -17,6 +17,9 @@ public unsafe class VkShaderPipeline {
 
     public Buffer[] UniformBuffers = [];
     public DeviceMemory[] UniformBuffersMemory = [];
+    public void*[] UniformBufferMappedMemory = [];
+    public DescriptorPool DescriptorPool;
+    public DescriptorSet[] DescriptorSets = [];
     
     public VkShaderPipeline(VkShaderProgram shader){
         ShaderProgram = shader;
@@ -53,6 +56,11 @@ public unsafe class VkShaderPipeline {
     }
 
     public void Destroy(Vk vk, Device device){
+        for (var i = 0; i < UniformBuffers.Length; i++) {
+            vk.DestroyBuffer(device, UniformBuffers[i], null);
+            vk.FreeMemory(device, UniformBuffersMemory[i], null);
+        }
+        vk.DestroyDescriptorPool(device, DescriptorPool, null);
         vk.DestroyDescriptorSetLayout(device, DescriptorSetLayout, null);
         vk.DestroyPipeline(device, GraphicsPipeline, null);
         vk.DestroyPipelineLayout(device, PipelineLayout, null);
