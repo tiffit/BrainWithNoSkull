@@ -1,4 +1,4 @@
-﻿namespace BrainWithNoSkull.Render.RenderEngine.Vulkan;
+﻿namespace BrainWithNoSkull.Client.Render.RenderEngine.Vulkan;
 
 public struct QueueFamilies {
     public uint? Graphics;

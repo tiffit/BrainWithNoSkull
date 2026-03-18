@@ -2,7 +2,7 @@
 using Silk.NET.Vulkan;
 using Silk.NET.Windowing;
 
-namespace BrainWithNoSkull.Render.RenderEngine.Vulkan;
+namespace BrainWithNoSkull.Client.Render.RenderEngine.Vulkan;
 
 public struct SwapChainSupportDetails {
     public SurfaceCapabilitiesKHR Capabilities;

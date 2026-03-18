@@ -1,8 +1,8 @@
-﻿using BrainWithNoSkull.Render.Shader;
+﻿using BrainWithNoSkull.Client.Render.Shader;
 using Silk.NET.Core.Native;
 using Silk.NET.Vulkan;
 
-namespace BrainWithNoSkull.Render.RenderEngine.Vulkan;
+namespace BrainWithNoSkull.Client.Render.RenderEngine.Vulkan;
 
 public class VkShaderProgram : ShaderProgram {
     private readonly Vk _vk;

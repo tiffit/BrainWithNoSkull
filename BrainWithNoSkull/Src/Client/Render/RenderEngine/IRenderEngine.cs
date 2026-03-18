@@ -1,4 +1,4 @@
-﻿namespace BrainWithNoSkull.Render.RenderEngine;
+﻿namespace BrainWithNoSkull.Client.Render.RenderEngine;
 
 public interface IRenderEngine {
     void Init();

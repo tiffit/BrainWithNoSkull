@@ -1,4 +1,4 @@
-﻿namespace BrainWithNoSkull.Render.Shader;
+﻿namespace BrainWithNoSkull.Client.Render.Shader;
 
 public abstract class ShaderProgram {
 

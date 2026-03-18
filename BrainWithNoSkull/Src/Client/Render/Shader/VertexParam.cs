@@ -1,4 +1,4 @@
-﻿namespace BrainWithNoSkull.Render.Shader;
+﻿namespace BrainWithNoSkull.Client.Render.Shader;
 
 public record VertexParam {
     public static readonly VertexParam Position = new VertexParam{Count = 3};

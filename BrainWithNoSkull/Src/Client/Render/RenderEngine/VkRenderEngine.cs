@@ -1,10 +1,8 @@
-﻿using System.Drawing;
-using System.Numerics;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using BrainWithNoSkull.Render.Data;
-using BrainWithNoSkull.Render.RenderEngine.Vulkan;
-using BrainWithNoSkull.Render.Shader;
+using BrainWithNoSkull.Client.Render.Data;
+using BrainWithNoSkull.Client.Render.RenderEngine.Vulkan;
+using BrainWithNoSkull.Client.Render.Shader;
 using Silk.NET.Core;
 using Silk.NET.Core.Native;
 using Silk.NET.Maths;
@@ -17,7 +15,7 @@ using Buffer = Silk.NET.Vulkan.Buffer;
 using Image = Silk.NET.Vulkan.Image;
 using Semaphore = Silk.NET.Vulkan.Semaphore;
 
-namespace BrainWithNoSkull.Render.RenderEngine;
+namespace BrainWithNoSkull.Client.Render.RenderEngine;
 
 public unsafe class VkRenderEngine : IRenderEngine {
     public static readonly VkRenderEngine Instance = new VkRenderEngine();

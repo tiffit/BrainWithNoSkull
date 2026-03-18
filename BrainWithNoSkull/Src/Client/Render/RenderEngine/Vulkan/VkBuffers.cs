@@ -1,7 +1,7 @@
 ﻿using Silk.NET.Vulkan;
 using Buffer = Silk.NET.Vulkan.Buffer;
 
-namespace BrainWithNoSkull.Render.RenderEngine.Vulkan;
+namespace BrainWithNoSkull.Client.Render.RenderEngine.Vulkan;
 
 public unsafe class VkBuffers {
     public static void CreateBuffer(Vk vk, Device device, PhysicalDevice physicalDevice, ulong size, BufferUsageFlags usageFlags, MemoryPropertyFlags propFlags, out Buffer buffer, out DeviceMemory memory){

@@ -1,8 +1,8 @@
-﻿using BrainWithNoSkull.Render.RenderEngine;
-using BrainWithNoSkull.Render.Shader;
+﻿using BrainWithNoSkull.Client.Render.RenderEngine;
+using BrainWithNoSkull.Client.Render.Shader;
 using Silk.NET.Maths;
 
-namespace BrainWithNoSkull.Render.Data;
+namespace BrainWithNoSkull.Client.Render.Data;
 
 public class VertexBuilder {
 

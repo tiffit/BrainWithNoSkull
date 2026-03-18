@@ -1,6 +1,6 @@
 ﻿using Silk.NET.Maths;
 
-namespace BrainWithNoSkull.Render.Data;
+namespace BrainWithNoSkull.Client.Render.Data;
 
 public class IndVertBuilder {
 

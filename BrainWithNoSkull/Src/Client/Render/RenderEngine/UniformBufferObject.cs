@@ -1,7 +1,7 @@
 ﻿using BrainWithNoSkull.Util;
 using Silk.NET.Maths;
 
-namespace BrainWithNoSkull.Render.RenderEngine;
+namespace BrainWithNoSkull.Client.Render.RenderEngine;
 
 public struct UniformBufferObject {
     public const ulong SizeInBytes = 4 * 4 * 3 * 4;

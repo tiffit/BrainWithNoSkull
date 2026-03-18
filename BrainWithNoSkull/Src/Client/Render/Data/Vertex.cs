@@ -1,6 +1,6 @@
 ﻿using Silk.NET.Maths;
 
-namespace BrainWithNoSkull.Render.Data;
+namespace BrainWithNoSkull.Client.Render.Data;
 
 public struct Vertex {
     public Vector3D<float> Pos;

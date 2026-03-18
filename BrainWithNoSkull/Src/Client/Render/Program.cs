@@ -1,6 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
-using BrainWithNoSkull.Render.RenderEngine;
+using BrainWithNoSkull.Client.Render.RenderEngine;
 
 IRenderEngine engine = VkRenderEngine.Instance;
 engine.Init();
