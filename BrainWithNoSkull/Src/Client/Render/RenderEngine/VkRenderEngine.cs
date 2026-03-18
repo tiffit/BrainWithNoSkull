@@ -45,7 +45,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
 
     private RenderPass _renderPass;
 
-    private readonly Dictionary<ShaderDetails, VkShaderPipeline> _pipelines = [];
+    private readonly Dictionary<ShaderType, VkShaderPipeline> _pipelines = [];
 
     private Framebuffer[]? _framebuffers;
 
@@ -72,20 +72,15 @@ public unsafe class VkRenderEngine : IRenderEngine {
     private static readonly string[] RequiredDeviceExtensions = [KhrSwapchain.ExtensionName];
     private static readonly string[] ValidationLayers = ["VK_LAYER_KHRONOS_validation"];
 
-    public void Init(){
-        WindowOptions windowOptions = WindowOptions.DefaultVulkan with{
-            Size = new Vector2D<int>(800, 600),
-            Title = "a"
-        };
-        _window = Window.Create(windowOptions);
+    public void Init(IWindow window){
+        _window = window;
+        if (_window.VkSurface is null) {
+            throw new Exception("Vulkan not supported");
+        }
         _window.FramebufferResize += size => {
             _hasResized = true;
             _minimized = size is{ X: 0, Y: 0 };
         };
-        _window.Initialize();
-        if (_window.VkSurface is null) {
-            throw new Exception("Vulkan not supported");
-        }
 
         InitVk();
     }
@@ -101,7 +96,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
         CreateDepthResources();
         CreateTextureImage();
         CreateTextureSampler();
-        foreach (ShaderDetails details in ShaderDetails.AllShaders) {
+        foreach (ShaderType details in ShaderType.AllShaders) {
             VkShaderProgram program = CreateShader(details);
             VkShaderPipeline pipeline = new VkShaderPipeline(program);
             CreateDescriptorSetLayout(pipeline);
@@ -570,11 +565,11 @@ public unsafe class VkRenderEngine : IRenderEngine {
         shaderPipeline.ShaderProgram.DisposeModules(_logicalDevice);
     }
 
-    private VkShaderProgram CreateShader(ShaderDetails details){
-        ShaderPrograms.LoadShaderBytes(details.Name, out byte[] vert, out byte[] frag);
+    private VkShaderProgram CreateShader(ShaderType shaderType){
+        ShaderPrograms.LoadShaderBytes(shaderType.Name, out byte[] vert, out byte[] frag);
         ShaderModule vertModule = VkShaderProgram.CreateModule(_vk, _logicalDevice, vert);
         ShaderModule fragModule = VkShaderProgram.CreateModule(_vk, _logicalDevice, frag);
-        return new VkShaderProgram(details, _vk, vertModule, fragModule);
+        return new VkShaderProgram(shaderType, _vk, vertModule, fragModule);
     }
 
     private void CreateRenderPass(){
@@ -744,7 +739,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
     }
 
     private void CreateVertexBuffer(VkShaderPipeline pipeline){
-        ulong bufferSize = pipeline.ShaderProgram.Details.BufferSize;
+        ulong bufferSize = pipeline.ShaderProgram.ShType.BufferSize;
         VkBuffers.CreateBuffer(_vk, _logicalDevice, _physicalDevice, bufferSize,
             BufferUsageFlags.TransferSrcBit | BufferUsageFlags.VertexBufferBit, MemoryPropertyFlags.HostVisibleBit | MemoryPropertyFlags.HostCoherentBit,
             out pipeline.StagingVertexBuffer, out pipeline.StagingVertexBufferMemory);
@@ -888,29 +883,13 @@ public unsafe class VkRenderEngine : IRenderEngine {
         };
 
         _vk.CmdBeginRenderPass(buffer, &renderPassBegin, SubpassContents.Inline);
-        foreach ((ShaderDetails details, VkShaderPipeline pipeline) in _pipelines) {
-            UpdateUniformBuffer((uint)_frameIndex, pipeline);
+        foreach ((ShaderType shaderType, VkShaderPipeline pipeline) in _pipelines) {
+            VertexBuilder builder = pipeline.VertexBuilder;
+            if(builder.VerticesCount == 0)
+                continue;
             
-            MatrixStack stack = new MatrixStack();
-            VertexBuilder builder = new VertexBuilder(this, pipeline.ShaderProgram.Details, stack);
-            builder.Pos(0, -0.5f, 0).Color(1, 0, 0).Uv(0.5f, 0).Build();
-            builder.Pos(0.5f, 0.5f, 0).Color(0, 1, 0).Uv(1, 1).Build();
-            builder.Pos(-0.5f, 0.5f, 0).Color(0, 0, 1).Uv(0, 1).Build();
-            
-            builder.Pos(0, -0.5f, 0).Color(1, 0, 0).Uv(0.5f, 0).Build();
-            builder.Pos(-0.5f, 0.5f, 0).Color(0, 0, 1).Uv(0, 1).Build();
-            builder.Pos(0.5f, 0.5f, 0).Color(0, 1, 0).Uv(1, 1).Build();
-            
-            stack.Translate(-0.5f, 0, -1f);
-            builder.Pos(0, -0.5f, 0).Color(1, 0, 0).Uv(0.5f, 0).Build();
-            builder.Pos(0.5f, 0.5f, 0).Color(0, 1, 0).Uv(1, 1).Build();
-            builder.Pos(-0.5f, 0.5f, 0).Color(0, 0, 1).Uv(0, 1).Build();
-            
-            builder.Pos(0, -0.5f, 0).Color(1, 0, 0).Uv(0.5f, 0).Build();
-            builder.Pos(-0.5f, 0.5f, 0).Color(0, 0, 1).Uv(0, 1).Build();
-            builder.Pos(0.5f, 0.5f, 0).Color(0, 1, 0).Uv(1, 1).Build();
             float[] vertices = builder.Pack();
-            
+            UpdateUniformBuffer((uint)_frameIndex, pipeline);
             void* data;
             ulong dataSize = (ulong)vertices.Length * 4;
             _vk.MapMemory(_logicalDevice, pipeline.StagingVertexBufferMemory, 0, dataSize, 0, &data);
@@ -955,9 +934,9 @@ public unsafe class VkRenderEngine : IRenderEngine {
         float aspectRatio = _extent.Width / (float)_extent.Height;
         float time = (float)_window!.Time;
         UniformBufferObject ubo = new UniformBufferObject{
-            Model = Matrix4X4.CreateFromAxisAngle(new Vector3D<float>(0, 0, 1), time * Scalar.DegreesToRadians(90.0f)),
-            View = Matrix4X4.CreateLookAt(new Vector3D<float>(0, 2f, 2f), new Vector3D<float>(0, 0, 0), new Vector3D<float>(0f, 1, 0)),
-            Projection = Matrix4X4.CreatePerspectiveFieldOfView(Scalar.DegreesToRadians(30.0f), (float)_extent.Width / _extent.Height, 0.1f, 100.0f),
+            Model = Matrix4X4.CreateFromAxisAngle(new Vector3D<float>(0, 1, 0), time * Scalar.DegreesToRadians(90.0f)),
+            View = Matrix4X4.CreateLookAt(new Vector3D<float>(2f, 2f, -2f), new Vector3D<float>(0, 0, 0), new Vector3D<float>(0, 1, 0)),
+            Projection = Matrix4X4.CreatePerspectiveFieldOfView(Scalar.DegreesToRadians(90.0f), (float)_extent.Width / _extent.Height, 0.1f, 100.0f),
         };
         ubo.Projection.M22 *= -1;
         
@@ -984,13 +963,17 @@ public unsafe class VkRenderEngine : IRenderEngine {
         }
     }
 
-    public void StartLoop(){
-        _window!.Render += OnRender;
-        _window!.Run();
-        _vk.DeviceWaitIdle(_logicalDevice);
+    public void PreRender(double delta){
+        if (_minimized) {
+            return;
+        }
+
+        foreach ((ShaderType shaderType, VkShaderPipeline pipeline) in _pipelines) {
+            pipeline.VertexBuilder = new VertexBuilder(this, shaderType, new MatrixStack());
+        }
     }
 
-    private void OnRender(double delta){
+    public void OnRender(double delta){
         if (_minimized) {
             return;
         }
@@ -1046,6 +1029,10 @@ public unsafe class VkRenderEngine : IRenderEngine {
         _frameIndex = (_frameIndex + 1) % (int)_imageCount;
     }
 
+    public VertexBuilder GetVertexBuilder(ShaderType shaderType){
+        return _pipelines[shaderType].VertexBuilder;
+    }
+
     private void CleanupSwapChain(){
         for (var i = 0; i < _imageCount; i++) {
             _vk.DestroySemaphore(_logicalDevice, _imageAvailableSemaphore[i], null);
@@ -1071,6 +1058,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
     }
 
     public void Cleanup(){
+        _vk.DeviceWaitIdle(_logicalDevice);
         CleanupSwapChain();
         
         _vk.DestroySampler(_logicalDevice, _textureSampler, null);

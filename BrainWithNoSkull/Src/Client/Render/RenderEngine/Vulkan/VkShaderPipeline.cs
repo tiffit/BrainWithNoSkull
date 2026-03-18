@@ -1,4 +1,5 @@
-﻿using Silk.NET.Vulkan;
+﻿using BrainWithNoSkull.Client.Render.Data;
+using Silk.NET.Vulkan;
 using Buffer = Silk.NET.Vulkan.Buffer;
 
 namespace BrainWithNoSkull.Client.Render.RenderEngine.Vulkan;
@@ -20,6 +21,8 @@ public unsafe class VkShaderPipeline {
     public void*[] UniformBufferMappedMemory = [];
     public DescriptorPool DescriptorPool;
     public DescriptorSet[] DescriptorSets = [];
+
+    public VertexBuilder VertexBuilder;
     
     public VkShaderPipeline(VkShaderProgram shader){
         ShaderProgram = shader;
@@ -28,7 +31,7 @@ public unsafe class VkShaderPipeline {
     public VertexInputBindingDescription GetBindingDescription(){
         VertexInputBindingDescription desc = new(){
             Binding = 0,
-            Stride = ShaderProgram.Details.VertexSize*4,
+            Stride = ShaderProgram.ShType.VertexSize*4,
             InputRate = VertexInputRate.Vertex
         };
         return desc;
@@ -37,7 +40,7 @@ public unsafe class VkShaderPipeline {
     public VertexInputAttributeDescription[] GetAttributeDescriptions(){
         uint index = 0;
         uint offset = 0;
-        return ShaderProgram.Details.Params.Select(param => {
+        return ShaderProgram.ShType.Params.Select(param => {
             Format format = param.Count switch{
                 1 => Format.R32Sfloat,
                 2 => Format.R32G32Sfloat,

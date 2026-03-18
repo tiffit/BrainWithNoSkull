@@ -20,7 +20,6 @@ out gl_PerVertex {
 
 void main() {
     gl_Position = ubo.proj * ubo.view * ubo.model * vec4(inPosition, 1.0);
-//    debugPrintfEXT("Transformed position %v3f to %v4f", inPosition, gl_Position);
     fragColor = inColor;
     fragUV = inUV;
 }

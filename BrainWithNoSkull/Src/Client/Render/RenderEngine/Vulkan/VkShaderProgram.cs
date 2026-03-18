@@ -12,7 +12,7 @@ public class VkShaderProgram : ShaderProgram {
     public PipelineShaderStageCreateInfo VertStage{ get; private set; }
     public PipelineShaderStageCreateInfo FragStage{ get; private set; }
 
-    public VkShaderProgram(ShaderDetails details, Vk vk, ShaderModule vertModule, ShaderModule fragModule) : base(details){
+    public VkShaderProgram(ShaderType shType, Vk vk, ShaderModule vertModule, ShaderModule fragModule) : base(shType){
         _vk = vk;
         _vertModule = vertModule;
         _fragModule = fragModule;

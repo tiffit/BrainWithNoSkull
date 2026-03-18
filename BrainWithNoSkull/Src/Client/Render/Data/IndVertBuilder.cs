@@ -20,8 +20,17 @@ public class IndVertBuilder {
         return this;
     }
     
+    public IndVertBuilder Color(Vector3D<float> color){
+        _color = color;
+        return this;
+    }
+    
     public IndVertBuilder Uv(float u, float v){
-        _uv = new Vector2D<float>(u, v);
+        return Uv(new Vector2D<float>(u, v));
+    }
+    
+    public IndVertBuilder Uv(Vector2D<float> uv){
+        _uv = uv;
         return this;
     }
 

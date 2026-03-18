@@ -1,16 +1,16 @@
 ﻿namespace BrainWithNoSkull.Client.Render.Shader;
 
-public class ShaderDetails {
+public class ShaderType {
 
-    public static readonly List<ShaderDetails> AllShaders = [];
-    public static readonly ShaderDetails Shader = new ShaderDetails("shader", 0x100000*4, [VertexParam.Position, VertexParam.Color, VertexParam.Uv]);
+    public static readonly List<ShaderType> AllShaders = [];
+    public static readonly ShaderType Shader = new ShaderType("shader", 0x100000*4, [VertexParam.Position, VertexParam.Color, VertexParam.Uv]);
     
     public readonly string Name;
     public readonly uint BufferSize;
     public readonly VertexParam[] Params;
     public readonly uint VertexSize;
 
-    public ShaderDetails(string name, uint bufferSize, VertexParam[] vertexParams){
+    public ShaderType(string name, uint bufferSize, VertexParam[] vertexParams){
         Name = name;
         Params = vertexParams;
         BufferSize = bufferSize;

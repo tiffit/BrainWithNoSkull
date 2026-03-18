@@ -2,9 +2,9 @@
 
 public abstract class ShaderProgram {
 
-    public readonly ShaderDetails Details;
+    public readonly ShaderType ShType;
 
-    protected ShaderProgram(ShaderDetails details){
-        Details = details;
+    protected ShaderProgram(ShaderType shType){
+        ShType = shType;
     }
 }
