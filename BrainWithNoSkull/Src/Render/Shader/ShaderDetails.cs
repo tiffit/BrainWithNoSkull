@@ -3,7 +3,7 @@
 public class ShaderDetails {
 
     public static readonly List<ShaderDetails> AllShaders = [];
-    public static readonly ShaderDetails Shader = new ShaderDetails("shader", 0x100000*4, [VertexParam.Position, VertexParam.Color]);
+    public static readonly ShaderDetails Shader = new ShaderDetails("shader", 0x100000*4, [VertexParam.Position, VertexParam.Color, VertexParam.Uv]);
     
     public readonly string Name;
     public readonly uint BufferSize;

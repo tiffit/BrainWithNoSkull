@@ -13,11 +13,13 @@
       <PackageReference Include="Silk.NET.Vulkan" Version="2.23.0" />
       <PackageReference Include="Silk.NET.Vulkan.Extensions.EXT" Version="2.23.0" />
       <PackageReference Include="Silk.NET.Vulkan.Extensions.KHR" Version="2.23.0" />
+      <PackageReference Include="SkiaSharp" Version="3.119.2" />
     </ItemGroup>
 
     <ItemGroup>
       <Content Include="Assets/**" CopyToOutputDirectory="Always" />
       <Folder Include="Assets\Shaders\Compiled\" />
+      <Folder Include="Assets\Textures\Block\" />
     </ItemGroup>
 
 </Project>

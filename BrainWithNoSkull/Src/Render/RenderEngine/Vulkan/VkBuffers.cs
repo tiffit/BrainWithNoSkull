@@ -26,7 +26,7 @@ public unsafe class VkBuffers {
         vk.BindBufferMemory(device, buffer, memory, 0);
     }
     
-    private static uint FindBufferMemoryType(Vk vk, PhysicalDevice device, uint filter, MemoryPropertyFlags props){
+    public static uint FindBufferMemoryType(Vk vk, PhysicalDevice device, uint filter, MemoryPropertyFlags props){
         vk.GetPhysicalDeviceMemoryProperties(device, out PhysicalDeviceMemoryProperties memProperties);
 
         for (int i = 0; i < memProperties.MemoryTypeCount; i++) {
@@ -39,12 +39,21 @@ public unsafe class VkBuffers {
     }
 
     public static void CopyBuffer(Vk vk, Queue graphicsQueue, QueueFamilies families, Device device, Buffer src, Buffer dst, ulong size){
+        CommandBuffer cmdBuffer = BeginTransientCommandBuffer(vk, families, device, out CommandPool pool);
+        
+        BufferCopy copyCmd = new(0, 0, size);
+        vk.CmdCopyBuffer(cmdBuffer, src, dst, 1, &copyCmd);
+
+        EndTransientCommandBuffer(vk, graphicsQueue, device, cmdBuffer, pool);
+    }
+
+    public static CommandBuffer BeginTransientCommandBuffer(Vk vk, QueueFamilies families, Device device, out CommandPool pool){
         CommandPoolCreateInfo createInfo = new(){
             SType = StructureType.CommandPoolCreateInfo,
             Flags = CommandPoolCreateFlags.TransientBit,
             QueueFamilyIndex = families.Graphics!.Value
         };
-        if (vk.CreateCommandPool(device, in createInfo, null, out CommandPool pool) != Result.Success) {
+        if (vk.CreateCommandPool(device, in createInfo, null, out pool) != Result.Success) {
             throw new Exception("Unable to create buffer command pool");
         }
 
@@ -61,10 +70,10 @@ public unsafe class VkBuffers {
             Flags = CommandBufferUsageFlags.OneTimeSubmitBit
         };
         vk.BeginCommandBuffer(cmdBuffer, &beginInfo);
-        
-        BufferCopy copyCmd = new(0, 0, size);
-        vk.CmdCopyBuffer(cmdBuffer, src, dst, 1, &copyCmd);
+        return cmdBuffer;
+    }
 
+    public static void EndTransientCommandBuffer(Vk vk, Queue graphicsQueue, Device device, CommandBuffer cmdBuffer, CommandPool pool){
         vk.EndCommandBuffer(cmdBuffer);
 
         SubmitInfo submitInfo = new(){
@@ -72,11 +81,12 @@ public unsafe class VkBuffers {
             CommandBufferCount = 1,
             PCommandBuffers = &cmdBuffer
         };
-        
+
         vk.QueueSubmit(graphicsQueue, 1, &submitInfo, default);
         vk.QueueWaitIdle(graphicsQueue);
-        
+
         vk.FreeCommandBuffers(device, pool, 1, &cmdBuffer);
         vk.DestroyCommandPool(device, pool, null);
     }
+
 }
