@@ -933,10 +933,8 @@ public unsafe class VkRenderEngine : IRenderEngine {
     }
 
     private void UpdateUniformBuffer(uint frame, VkShaderPipeline pipeline){
-        float aspectRatio = _extent.Width / (float)_extent.Height;
-        float time = (float)_window!.Time;
         UniformBufferObject ubo = new UniformBufferObject{
-            Model = Matrix4X4.CreateFromAxisAngle(new Vector3D<float>(0, 1, 0), time * Scalar.DegreesToRadians(90.0f)),
+            Model = Matrix4X4<float>.Identity,
             View = Matrix4X4.CreateLookAt(_camera.Position, _camera.Target, new Vector3D<float>(0, 1, 0)),
             Projection = Matrix4X4.CreatePerspectiveFieldOfView(Scalar.DegreesToRadians(_camera.FoV), (float)_extent.Width / _extent.Height, 0.1f, 100.0f),
         };
