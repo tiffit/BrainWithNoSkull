@@ -5,7 +5,7 @@ using Silk.NET.Windowing;
 namespace BrainWithNoSkull.Client.Render.RenderEngine;
 
 public interface IRenderEngine {
-    void Init(IWindow window);
+    void Init(IWindow window, Camera camera);
 
     void PreRender(double delta);
     

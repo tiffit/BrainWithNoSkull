@@ -24,6 +24,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
 
     private readonly Vk _vk = Vk.GetApi();
     private IWindow? _window;
+    private Camera _camera = null!;
     private Instance _instance;
 
     private PhysicalDevice _physicalDevice;
@@ -72,8 +73,9 @@ public unsafe class VkRenderEngine : IRenderEngine {
     private static readonly string[] RequiredDeviceExtensions = [KhrSwapchain.ExtensionName];
     private static readonly string[] ValidationLayers = ["VK_LAYER_KHRONOS_validation"];
 
-    public void Init(IWindow window){
+    public void Init(IWindow window, Camera camera){
         _window = window;
+        _camera = camera;
         if (_window.VkSurface is null) {
             throw new Exception("Vulkan not supported");
         }
@@ -935,8 +937,8 @@ public unsafe class VkRenderEngine : IRenderEngine {
         float time = (float)_window!.Time;
         UniformBufferObject ubo = new UniformBufferObject{
             Model = Matrix4X4.CreateFromAxisAngle(new Vector3D<float>(0, 1, 0), time * Scalar.DegreesToRadians(90.0f)),
-            View = Matrix4X4.CreateLookAt(new Vector3D<float>(2f, 2f, -2f), new Vector3D<float>(0, 0, 0), new Vector3D<float>(0, 1, 0)),
-            Projection = Matrix4X4.CreatePerspectiveFieldOfView(Scalar.DegreesToRadians(90.0f), (float)_extent.Width / _extent.Height, 0.1f, 100.0f),
+            View = Matrix4X4.CreateLookAt(_camera.Position, _camera.Target, new Vector3D<float>(0, 1, 0)),
+            Projection = Matrix4X4.CreatePerspectiveFieldOfView(Scalar.DegreesToRadians(_camera.FoV), (float)_extent.Width / _extent.Height, 0.1f, 100.0f),
         };
         ubo.Projection.M22 *= -1;
         
