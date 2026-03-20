@@ -22,10 +22,12 @@ public unsafe class VkShaderPipeline {
     public DescriptorPool DescriptorPool;
     public DescriptorSet[] DescriptorSets = [];
 
-    public VertexBuilder VertexBuilder;
+    public BufferAllocator Allocator;
+    public Dictionary<Mesh, CompiledMeshData?> Meshes = [];
     
-    public VkShaderPipeline(VkShaderProgram shader){
+    public VkShaderPipeline(VkShaderProgram shader, in PhysicalDeviceLimits limits){
         ShaderProgram = shader;
+        Allocator = new BufferAllocator(shader.ShType.BufferSize, limits.MinMemoryMapAlignment);
     }
     
     public VertexInputBindingDescription GetBindingDescription(){

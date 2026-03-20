@@ -1,4 +1,5 @@
-﻿using BrainWithNoSkull.Client.Render.Data;
+﻿using BrainWithNoSkull.Client.Render;
+using BrainWithNoSkull.Client.Render.Data;
 using BrainWithNoSkull.Client.Render.RenderEngine;
 using BrainWithNoSkull.Client.Render.Shader;
 using BrainWithNoSkull.Client.Render.Util;
@@ -22,6 +23,9 @@ public class GameClient {
     private float _yaw = 0;
     private Vector3D<float> _playerPos = new Vector3D<float>(0f, 0f, -2f);
     private bool _hasMouseMoved = false;
+
+    private Mesh? _mesh1;
+    private Mesh? _mesh2;
 
     public GameClient(){
         Instance = this;
@@ -70,7 +74,7 @@ public class GameClient {
             mouseMovement = Vector2D<float>.Zero;
         }
 
-        _pitch = Math.Clamp(_pitch + mouseMovement.Y / 300f, -MathF.PI/2 + 0.0001f, MathF.PI/2 - 0.0001f);
+        _pitch = Math.Clamp(_pitch + mouseMovement.Y / 300f, -MathF.PI / 2 + 0.0001f, MathF.PI / 2 - 0.0001f);
         _yaw = (_yaw - mouseMovement.X / 300f) % MathF.Tau;
 
         Vector3D<float> lookDirection = Vector3D.Normalize(
@@ -84,18 +88,23 @@ public class GameClient {
         if (_inputHandler.IsKeyDown(Key.A)) {
             _playerPos += lookCross * movementSpeed;
         }
+
         if (_inputHandler.IsKeyDown(Key.D)) {
             _playerPos -= lookCross * movementSpeed;
         }
+
         if (_inputHandler.IsKeyDown(Key.W)) {
             _playerPos += lookHorizontal * movementSpeed;
         }
+
         if (_inputHandler.IsKeyDown(Key.S)) {
             _playerPos -= lookHorizontal * movementSpeed;
         }
+
         if (_inputHandler.IsKeyDown(Key.Space)) {
             _playerPos += new Vector3D<float>(0, 1, 0) * movementSpeed;
         }
+
         if (_inputHandler.IsKeyDown(Key.ShiftLeft)) {
             _playerPos -= new Vector3D<float>(0, 1, 0) * movementSpeed;
         }
@@ -103,81 +112,165 @@ public class GameClient {
         _camera.Position = _playerPos;
         _camera.Target = _playerPos + lookDirection;
 
-        VertexBuilder builder = RenderEngine.GetVertexBuilder(ShaderType.Shader);
-        MatrixStack stack = builder.MatrixStack;
-        float min = -0.5f;
-        float max = 0.5f;
-        VertexHelper.AddQuad(builder,
-            new Vector3D<float>(min, min, min),
-            new Vector3D<float>(max, min, min),
-            new Vector3D<float>(max, max, min),
-            new Vector3D<float>(min, max, min),
-            new Vector2D<float>(0, 0),
-            new Vector2D<float>(1, 0),
-            new Vector2D<float>(1, 1),
-            new Vector2D<float>(0, 1)
-        );
-
-        VertexHelper.AddQuad(builder,
-            new Vector3D<float>(min, min, max),
-            new Vector3D<float>(min, max, max),
-            new Vector3D<float>(max, max, max),
-            new Vector3D<float>(max, min, max),
-            new Vector2D<float>(0, 0),
-            new Vector2D<float>(0, 1),
-            new Vector2D<float>(1, 1),
-            new Vector2D<float>(1, 0)
-        );
-
-        VertexHelper.AddQuad(builder,
-            new Vector3D<float>(min, max, min),
-            new Vector3D<float>(max, max, min),
-            new Vector3D<float>(max, max, max),
-            new Vector3D<float>(min, max, max),
-            new Vector2D<float>(0, 0),
-            new Vector2D<float>(1, 0),
-            new Vector2D<float>(1, 1),
-            new Vector2D<float>(0, 1),
-            new Vector3D<float>(1, 0, 0)
-        );
-
-        VertexHelper.AddQuad(builder,
-            new Vector3D<float>(min, min, min),
-            new Vector3D<float>(min, min, max),
-            new Vector3D<float>(max, min, max),
-            new Vector3D<float>(max, min, min),
-            new Vector2D<float>(0, 0),
-            new Vector2D<float>(0, 1),
-            new Vector2D<float>(1, 1),
-            new Vector2D<float>(1, 0)
-        );
-
-        VertexHelper.AddQuad(builder,
-            new Vector3D<float>(min, min, min),
-            new Vector3D<float>(min, max, min),
-            new Vector3D<float>(min, max, max),
-            new Vector3D<float>(min, min, max),
-            new Vector2D<float>(0, 0),
-            new Vector2D<float>(1, 0),
-            new Vector2D<float>(1, 1),
-            new Vector2D<float>(0, 1)
-        );
-
-        VertexHelper.AddQuad(builder,
-            new Vector3D<float>(max, min, min),
-            new Vector3D<float>(max, min, max),
-            new Vector3D<float>(max, max, max),
-            new Vector3D<float>(max, max, min),
-            new Vector2D<float>(0, 0),
-            new Vector2D<float>(0, 1),
-            new Vector2D<float>(1, 1),
-            new Vector2D<float>(1, 0)
-        );
-        stack.PopMatrix();
+        // MatrixStack stack = new MatrixStack();
+        // VertexBuilder builder = new VertexBuilder(RenderEngine, ShaderType.Shader, stack);
+        // float min = -0.5f;
+        // float max = 0.5f;
+        // VertexHelper.AddQuad(builder,
+        //     new Vector3D<float>(min, min, min),
+        //     new Vector3D<float>(max, min, min),
+        //     new Vector3D<float>(max, max, min),
+        //     new Vector3D<float>(min, max, min),
+        //     new Vector2D<float>(0, 0),
+        //     new Vector2D<float>(1, 0),
+        //     new Vector2D<float>(1, 1),
+        //     new Vector2D<float>(0, 1)
+        // );
+        //
+        // VertexHelper.AddQuad(builder,
+        //     new Vector3D<float>(min, min, max),
+        //     new Vector3D<float>(min, max, max),
+        //     new Vector3D<float>(max, max, max),
+        //     new Vector3D<float>(max, min, max),
+        //     new Vector2D<float>(0, 0),
+        //     new Vector2D<float>(0, 1),
+        //     new Vector2D<float>(1, 1),
+        //     new Vector2D<float>(1, 0)
+        // );
+        //
+        // VertexHelper.AddQuad(builder,
+        //     new Vector3D<float>(min, max, min),
+        //     new Vector3D<float>(max, max, min),
+        //     new Vector3D<float>(max, max, max),
+        //     new Vector3D<float>(min, max, max),
+        //     new Vector2D<float>(0, 0),
+        //     new Vector2D<float>(1, 0),
+        //     new Vector2D<float>(1, 1),
+        //     new Vector2D<float>(0, 1),
+        //     new Vector3D<float>(1, 0, 0)
+        // );
+        //
+        // VertexHelper.AddQuad(builder,
+        //     new Vector3D<float>(min, min, min),
+        //     new Vector3D<float>(min, min, max),
+        //     new Vector3D<float>(max, min, max),
+        //     new Vector3D<float>(max, min, min),
+        //     new Vector2D<float>(0, 0),
+        //     new Vector2D<float>(0, 1),
+        //     new Vector2D<float>(1, 1),
+        //     new Vector2D<float>(1, 0)
+        // );
+        //
+        // VertexHelper.AddQuad(builder,
+        //     new Vector3D<float>(min, min, min),
+        //     new Vector3D<float>(min, max, min),
+        //     new Vector3D<float>(min, max, max),
+        //     new Vector3D<float>(min, min, max),
+        //     new Vector2D<float>(0, 0),
+        //     new Vector2D<float>(1, 0),
+        //     new Vector2D<float>(1, 1),
+        //     new Vector2D<float>(0, 1)
+        // );
+        //
+        // VertexHelper.AddQuad(builder,
+        //     new Vector3D<float>(max, min, min),
+        //     new Vector3D<float>(max, min, max),
+        //     new Vector3D<float>(max, max, max),
+        //     new Vector3D<float>(max, max, min),
+        //     new Vector2D<float>(0, 0),
+        //     new Vector2D<float>(0, 1),
+        //     new Vector2D<float>(1, 1),
+        //     new Vector2D<float>(1, 0)
+        // );
+        // stack.PopMatrix();
 
         RenderEngine.OnRender(delta);
     }
 
     private void Tick(double delta){
+        if (_mesh1 == null) {
+            MatrixStack stack = new MatrixStack();
+            VertexBuilder builder = new VertexBuilder(RenderEngine, ShaderType.Shader, stack);
+            float min = -0.5f;
+            float max = 0.5f;
+            VertexHelper.AddQuad(builder,
+                new Vector3D<float>(min, min, min),
+                new Vector3D<float>(max, min, min),
+                new Vector3D<float>(max, max, min),
+                new Vector3D<float>(min, max, min),
+                new Vector2D<float>(0, 0),
+                new Vector2D<float>(1, 0),
+                new Vector2D<float>(1, 1),
+                new Vector2D<float>(0, 1),
+                new Vector3D<float>(1, 1, 0)
+            );
+        
+            VertexHelper.AddQuad(builder,
+                new Vector3D<float>(min, min, max),
+                new Vector3D<float>(min, max, max),
+                new Vector3D<float>(max, max, max),
+                new Vector3D<float>(max, min, max),
+                new Vector2D<float>(0, 0),
+                new Vector2D<float>(0, 1),
+                new Vector2D<float>(1, 1),
+                new Vector2D<float>(1, 0)
+            );
+        
+            VertexHelper.AddQuad(builder,
+                new Vector3D<float>(min, max, min),
+                new Vector3D<float>(max, max, min),
+                new Vector3D<float>(max, max, max),
+                new Vector3D<float>(min, max, max),
+                new Vector2D<float>(0, 0),
+                new Vector2D<float>(1, 0),
+                new Vector2D<float>(1, 1),
+                new Vector2D<float>(0, 1),
+                new Vector3D<float>(1, 0, 0)
+            );
+            _mesh1 = RenderEngine.CreateMesh(ShaderType.Shader, builder.GetMeshSize());
+            RenderEngine.WriteMesh(_mesh1, builder);
+        }
+        
+        if (_mesh2 == null) {
+            MatrixStack stack = new MatrixStack();
+            VertexBuilder builder = new VertexBuilder(RenderEngine, ShaderType.Shader, stack);
+            float min = -0.5f;
+            float max = 0.5f;
+            VertexHelper.AddQuad(builder,
+                new Vector3D<float>(min, min, min),
+                new Vector3D<float>(min, min, max),
+                new Vector3D<float>(max, min, max),
+                new Vector3D<float>(max, min, min),
+                new Vector2D<float>(0, 0),
+                new Vector2D<float>(0, 1),
+                new Vector2D<float>(1, 1),
+                new Vector2D<float>(1, 0),
+                new Vector3D<float>(0, 0, 1)
+            );
+        
+            VertexHelper.AddQuad(builder,
+                new Vector3D<float>(min, min, min),
+                new Vector3D<float>(min, max, min),
+                new Vector3D<float>(min, max, max),
+                new Vector3D<float>(min, min, max),
+                new Vector2D<float>(0, 0),
+                new Vector2D<float>(1, 0),
+                new Vector2D<float>(1, 1),
+                new Vector2D<float>(0, 1)
+            );
+            
+            VertexHelper.AddQuad(builder,
+                new Vector3D<float>(max, min, min),
+                new Vector3D<float>(max, min, max),
+                new Vector3D<float>(max, max, max),
+                new Vector3D<float>(max, max, min),
+                new Vector2D<float>(0, 0),
+                new Vector2D<float>(0, 1),
+                new Vector2D<float>(1, 1),
+                new Vector2D<float>(1, 0)
+            );
+            _mesh2 = RenderEngine.CreateMesh(ShaderType.Shader, builder.GetMeshSize());
+            RenderEngine.WriteMesh(_mesh2, builder);
+        }
     }
 }

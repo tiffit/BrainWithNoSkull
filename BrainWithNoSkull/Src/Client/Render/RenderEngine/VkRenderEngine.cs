@@ -28,6 +28,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
     private Instance _instance;
 
     private PhysicalDevice _physicalDevice;
+    private PhysicalDeviceLimits _physicalDeviceLimits;
     private Device _logicalDevice;
 
     private QueueFamilies _queueFamilies;
@@ -100,7 +101,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
         CreateTextureSampler();
         foreach (ShaderType details in ShaderType.AllShaders) {
             VkShaderProgram program = CreateShader(details);
-            VkShaderPipeline pipeline = new VkShaderPipeline(program);
+            VkShaderPipeline pipeline = new VkShaderPipeline(program, in _physicalDeviceLimits);
             CreateDescriptorSetLayout(pipeline);
             CreateGraphicsPipeline(pipeline);
             CreateVertexBuffer(pipeline);
@@ -255,6 +256,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
         foreach (PhysicalDevice device in devices) {
             if (IsValidGraphicsDevice(device)) {
                 _physicalDevice = device;
+                _physicalDeviceLimits = _vk.GetPhysicalDeviceProperties(_physicalDevice).Limits;
                 break;
             }
         }
@@ -715,8 +717,6 @@ public unsafe class VkRenderEngine : IRenderEngine {
     }
 
     private void CreateTextureSampler(){
-        PhysicalDeviceLimits limits = _vk.GetPhysicalDeviceProperties(_physicalDevice).Limits;
-        
         SamplerCreateInfo samplerCreateInfo = new(){
             SType = StructureType.SamplerCreateInfo,
             MagFilter = Filter.Nearest,
@@ -725,7 +725,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
             AddressModeV = SamplerAddressMode.ClampToEdge,
             AddressModeW = SamplerAddressMode.ClampToEdge,
             AnisotropyEnable = true,
-            MaxAnisotropy = limits.MaxSamplerAnisotropy,
+            MaxAnisotropy = _physicalDeviceLimits.MaxSamplerAnisotropy,
             UnnormalizedCoordinates = false,
             CompareEnable = false,
             CompareOp = CompareOp.Always,
@@ -886,27 +886,14 @@ public unsafe class VkRenderEngine : IRenderEngine {
 
         _vk.CmdBeginRenderPass(buffer, &renderPassBegin, SubpassContents.Inline);
         foreach ((ShaderType shaderType, VkShaderPipeline pipeline) in _pipelines) {
-            VertexBuilder builder = pipeline.VertexBuilder;
-            if(builder.VerticesCount == 0)
+            Dictionary<Mesh, CompiledMeshData?> meshes = pipeline.Meshes;
+            if(meshes.Count == 0)
                 continue;
-            
-            float[] vertices = builder.Pack();
             UpdateUniformBuffer((uint)_frameIndex, pipeline);
-            void* data;
-            ulong dataSize = (ulong)vertices.Length * 4;
-            _vk.MapMemory(_logicalDevice, pipeline.StagingVertexBufferMemory, 0, dataSize, 0, &data);
-            vertices.AsSpan().CopyTo(new Span<float>(data, vertices.Length));
-            _vk.UnmapMemory(_logicalDevice, pipeline.StagingVertexBufferMemory);
-            VkBuffers.CopyBuffer(_vk, _graphicsQueue, _queueFamilies, _logicalDevice, pipeline.StagingVertexBuffer, pipeline.VertexBuffer, dataSize);
             
             _vk.CmdBindDescriptorSets(buffer, PipelineBindPoint.Graphics, pipeline.PipelineLayout, 0, 1, ref pipeline.DescriptorSets[_frameIndex], 0, null);
             _vk.CmdBindPipeline(buffer, PipelineBindPoint.Graphics, pipeline.GraphicsPipeline);
-
-            fixed (Buffer* bufferPtr = new[]{ pipeline.VertexBuffer }) {
-                ulong offset = 0;
-                _vk.CmdBindVertexBuffers(buffer, 0, 1, bufferPtr, ref offset);
-            }
-
+            
             Viewport viewport = new(){
                 X = 0f,
                 Y = 0f,
@@ -916,14 +903,22 @@ public unsafe class VkRenderEngine : IRenderEngine {
                 MaxDepth = 1
             };
             _vk.CmdSetViewport(buffer, 0, 1, &viewport);
-
+            
             Rect2D scissor = new(){
                 Offset = new Offset2D(0, 0),
                 Extent = _extent
             };
             _vk.CmdSetScissor(buffer, 0, 1, &scissor);
-
-            _vk.CmdDraw(buffer, builder.VerticesCount, 1, 0, 0);
+            
+            foreach ((Mesh mesh, CompiledMeshData? data) in meshes) {
+                if (data != null) {
+                    fixed (Buffer* bufferPtr = new[]{ pipeline.VertexBuffer }) {
+                        ulong offset = mesh.Memory.Offset;
+                        _vk.CmdBindVertexBuffers(buffer, 0, 1, bufferPtr, ref offset);
+                    }
+                    _vk.CmdDraw(buffer, data.VertexCount, 1, 0, 0);
+                }
+            }
         }
 
         _vk.CmdEndRenderPass(buffer);
@@ -963,15 +958,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
         }
     }
 
-    public void PreRender(double delta){
-        if (_minimized) {
-            return;
-        }
-
-        foreach ((ShaderType shaderType, VkShaderPipeline pipeline) in _pipelines) {
-            pipeline.VertexBuilder = new VertexBuilder(this, shaderType, new MatrixStack());
-        }
-    }
+    public void PreRender(double delta){}
 
     public void OnRender(double delta){
         if (_minimized) {
@@ -1029,8 +1016,36 @@ public unsafe class VkRenderEngine : IRenderEngine {
         _frameIndex = (_frameIndex + 1) % (int)_imageCount;
     }
 
-    public VertexBuilder GetVertexBuilder(ShaderType shaderType){
-        return _pipelines[shaderType].VertexBuilder;
+    public Mesh CreateMesh(ShaderType shaderType, ulong size){
+        Console.WriteLine($"Creating mesh of size {size} for {shaderType.Name}");
+        VkShaderPipeline pipeline = _pipelines[shaderType];
+        if (pipeline.Allocator.TryAllocate(size, out BufferAllocator.MemoryBlock? block)) {
+            Mesh mesh = new Mesh(shaderType, block);
+            pipeline.Meshes.Add(mesh, null);
+            return mesh;
+        }
+
+        throw new Exception($"Unable to allocate {size} bytes for shader {shaderType.Name}");
+    }
+
+    public void WriteMesh(Mesh mesh, VertexBuilder builder){
+        Console.WriteLine($"Writing mesh for {mesh.SType.Name} with {builder.VerticesCount} vertices");
+        VkShaderPipeline pipeline = _pipelines[mesh.SType];
+        float[] vertices = builder.Pack();
+        void* data;
+        ulong dataSize = (ulong)vertices.Length * 4;
+        _vk.MapMemory(_logicalDevice, pipeline.StagingVertexBufferMemory, mesh.Memory.Offset, dataSize, 0, &data);
+        vertices.AsSpan().CopyTo(new Span<float>(data, vertices.Length));
+        _vk.UnmapMemory(_logicalDevice, pipeline.StagingVertexBufferMemory);
+        VkBuffers.CopyBuffer(_vk, _graphicsQueue, _queueFamilies, _logicalDevice, pipeline.StagingVertexBuffer, pipeline.VertexBuffer, mesh.Memory.Offset, dataSize);
+        pipeline.Meshes[mesh] = new CompiledMeshData(builder.VerticesCount);
+    }
+
+    public void DestroyMesh(Mesh mesh){
+        Console.WriteLine($"Destroying mesh for {mesh.SType.Name}");
+        VkShaderPipeline pipeline = _pipelines[mesh.SType];
+        pipeline.Allocator.FreeBlock(mesh.Memory);
+        pipeline.Meshes.Remove(mesh);
     }
 
     private void CleanupSwapChain(){

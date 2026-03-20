@@ -38,10 +38,10 @@ public unsafe class VkBuffers {
         throw new Exception("Unable to find suitable memory type");
     }
 
-    public static void CopyBuffer(Vk vk, Queue graphicsQueue, QueueFamilies families, Device device, Buffer src, Buffer dst, ulong size){
+    public static void CopyBuffer(Vk vk, Queue graphicsQueue, QueueFamilies families, Device device, Buffer src, Buffer dst, ulong offset, ulong size){
         CommandBuffer cmdBuffer = BeginTransientCommandBuffer(vk, families, device, out CommandPool pool);
         
-        BufferCopy copyCmd = new(0, 0, size);
+        BufferCopy copyCmd = new(offset, offset, size);
         vk.CmdCopyBuffer(cmdBuffer, src, dst, 1, &copyCmd);
 
         EndTransientCommandBuffer(vk, graphicsQueue, device, cmdBuffer, pool);

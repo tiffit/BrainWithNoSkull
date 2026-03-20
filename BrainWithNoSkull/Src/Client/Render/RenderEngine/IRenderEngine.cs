@@ -11,7 +11,9 @@ public interface IRenderEngine {
     
     void OnRender(double delta);
 
-    VertexBuilder GetVertexBuilder(ShaderType shaderType);
+    Mesh CreateMesh(ShaderType shaderType, ulong size);
+    void WriteMesh(Mesh mesh, VertexBuilder builder);
+    void DestroyMesh(Mesh mesh);
 
     void Cleanup();
 }

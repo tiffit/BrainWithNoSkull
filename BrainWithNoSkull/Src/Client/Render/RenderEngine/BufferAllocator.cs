@@ -3,23 +3,30 @@
 namespace BrainWithNoSkull.Client.Render.RenderEngine;
 
 public class BufferAllocator {
-    public record MemoryBlock(long Offset, long Size);
+    public record MemoryBlock(ulong Offset, ulong Size);
 
-    private readonly long _totalSize;
-    private long _freeMemoryRemaining;
+    private readonly ulong _totalSize;
+    private readonly ulong _offsetAlignment;
+    private ulong _freeMemoryRemaining;
     private readonly List<MemoryBlock> _blocks;
 
-    public BufferAllocator(long totalSize){
+    public BufferAllocator(ulong totalSize, ulong offsetAlignment){
         _totalSize = totalSize;
+        _offsetAlignment = offsetAlignment;
         _freeMemoryRemaining = totalSize;
         _blocks = [new MemoryBlock(0, totalSize)];
     }
 
-    public bool TryAllocate(long size, [MaybeNullWhen(false)] out MemoryBlock outBlock){
+    private ulong AlignSize(ulong size){
+        return (size + (_offsetAlignment-1)) / _offsetAlignment * _offsetAlignment;
+    }
+
+    public bool TryAllocate(ulong size, [MaybeNullWhen(false)] out MemoryBlock outBlock){
+        size = AlignSize(size);
         for (int i = 0; i < _blocks.Count; i++) {
             MemoryBlock block = _blocks[i];
             if (size <= block.Size) {
-                outBlock = block;
+                outBlock = block with{ Size = size };
                 if (size == block.Size) {
                     _blocks.RemoveAt(i);
                 }

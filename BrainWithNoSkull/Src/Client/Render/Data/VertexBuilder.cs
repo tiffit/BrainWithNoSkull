@@ -29,6 +29,10 @@ public class VertexBuilder {
         return new IndVertBuilder(_vertices, transformed.X, transformed.Y, transformed.Z);
     }
 
+    public ulong GetMeshSize(){
+        return (ulong)(_vertices.Count * _shaderProgram.VertexSize * 4);
+    }
+    
     public float[] Pack(){
         float[] buffer = new float[_vertices.Count * _shaderProgram.VertexSize];
         int index = 0;
