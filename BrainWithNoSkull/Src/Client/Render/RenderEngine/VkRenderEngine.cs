@@ -1032,18 +1032,11 @@ public unsafe class VkRenderEngine : IRenderEngine {
         if (pipeline.Allocator.TryAllocate(size, out BufferAllocator.MemoryBlock? block)) {
             Mesh mesh = new Mesh(shaderType, block);
             pipeline.Meshes.Add(mesh, null);
-            pipeline.MemoryBlockRefCount[block]++;
+            pipeline.MemoryBlockRefCount[block] = 1;
             return mesh;
         }
 
         throw new Exception($"Unable to allocate {size} bytes for shader {shaderType.Name}");
-    }
-
-    public Mesh CreateMeshCopy(Mesh other){
-        VkShaderPipeline pipeline = _pipelines[other.SType];
-        Mesh mesh = new Mesh(other.SType, other.Memory);
-        pipeline.MemoryBlockRefCount[other.Memory]++;
-        return mesh;
     }
 
     public void WriteMesh(Mesh mesh, VertexBuilder builder, ref TransformPushConstant pushConstant){

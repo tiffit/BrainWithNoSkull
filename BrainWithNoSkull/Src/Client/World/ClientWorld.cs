@@ -1,4 +1,5 @@
-﻿using BrainWithNoSkull.World;
+﻿using System.Diagnostics;
+using BrainWithNoSkull.World;
 using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.Client.World;
@@ -6,17 +7,26 @@ namespace BrainWithNoSkull.Client.World;
 public class ClientWorld : WorldBase {
 
     private readonly Dictionary<Vector2D<int>, ChunkMesh> _chunkMeshes = new Dictionary<Vector2D<int>, ChunkMesh>();
+
+    private int _generatedChunks = 0;
     
     public ClientWorld(WorldSettings settings) : base(settings){
     }
 
     public void Render(double delta){
-        for (int x = 0; x < Settings.WorldSize; x++) {
-            for (int z = 0; z < Settings.WorldSize; z++) {
+        Stopwatch sw = new Stopwatch();
+        sw.Start();
+        for (int x = -Settings.WorldSize + 1; x < Settings.WorldSize; x++) {
+            for (int z = -Settings.WorldSize + 1; z < Settings.WorldSize; z++) {
                 Vector2D<int> chunkCoords = new Vector2D<int>(x, z);
                 RenderChunk(chunkCoords);
             }
         }
+        sw.Stop();
+        if (_generatedChunks > 0) {
+            Console.WriteLine("Took " + sw.ElapsedMilliseconds + " to generate " + _generatedChunks + " chunks");
+        }
+        _generatedChunks = 0;
     }
 
     private void RenderChunk(Vector2D<int> chunkCoords){
@@ -25,6 +35,7 @@ public class ClientWorld : WorldBase {
             ChunkMesh mesh = new ChunkMesh(chunkCoords);
             mesh.FullyGenerate(Chunks);
             _chunkMeshes[chunkCoords] = mesh;
+            _generatedChunks++;
         }
     }
 }

@@ -13,7 +13,7 @@ public class WorldBase {
 
     public WorldBase(WorldSettings settings){
         Settings = settings;
-        WorldGenerator = new WorldGenerator(this, new FlatChunkGenerator());
+        WorldGenerator = new WorldGenerator(this, new FlatChunkGenerator(settings));
         Chunks = new ChunkStorage(this);
     }
 

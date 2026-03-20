@@ -12,7 +12,6 @@ public interface IRenderEngine {
     void OnRender(double delta);
 
     Mesh CreateMesh(ShaderType shaderType, ulong size);
-    Mesh CreateMeshCopy(Mesh other);
     void WriteMesh(Mesh mesh, VertexBuilder builder, ref TransformPushConstant pushConstant);
     void DestroyMesh(Mesh mesh);
 

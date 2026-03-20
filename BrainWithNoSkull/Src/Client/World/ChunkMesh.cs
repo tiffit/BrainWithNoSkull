@@ -5,6 +5,7 @@ using BrainWithNoSkull.Client.Render.Data;
 using BrainWithNoSkull.Client.Render.RenderEngine;
 using BrainWithNoSkull.Client.Render.Shader;
 using BrainWithNoSkull.Client.Render.Util;
+using BrainWithNoSkull.Registries;
 using BrainWithNoSkull.World;
 using Silk.NET.Maths;
 
@@ -35,16 +36,18 @@ public class ChunkMesh {
         for (int x = 0; x < Constants.ChunkSize; x++) {
             for (int y = 0; y < Constants.ChunkSize; y++) {
                 for (int z = 0; z < Constants.ChunkSize; z++) {
-                    Vector3D<int> blockPos = new Vector3D<int>(x, y + sectionIndex * Constants.ChunkSize, z);
-                    Vector3D<float> blockPosFlt = (Vector3D<float>)blockPos;
-                    Block block = chunk.GetBlock(blockPos.X, blockPos.Y, blockPos.Z);
+                    Vector3D<float> blockPos = new Vector3D<float>(x, y + sectionIndex * Constants.ChunkSize, z);
+                    int blockX = (int)blockPos.X;
+                    int blockY = (int)blockPos.Y;
+                    int blockZ = (int)blockPos.Z;
+                    Block block = chunk.GetBlock(blockX, blockY, blockZ);
                     if (!block.IsAir()) {
-                        if (chunk.GetBlock(blockPos.X, blockPos.Y, blockPos.Z + 1).IsAir()) {
+                        if (GetBlock(chunk, storage, blockX, blockY, blockZ + 1).IsAir()) {
                             VertexHelper.AddQuad(builder,
-                                blockPosFlt + Vector3D<float>.UnitZ,
-                                blockPosFlt + Vector3D<float>.UnitY + Vector3D<float>.UnitZ,
-                                blockPosFlt + Vector3D<float>.UnitY + Vector3D<float>.UnitX + Vector3D<float>.UnitZ,
-                                blockPosFlt + Vector3D<float>.UnitX + Vector3D<float>.UnitZ,
+                                blockPos + Vector3D<float>.UnitZ,
+                                blockPos + Vector3D<float>.UnitY + Vector3D<float>.UnitZ,
+                                blockPos + Vector3D<float>.UnitY + Vector3D<float>.UnitX + Vector3D<float>.UnitZ,
+                                blockPos + Vector3D<float>.UnitX + Vector3D<float>.UnitZ,
                                 new Vector2D<float>(0, 0),
                                 new Vector2D<float>(0, 1),
                                 new Vector2D<float>(1, 1),
@@ -52,13 +55,13 @@ public class ChunkMesh {
                                 transformPos: false
                             );
                         }
-
-                        if (chunk.GetBlock(blockPos.X, blockPos.Y, blockPos.Z - 1).IsAir()) {
+                    
+                        if (GetBlock(chunk, storage, blockX, blockY, blockZ - 1).IsAir()) {
                             VertexHelper.AddQuad(builder,
-                                blockPosFlt,
-                                blockPosFlt + Vector3D<float>.UnitX,
-                                blockPosFlt + Vector3D<float>.UnitY + Vector3D<float>.UnitX,
-                                blockPosFlt + Vector3D<float>.UnitY,
+                                blockPos,
+                                blockPos + Vector3D<float>.UnitX,
+                                blockPos + Vector3D<float>.UnitY + Vector3D<float>.UnitX,
+                                blockPos + Vector3D<float>.UnitY,
                                 new Vector2D<float>(0, 0),
                                 new Vector2D<float>(1, 0),
                                 new Vector2D<float>(1, 1),
@@ -66,13 +69,13 @@ public class ChunkMesh {
                                 transformPos: false
                             );
                         }
-
-                        if (chunk.GetBlock(blockPos.X, blockPos.Y - 1, blockPos.Z).IsAir()) {
+                    
+                        if (GetBlock(chunk, storage, blockX, blockY - 1, blockZ).IsAir()) {
                             VertexHelper.AddQuad(builder,
-                                blockPosFlt,
-                                blockPosFlt + Vector3D<float>.UnitZ,
-                                blockPosFlt + Vector3D<float>.UnitZ + Vector3D<float>.UnitX,
-                                blockPosFlt + Vector3D<float>.UnitX,
+                                blockPos,
+                                blockPos + Vector3D<float>.UnitZ,
+                                blockPos + Vector3D<float>.UnitZ + Vector3D<float>.UnitX,
+                                blockPos + Vector3D<float>.UnitX,
                                 new Vector2D<float>(0, 0),
                                 new Vector2D<float>(1, 0),
                                 new Vector2D<float>(1, 1),
@@ -80,13 +83,13 @@ public class ChunkMesh {
                                 transformPos: false
                             );
                         }
-
-                        if (chunk.GetBlock(blockPos.X, blockPos.Y + 1, blockPos.Z).IsAir()) {
+                    
+                        if (GetBlock(chunk, storage, blockX, blockY + 1, blockZ).IsAir()) {
                             VertexHelper.AddQuad(builder,
-                                blockPosFlt + Vector3D<float>.UnitY,
-                                blockPosFlt + Vector3D<float>.UnitX + Vector3D<float>.UnitY,
-                                blockPosFlt + Vector3D<float>.UnitZ + Vector3D<float>.UnitX + Vector3D<float>.UnitY,
-                                blockPosFlt + Vector3D<float>.UnitZ + Vector3D<float>.UnitY,
+                                blockPos + Vector3D<float>.UnitY,
+                                blockPos + Vector3D<float>.UnitX + Vector3D<float>.UnitY,
+                                blockPos + Vector3D<float>.UnitZ + Vector3D<float>.UnitX + Vector3D<float>.UnitY,
+                                blockPos + Vector3D<float>.UnitZ + Vector3D<float>.UnitY,
                                 new Vector2D<float>(0, 0),
                                 new Vector2D<float>(0, 1),
                                 new Vector2D<float>(1, 1),
@@ -94,13 +97,13 @@ public class ChunkMesh {
                                 transformPos: false
                             );
                         }
-
-                        if (chunk.GetBlock(blockPos.X + 1, blockPos.Y, blockPos.Z).IsAir()) {
+                    
+                        if (GetBlock(chunk, storage, blockX + 1, blockY, blockZ).IsAir()) {
                             VertexHelper.AddQuad(builder,
-                                blockPosFlt + Vector3D<float>.UnitX,
-                                blockPosFlt + Vector3D<float>.UnitZ + Vector3D<float>.UnitX,
-                                blockPosFlt + Vector3D<float>.UnitY + Vector3D<float>.UnitZ + Vector3D<float>.UnitX,
-                                blockPosFlt + Vector3D<float>.UnitY + Vector3D<float>.UnitX,
+                                blockPos + Vector3D<float>.UnitX,
+                                blockPos + Vector3D<float>.UnitZ + Vector3D<float>.UnitX,
+                                blockPos + Vector3D<float>.UnitY + Vector3D<float>.UnitZ + Vector3D<float>.UnitX,
+                                blockPos + Vector3D<float>.UnitY + Vector3D<float>.UnitX,
                                 new Vector2D<float>(0, 0),
                                 new Vector2D<float>(1, 0),
                                 new Vector2D<float>(1, 1),
@@ -108,13 +111,13 @@ public class ChunkMesh {
                                 transformPos: false
                             );
                         }
-
-                        if (chunk.GetBlock(blockPos.X - 1, blockPos.Y, blockPos.Z).IsAir()) {
+                    
+                        if (GetBlock(chunk, storage, blockX - 1, blockY, blockZ).IsAir()) {
                             VertexHelper.AddQuad(builder,
-                                blockPosFlt,
-                                blockPosFlt + Vector3D<float>.UnitY,
-                                blockPosFlt + Vector3D<float>.UnitY + Vector3D<float>.UnitZ,
-                                blockPosFlt + Vector3D<float>.UnitZ,
+                                blockPos,
+                                blockPos + Vector3D<float>.UnitY,
+                                blockPos + Vector3D<float>.UnitY + Vector3D<float>.UnitZ,
+                                blockPos + Vector3D<float>.UnitZ,
                                 new Vector2D<float>(0, 0),
                                 new Vector2D<float>(0, 1),
                                 new Vector2D<float>(1, 1),
@@ -138,6 +141,31 @@ public class ChunkMesh {
             };
         }
         return new ChunkMeshSection();
+    }
+
+    private Block GetBlock(Chunk chunk, ChunkStorage storage, int x, int y, int z){
+        if (x < 0) {
+            chunk = storage.GetChunk(chunk.Coords - Vector2D<int>.UnitX);
+            x += Constants.ChunkSize;
+        }
+        if (x >= Constants.ChunkSize) {
+            chunk = storage.GetChunk(chunk.Coords + Vector2D<int>.UnitX);
+            x -= Constants.ChunkSize;
+        }
+        if (z < 0) {
+            chunk = storage.GetChunk(chunk.Coords - Vector2D<int>.UnitY);
+            z += Constants.ChunkSize;
+        }
+        if (z >= Constants.ChunkSize) {
+            chunk = storage.GetChunk(chunk.Coords + Vector2D<int>.UnitY);
+            z -= Constants.ChunkSize;
+        }
+
+        if (y < 0 || y >= Constants.MaxWorldHeight) {
+            return BlockRegistry.Air;
+        }
+
+        return chunk.GetBlock(x, y, z);
     }
 
     private class ChunkMeshSection {

@@ -16,13 +16,21 @@ public class ChunkStorage {
 
     public Chunk GetChunk(Vector2D<int> chunkCoords){
         int worldSize = _world.Settings.WorldSize;
-        chunkCoords = new Vector2D<int>(chunkCoords.X % worldSize, chunkCoords.Y % worldSize);
+        chunkCoords = new Vector2D<int>(WrapChunkCoord(chunkCoords.X), WrapChunkCoord(chunkCoords.Y));
         if (_loadedChunks.TryGetValue(chunkCoords, out Chunk? chunk)) {
             return chunk;
         }
         chunk = _worldGenerator.Generate(chunkCoords);
         _loadedChunks[chunkCoords] = chunk;
         return chunk;
+    }
+
+    public int WrapChunkCoord(int val){
+        val %= _world.Settings.WorldSize;
+        if (val < 0) {
+            val = _world.Settings.WorldSize + val;
+        }
+        return val;
     }
     
 }
