@@ -24,9 +24,11 @@ public class VertexBuilder {
         return Pos(new Vector3D<float>(x, y, z));
     }
     
-    public IndVertBuilder Pos(Vector3D<float> pos){
-        Vector3D<float> transformed = MatrixStack.Transform(pos);
-        return new IndVertBuilder(_vertices, transformed.X, transformed.Y, transformed.Z);
+    public IndVertBuilder Pos(Vector3D<float> pos, bool transform = true){
+        if (transform) {
+            pos = MatrixStack.Transform(pos);
+        }
+        return new IndVertBuilder(_vertices, pos.X, pos.Y, pos.Z);
     }
 
     public ulong GetMeshSize(){

@@ -3,7 +3,7 @@
 public class ShaderType {
 
     public static readonly List<ShaderType> AllShaders = [];
-    public static readonly ShaderType Shader = new ShaderType("shader", 0x100000*4, [VertexParam.Position, VertexParam.Color, VertexParam.Uv]);
+    public static readonly ShaderType Shader = new ShaderType("shader", 0x100000*1024, [VertexParam.Position, VertexParam.Color, VertexParam.Uv]);
     
     public readonly string Name;
     public readonly uint BufferSize;

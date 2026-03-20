@@ -1,16 +1,24 @@
-﻿using BrainWithNoSkull.World.Gen;
+﻿using BrainWithNoSkull.Client.World;
+using BrainWithNoSkull.World.Gen;
 using BrainWithNoSkull.World.Gen.Chunks;
+using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.World;
 
 public class WorldBase {
 
     public WorldGenerator WorldGenerator{ get; private set; }
-    private ChunkStorage _chunkStorage;
+    protected ChunkStorage Chunks;
+    public WorldSettings Settings{ get; private set; }
 
-    public WorldBase(){
+    public WorldBase(WorldSettings settings){
+        Settings = settings;
         WorldGenerator = new WorldGenerator(this, new FlatChunkGenerator());
-        _chunkStorage = new ChunkStorage(this);
+        Chunks = new ChunkStorage(this);
+    }
+
+    public Chunk GetChunk(Vector2D<int> chunkCoords){
+        return Chunks.GetChunk(chunkCoords);
     }
 
     public virtual void Tick(){

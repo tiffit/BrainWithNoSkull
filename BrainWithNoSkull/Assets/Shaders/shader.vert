@@ -1,6 +1,10 @@
 #version 450
 #extension GL_EXT_debug_printf : enable
 
+layout( push_constant ) uniform TransformPushConstant {
+    mat4 model;
+} transformConstant;
+
 layout(set = 0, binding = 0) uniform UniformBufferObject {
     mat4 model;
     mat4 view;
@@ -19,7 +23,7 @@ out gl_PerVertex {
 };
 
 void main() {
-    gl_Position = ubo.proj * ubo.view * ubo.model * vec4(inPosition, 1.0);
+    gl_Position = ubo.proj * ubo.view * ubo.model * transformConstant.model * vec4(inPosition, 1.0);
     fragColor = inColor;
     fragUV = inUV;
 }

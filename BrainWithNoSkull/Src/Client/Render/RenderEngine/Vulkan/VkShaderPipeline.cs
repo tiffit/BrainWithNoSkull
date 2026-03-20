@@ -24,6 +24,7 @@ public unsafe class VkShaderPipeline {
 
     public BufferAllocator Allocator;
     public Dictionary<Mesh, CompiledMeshData?> Meshes = [];
+    public Dictionary<BufferAllocator.MemoryBlock, int> MemoryBlockRefCount = [];
     
     public VkShaderPipeline(VkShaderProgram shader, in PhysicalDeviceLimits limits){
         ShaderProgram = shader;

@@ -534,11 +534,19 @@ public unsafe class VkRenderEngine : IRenderEngine {
             StencilTestEnable = false
         };
 
+        PushConstantRange pushConstants = new(){
+            Offset = 0,
+            Size = TransformPushConstant.SizeInBytes,
+            StageFlags = ShaderStageFlags.VertexBit
+        };
+
         DescriptorSetLayout* descriptorSetLayout = stackalloc[]{ shaderPipeline.DescriptorSetLayout };
         PipelineLayoutCreateInfo pipelineLayoutInfo = new(){
             SType = StructureType.PipelineLayoutCreateInfo,
             SetLayoutCount = 1,
-            PSetLayouts = descriptorSetLayout
+            PSetLayouts = descriptorSetLayout,
+            PushConstantRangeCount = 1,
+            PPushConstantRanges = &pushConstants
         };
 
         if (_vk.CreatePipelineLayout(_logicalDevice, in pipelineLayoutInfo, null, out shaderPipeline.PipelineLayout) != Result.Success) {
@@ -916,6 +924,9 @@ public unsafe class VkRenderEngine : IRenderEngine {
                         ulong offset = mesh.Memory.Offset;
                         _vk.CmdBindVertexBuffers(buffer, 0, 1, bufferPtr, ref offset);
                     }
+
+                    TransformPushConstant transformPushConstant = data.PushConstant;
+                    _vk.CmdPushConstants(buffer, pipeline.PipelineLayout, ShaderStageFlags.VertexBit, 0, TransformPushConstant.SizeInBytes, &transformPushConstant);
                     _vk.CmdDraw(buffer, data.VertexCount, 1, 0, 0);
                 }
             }
@@ -1017,19 +1028,25 @@ public unsafe class VkRenderEngine : IRenderEngine {
     }
 
     public Mesh CreateMesh(ShaderType shaderType, ulong size){
-        Console.WriteLine($"Creating mesh of size {size} for {shaderType.Name}");
         VkShaderPipeline pipeline = _pipelines[shaderType];
         if (pipeline.Allocator.TryAllocate(size, out BufferAllocator.MemoryBlock? block)) {
             Mesh mesh = new Mesh(shaderType, block);
             pipeline.Meshes.Add(mesh, null);
+            pipeline.MemoryBlockRefCount[block]++;
             return mesh;
         }
 
         throw new Exception($"Unable to allocate {size} bytes for shader {shaderType.Name}");
     }
 
-    public void WriteMesh(Mesh mesh, VertexBuilder builder){
-        Console.WriteLine($"Writing mesh for {mesh.SType.Name} with {builder.VerticesCount} vertices");
+    public Mesh CreateMeshCopy(Mesh other){
+        VkShaderPipeline pipeline = _pipelines[other.SType];
+        Mesh mesh = new Mesh(other.SType, other.Memory);
+        pipeline.MemoryBlockRefCount[other.Memory]++;
+        return mesh;
+    }
+
+    public void WriteMesh(Mesh mesh, VertexBuilder builder, ref TransformPushConstant pushConstant){
         VkShaderPipeline pipeline = _pipelines[mesh.SType];
         float[] vertices = builder.Pack();
         void* data;
@@ -1038,14 +1055,17 @@ public unsafe class VkRenderEngine : IRenderEngine {
         vertices.AsSpan().CopyTo(new Span<float>(data, vertices.Length));
         _vk.UnmapMemory(_logicalDevice, pipeline.StagingVertexBufferMemory);
         VkBuffers.CopyBuffer(_vk, _graphicsQueue, _queueFamilies, _logicalDevice, pipeline.StagingVertexBuffer, pipeline.VertexBuffer, mesh.Memory.Offset, dataSize);
-        pipeline.Meshes[mesh] = new CompiledMeshData(builder.VerticesCount);
+        pipeline.Meshes[mesh] = new CompiledMeshData(builder.VerticesCount, pushConstant);
     }
 
     public void DestroyMesh(Mesh mesh){
         Console.WriteLine($"Destroying mesh for {mesh.SType.Name}");
         VkShaderPipeline pipeline = _pipelines[mesh.SType];
-        pipeline.Allocator.FreeBlock(mesh.Memory);
-        pipeline.Meshes.Remove(mesh);
+        pipeline.MemoryBlockRefCount[mesh.Memory]--;
+        if (pipeline.MemoryBlockRefCount[mesh.Memory] == 0) {
+            pipeline.Allocator.FreeBlock(mesh.Memory);
+            pipeline.Meshes.Remove(mesh);   
+        }
     }
 
     private void CleanupSwapChain(){

@@ -15,6 +15,8 @@ public class ChunkStorage {
     }
 
     public Chunk GetChunk(Vector2D<int> chunkCoords){
+        int worldSize = _world.Settings.WorldSize;
+        chunkCoords = new Vector2D<int>(chunkCoords.X % worldSize, chunkCoords.Y % worldSize);
         if (_loadedChunks.TryGetValue(chunkCoords, out Chunk? chunk)) {
             return chunk;
         }

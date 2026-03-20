@@ -7,6 +7,6 @@ public record Mesh(ShaderType SType, BufferAllocator.MemoryBlock Memory){
     
 }
 
-public record CompiledMeshData(uint VertexCount) {
+public record CompiledMeshData(uint VertexCount, TransformPushConstant PushConstant) {
     
 }
