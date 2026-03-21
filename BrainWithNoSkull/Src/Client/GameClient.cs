@@ -8,8 +8,10 @@ using BrainWithNoSkull.Client.World;
 using BrainWithNoSkull.Registries;
 using Silk.NET.GLFW;
 using Silk.NET.Input;
+using Silk.NET.Input.Glfw;
 using Silk.NET.Maths;
 using Silk.NET.Windowing;
+using Silk.NET.Windowing.Glfw;
 
 namespace BrainWithNoSkull.Client;
 
@@ -61,6 +63,8 @@ public class GameClient {
             Size = new Vector2D<int>(800, 600),
             Title = "a"
         };
+        GlfwWindowing.Use();
+        GlfwInput.RegisterPlatform();
         GameWindow = Window.Create(windowOptions);
         GameWindow.UpdatesPerSecond = 30;
         GameWindow.Load += OnWindowLoad;

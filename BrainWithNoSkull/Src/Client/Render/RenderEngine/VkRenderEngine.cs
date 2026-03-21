@@ -20,8 +20,12 @@ namespace BrainWithNoSkull.Client.Render.RenderEngine;
 public unsafe class VkRenderEngine : IRenderEngine {
     public static readonly VkRenderEngine Instance = new VkRenderEngine();
 
+#if DEBUG
     private static bool _enableValidationLayer = true;
-
+#else
+    private static bool _enableValidationLayer = false;
+#endif
+    
     private readonly Vk _vk = Vk.GetApi();
     private IWindow? _window;
     private Camera _camera = null!;
@@ -80,6 +84,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
         if (_window.VkSurface is null) {
             throw new Exception("Vulkan not supported");
         }
+
         _window.FramebufferResize += size => {
             _hasResized = true;
             _minimized = size is{ X: 0, Y: 0 };
@@ -110,6 +115,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
             CreateDescriptorSets(pipeline);
             _pipelines[details] = pipeline;
         }
+
         CreateFramebuffers();
         CreateCommandPool();
         CreateCommandBuffer();
@@ -280,7 +286,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
         PhysicalDeviceFeatures supportedFeatures = _vk.GetPhysicalDeviceFeatures(device);
         if (!supportedFeatures.SamplerAnisotropy)
             return false;
-        
+
         return true;
     }
 
@@ -426,7 +432,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
             DescriptorCount = 1,
             StageFlags = ShaderStageFlags.VertexBit
         };
-        
+
         DescriptorSetLayoutBinding samplerLayoutBinding = new(){
             Binding = 1,
             DescriptorType = DescriptorType.CombinedImageSampler,
@@ -442,7 +448,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
             BindingCount = 2,
             PBindings = layoutBindings
         };
-        
+
         if (_vk.CreateDescriptorSetLayout(_logicalDevice, &createInfo, null, out shaderPipeline.DescriptorSetLayout) != Result.Success) {
             throw new Exception("Unable to create descriptor set layout");
         }
@@ -595,7 +601,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
             InitialLayout = ImageLayout.Undefined,
             FinalLayout = ImageLayout.PresentSrcKhr
         };
-        
+
         AttachmentDescription depthAttachment = new(){
             Format = Format.D32Sfloat,
             Samples = SampleCountFlags.Count1Bit,
@@ -611,7 +617,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
             Attachment = 0,
             Layout = ImageLayout.AttachmentOptimal
         };
-        
+
         AttachmentReference depthAttachmentRef = new(){
             Attachment = 1,
             Layout = ImageLayout.DepthStencilAttachmentOptimal
@@ -696,8 +702,8 @@ public unsafe class VkRenderEngine : IRenderEngine {
         uint height = (uint)bitmap.Height;
         Span<byte> pixels = bitmap.GetPixelSpan();
         ulong imageSize = (ulong)bitmap.ByteCount;
-        
-        VkBuffers.CreateBuffer(_vk, _logicalDevice, _physicalDevice, imageSize, 
+
+        VkBuffers.CreateBuffer(_vk, _logicalDevice, _physicalDevice, imageSize,
             BufferUsageFlags.TransferSrcBit, MemoryPropertyFlags.HostVisibleBit | MemoryPropertyFlags.HostCoherentBit,
             out Buffer stagingBuffer, out DeviceMemory stagingBufferMemory);
 
@@ -705,23 +711,23 @@ public unsafe class VkRenderEngine : IRenderEngine {
         _vk.MapMemory(_logicalDevice, stagingBufferMemory, 0, imageSize, 0, &data);
         pixels.CopyTo(new Span<byte>(data, (int)imageSize));
         _vk.UnmapMemory(_logicalDevice, stagingBufferMemory);
-        
+
         bitmap.Dispose();
-        
-        VkImages.CreateImage(_vk, _logicalDevice, _physicalDevice, width, height, Format.R8G8B8A8Srgb,
+
+        VkImages.CreateImage(_vk, _logicalDevice, _physicalDevice, width, height, Format.B8G8R8A8Srgb,
             ImageTiling.Optimal, ImageUsageFlags.TransferDstBit | ImageUsageFlags.SampledBit, MemoryPropertyFlags.DeviceLocalBit,
             out _textureImage, out _textureImageMemory);
-        
-        VkImages.TransitionImageLayout(_vk, _queueFamilies, _graphicsQueue, _logicalDevice, _textureImage, 
-            Format.R8G8B8A8Srgb, ImageLayout.Undefined, ImageLayout.TransferDstOptimal);
+
+        VkImages.TransitionImageLayout(_vk, _queueFamilies, _graphicsQueue, _logicalDevice, _textureImage,
+            Format.B8G8R8A8Srgb, ImageLayout.Undefined, ImageLayout.TransferDstOptimal);
         VkImages.CopyBufferToImage(_vk, _queueFamilies, _graphicsQueue, _logicalDevice, stagingBuffer, _textureImage, width, height);
-        VkImages.TransitionImageLayout(_vk, _queueFamilies, _graphicsQueue, _logicalDevice, _textureImage, 
-            Format.R8G8B8A8Srgb, ImageLayout.TransferDstOptimal, ImageLayout.ShaderReadOnlyOptimal);
-        
+        VkImages.TransitionImageLayout(_vk, _queueFamilies, _graphicsQueue, _logicalDevice, _textureImage,
+            Format.B8G8R8A8Srgb, ImageLayout.TransferDstOptimal, ImageLayout.ShaderReadOnlyOptimal);
+
         _vk.DestroyBuffer(_logicalDevice, stagingBuffer, null);
         _vk.FreeMemory(_logicalDevice, stagingBufferMemory, null);
 
-        _textureImageView = VkImages.CreateImageView(_vk, _logicalDevice, _textureImage, Format.R8G8B8A8Srgb);
+        _textureImageView = VkImages.CreateImageView(_vk, _logicalDevice, _textureImage, Format.B8G8R8A8Srgb);
     }
 
     private void CreateTextureSampler(){
@@ -742,7 +748,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
             MinLod = 0,
             MaxLod = 0
         };
-        
+
         if (_vk.CreateSampler(_logicalDevice, in samplerCreateInfo, null, out _textureSampler) != Result.Success) {
             throw new Exception("Unable to create graphics command pool");
         }
@@ -779,14 +785,14 @@ public unsafe class VkRenderEngine : IRenderEngine {
             Type = DescriptorType.UniformBuffer,
             DescriptorCount = _imageCount
         };
-        
+
         DescriptorPoolSize samplerPoolSize = new(){
             Type = DescriptorType.CombinedImageSampler,
             DescriptorCount = _imageCount
         };
 
         DescriptorPoolSize* poolSizes = stackalloc[]{ uboPoolSize, samplerPoolSize };
-        
+
         DescriptorPoolCreateInfo createInfo = new(){
             SType = StructureType.DescriptorPoolCreateInfo,
             PoolSizeCount = 2,
@@ -803,7 +809,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
         for (int i = 0; i < _imageCount; i++) {
             layouts[i] = pipeline.DescriptorSetLayout;
         }
-        
+
         DescriptorSetAllocateInfo allocateInfo = new(){
             SType = StructureType.DescriptorSetAllocateInfo,
             DescriptorPool = pipeline.DescriptorPool,
@@ -814,7 +820,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
         if (_vk.AllocateDescriptorSets(_logicalDevice, &allocateInfo, pipeline.DescriptorSets) != Result.Success) {
             throw new Exception("Unable to create descriptor sets");
         }
-        
+
         for (int i = 0; i < _imageCount; i++) {
             DescriptorBufferInfo bufferInfo = new(){
                 Buffer = pipeline.UniformBuffers[i],
@@ -827,7 +833,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
                 ImageView = _textureImageView,
                 Sampler = _textureSampler
             };
-            
+
             WriteDescriptorSet bufferWriteSet = new(){
                 SType = StructureType.WriteDescriptorSet,
                 DstSet = pipeline.DescriptorSets[i],
@@ -837,7 +843,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
                 DescriptorCount = 1,
                 PBufferInfo = &bufferInfo
             };
-            
+
             WriteDescriptorSet imageWriteSet = new(){
                 SType = StructureType.WriteDescriptorSet,
                 DstSet = pipeline.DescriptorSets[i],
@@ -849,7 +855,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
             };
 
             WriteDescriptorSet* writes = stackalloc[]{ bufferWriteSet, imageWriteSet };
-            
+
             _vk.UpdateDescriptorSets(_logicalDevice, 2, writes, 0, null);
         }
     }
@@ -895,13 +901,13 @@ public unsafe class VkRenderEngine : IRenderEngine {
         _vk.CmdBeginRenderPass(buffer, &renderPassBegin, SubpassContents.Inline);
         foreach ((ShaderType shaderType, VkShaderPipeline pipeline) in _pipelines) {
             Dictionary<Mesh, CompiledMeshData?> meshes = pipeline.Meshes;
-            if(meshes.Count == 0)
+            if (meshes.Count == 0)
                 continue;
             UpdateUniformBuffer((uint)_frameIndex, pipeline);
-            
+
             _vk.CmdBindDescriptorSets(buffer, PipelineBindPoint.Graphics, pipeline.PipelineLayout, 0, 1, ref pipeline.DescriptorSets[_frameIndex], 0, null);
             _vk.CmdBindPipeline(buffer, PipelineBindPoint.Graphics, pipeline.GraphicsPipeline);
-            
+
             Viewport viewport = new(){
                 X = 0f,
                 Y = 0f,
@@ -911,13 +917,13 @@ public unsafe class VkRenderEngine : IRenderEngine {
                 MaxDepth = 1
             };
             _vk.CmdSetViewport(buffer, 0, 1, &viewport);
-            
+
             Rect2D scissor = new(){
                 Offset = new Offset2D(0, 0),
                 Extent = _extent
             };
             _vk.CmdSetScissor(buffer, 0, 1, &scissor);
-            
+
             foreach ((Mesh mesh, CompiledMeshData? data) in meshes) {
                 if (data != null) {
                     fixed (Buffer* bufferPtr = new[]{ pipeline.VertexBuffer }) {
@@ -942,13 +948,12 @@ public unsafe class VkRenderEngine : IRenderEngine {
         UniformBufferObject ubo = new UniformBufferObject{
             Model = Matrix4X4<float>.Identity,
             View = Matrix4X4.CreateLookAt(_camera.Position, _camera.Target, new Vector3D<float>(0, 1, 0)),
-            Projection = Matrix4X4.CreatePerspectiveFieldOfView(Scalar.DegreesToRadians(_camera.FoV), (float)_extent.Width / _extent.Height, 0.1f, 100.0f),
+            Projection = Matrix4X4.CreatePerspectiveFieldOfView(Scalar.DegreesToRadians(_camera.FoV), (float)_extent.Width / _extent.Height, 0.1f, 1000.0f),
         };
         ubo.Projection.M22 *= -1;
-        
+
         float[] data = ubo.ToFloatArray();
         data.AsSpan().CopyTo(new Span<float>(pipeline.UniformBufferMappedMemory[frame], data.Length));
-        
     }
 
     private void CreateSyncObjects(){
@@ -969,7 +974,8 @@ public unsafe class VkRenderEngine : IRenderEngine {
         }
     }
 
-    public void PreRender(double delta){}
+    public void PreRender(double delta){
+    }
 
     public void OnRender(double delta){
         if (_minimized) {
@@ -1057,7 +1063,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
         pipeline.MemoryBlockRefCount[mesh.Memory]--;
         if (pipeline.MemoryBlockRefCount[mesh.Memory] == 0) {
             pipeline.Allocator.FreeBlock(mesh.Memory);
-            pipeline.Meshes.Remove(mesh);   
+            pipeline.Meshes.Remove(mesh);
         }
     }
 
@@ -1079,7 +1085,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
 
         _swapChainImageViews = [];
         _swapChainExtension?.DestroySwapchain(_logicalDevice, _swapChain, null);
-        
+
         _vk.DestroyImageView(_logicalDevice, _depthImageView, null);
         _vk.DestroyImage(_logicalDevice, _depthImage, null);
         _vk.FreeMemory(_logicalDevice, _depthImageMemory, null);
@@ -1088,16 +1094,17 @@ public unsafe class VkRenderEngine : IRenderEngine {
     public void Cleanup(){
         _vk.DeviceWaitIdle(_logicalDevice);
         CleanupSwapChain();
-        
+
         _vk.DestroySampler(_logicalDevice, _textureSampler, null);
         _vk.DestroyImageView(_logicalDevice, _textureImageView, null);
         _vk.DestroyImage(_logicalDevice, _textureImage, null);
         _vk.FreeMemory(_logicalDevice, _textureImageMemory, null);
-        
+
         _vk.DestroyCommandPool(_logicalDevice, _commandPool, null);
         foreach (VkShaderPipeline pipeline in _pipelines.Values) {
             pipeline.Destroy(_vk, _logicalDevice);
         }
+
         _vk.DestroyRenderPass(_logicalDevice, _renderPass, null);
 
         _vk.DestroyDevice(_logicalDevice, null);

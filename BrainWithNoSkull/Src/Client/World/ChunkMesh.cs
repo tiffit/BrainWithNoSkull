@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using BrainWithNoSkull.Blocks;
+﻿using BrainWithNoSkull.Blocks;
 using BrainWithNoSkull.Client.Render;
 using BrainWithNoSkull.Client.Render.Data;
 using BrainWithNoSkull.Client.Render.RenderEngine;
@@ -36,10 +35,10 @@ public class ChunkMesh {
         for (int x = 0; x < Constants.ChunkSize; x++) {
             for (int y = 0; y < Constants.ChunkSize; y++) {
                 for (int z = 0; z < Constants.ChunkSize; z++) {
-                    Vector3D<float> blockPos = new Vector3D<float>(x, y + sectionIndex * Constants.ChunkSize, z);
-                    int blockX = (int)blockPos.X;
-                    int blockY = (int)blockPos.Y;
-                    int blockZ = (int)blockPos.Z;
+                    int blockX = x;
+                    int blockY = y + sectionIndex * Constants.ChunkSize;
+                    int blockZ = z;
+                    Vector3D<float> blockPos = new Vector3D<float>(blockX, blockY, blockZ);
                     Block block = chunk.GetBlock(blockX, blockY, blockZ);
                     if (!block.IsAir()) {
                         if (GetBlock(chunk, storage, blockX, blockY, blockZ + 1).IsAir()) {

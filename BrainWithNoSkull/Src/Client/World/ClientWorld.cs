@@ -10,14 +10,14 @@ public class ClientWorld : WorldBase {
 
     private int _generatedChunks = 0;
     
-    public ClientWorld(WorldSettings settings) : base(settings){
+    public ClientWorld(WorldSettings settings) : base(settings, true){
     }
 
     public void Render(double delta){
         Stopwatch sw = new Stopwatch();
         sw.Start();
-        for (int x = -Settings.WorldSize + 1; x < Settings.WorldSize; x++) {
-            for (int z = -Settings.WorldSize + 1; z < Settings.WorldSize; z++) {
+        for (int x = -16; x < 16; x++) {
+            for (int z = -16; z < 16; z++) {
                 Vector2D<int> chunkCoords = new Vector2D<int>(x, z);
                 RenderChunk(chunkCoords);
             }

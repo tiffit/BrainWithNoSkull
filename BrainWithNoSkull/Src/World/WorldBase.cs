@@ -10,18 +10,20 @@ public class WorldBase {
     public WorldGenerator WorldGenerator{ get; private set; }
     protected ChunkStorage Chunks;
     public WorldSettings Settings{ get; private set; }
+    public bool Remote{ get; private set; }
 
-    public WorldBase(WorldSettings settings){
+    public WorldBase(WorldSettings settings, bool remote){
         Settings = settings;
+        Remote = remote;
         WorldGenerator = new WorldGenerator(this, new FlatChunkGenerator(settings));
         Chunks = new ChunkStorage(this);
     }
 
-    public Chunk GetChunk(Vector2D<int> chunkCoords){
+    public Chunk? GetChunk(Vector2D<int> chunkCoords){
         return Chunks.GetChunk(chunkCoords);
     }
 
-    public virtual void Tick(){
+    public virtual void Tick(double delta){
         
     }
 

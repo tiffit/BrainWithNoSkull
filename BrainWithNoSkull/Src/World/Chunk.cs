@@ -1,4 +1,6 @@
 ﻿using BrainWithNoSkull.Blocks;
+using BrainWithNoSkull.Net.Pckt;
+using BrainWithNoSkull.Net.Pckt.Cb;
 using BrainWithNoSkull.Registries;
 using Silk.NET.Maths;
 
@@ -22,6 +24,10 @@ public class Chunk {
             return BlockRegistry.Air;
         }
         return _blocks[x, y, z];
+    }
+
+    public CbChunkPacket ToChunkPacket(){
+        return new CbChunkPacket(_blocks, Coords);
     }
     
 }

@@ -1,7 +1,20 @@
-﻿namespace BrainWithNoSkull.Client.World;
+﻿using BrainWithNoSkull.Net;
+
+namespace BrainWithNoSkull.Client.World;
 
 public class WorldSettings {
 
-    public int WorldSize = 4;
+    public uint WorldSize = 4;
+
+    public void Write(PacketWriter writer){
+        writer.Write(WorldSize);
+    }
+
+    public static WorldSettings Read(PacketReader reader){
+        uint worldSize = reader.ReadUInt32();
+        return new WorldSettings{
+            WorldSize = worldSize
+        };
+    }
 
 }
