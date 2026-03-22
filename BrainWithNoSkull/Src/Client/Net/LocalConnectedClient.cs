@@ -34,7 +34,7 @@ public class LocalConnectedClient : IConnectedClient {
 
     public void Tick(double delta){
         while (_packetQueue.TryDequeue(out IPacket? packet)) {
-            packet.Handle(new PacketContext(this));
+            packet.Handle(new PacketContext(this, null, null));
         }
     }
     

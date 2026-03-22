@@ -11,9 +11,11 @@ public class LocalServerConnection : IServerConnection {
     private readonly ConcurrentQueue<IPacket> _packetQueue = new ConcurrentQueue<IPacket>();
     private LocalConnectedClient _connectedClient = null!;
     private readonly byte[] _buffer = new byte[Constants.NetworkBufferSize];
+    private readonly ClientPacketHandler _packetHandler;
 
     public LocalServerConnection(LocalGameServer gameServer){
         _gameServer = gameServer;
+        _packetHandler = new ClientPacketHandler(this, GameClient.Instance);
     }
 
     public void Connect(){
@@ -37,7 +39,7 @@ public class LocalServerConnection : IServerConnection {
 
     public void Tick(double delta){
         while (_packetQueue.TryDequeue(out IPacket? packet)) {
-            packet.Handle(new PacketContext(null));
+            packet.Handle(new PacketContext(null, this, _packetHandler));
         }
     }
     

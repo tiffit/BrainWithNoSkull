@@ -5,5 +5,5 @@ public class Constants {
     public const int ChunkSize = 16;
     public const int SeaLevel = 128;
 
-    public static int NetworkBufferSize = 1024 * 4;
+    public static int NetworkBufferSize = 1024 * 1024 * 2;
 }

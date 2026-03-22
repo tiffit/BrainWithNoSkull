@@ -27,5 +27,6 @@ public class CbWorldInfoPacket : IPacket {
     }
 
     public void Handle(PacketContext ctx){
+        ctx.ClientPacketHandler!.HandeWorldInfo(this);
     }
 }
