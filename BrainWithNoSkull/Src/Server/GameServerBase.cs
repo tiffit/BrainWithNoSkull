@@ -1,17 +1,25 @@
 ﻿using BrainWithNoSkull.Client.World;
+using BrainWithNoSkull.Net;
+using BrainWithNoSkull.Net.Pckt.Cb;
 
 namespace BrainWithNoSkull.Server;
 
 public class GameServerBase {
 
-    private ServerWorld _world;
+    public ServerWorld World;
+    private readonly List<IConnectedClient> _clients = [];
     
     public GameServerBase(){
-        _world = new ServerWorld(new WorldSettings(){ WorldSize = 4 });
+        World = new ServerWorld(new WorldSettings(){ WorldSize = 4 });
     }
 
     public virtual void Tick(double delta){
-        _world.Tick(delta);
+        World.Tick(delta);
+    }
+
+    public void Connect(IConnectedClient client){
+        _clients.Add(client);
+        client.SendPacket(new CbWorldInfoPacket(World.Settings));
     }
     
 }

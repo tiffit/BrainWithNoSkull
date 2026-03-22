@@ -1,12 +1,8 @@
 ﻿using System.Collections.Concurrent;
-using BrainWithNoSkull.Client.Render;
-using BrainWithNoSkull.Client.Render.Data;
+using BrainWithNoSkull.Client.Net;
 using BrainWithNoSkull.Client.Render.RenderEngine;
-using BrainWithNoSkull.Client.Render.Shader;
-using BrainWithNoSkull.Client.Render.Util;
-using BrainWithNoSkull.Client.World;
-using BrainWithNoSkull.Registries;
-using Silk.NET.GLFW;
+using BrainWithNoSkull.Net.Pckt;
+using BrainWithNoSkull.Server;
 using Silk.NET.Input;
 using Silk.NET.Input.Glfw;
 using Silk.NET.Maths;
@@ -28,7 +24,10 @@ public class GameClient {
     private Vector3D<float> _playerPos = new Vector3D<float>(0f, 130f, 0f);
     private bool _hasMouseMoved;
 
-    private ClientWorld? _world;
+    private LocalGameServer _server;
+
+    // private ClientWorld? _world;
+    private LocalServerConnection _serverConnection;
 
     private ConcurrentQueue<Action> _tickActions = [];
     private ConcurrentQueue<Action> _renderActions = [];
@@ -39,6 +38,7 @@ public class GameClient {
 
     public void Start(){
         Registries.Registries.RegisterAll();
+        PacketRegistry.Register();
 
         SetupWindow();
 
@@ -48,7 +48,9 @@ public class GameClient {
             Target = new Vector3D<float>(0, 0, 0)
         };
 
-        _world = new ClientWorld(new WorldSettings());
+        _server = new LocalGameServer();
+        _serverConnection = new LocalServerConnection(_server);
+        _serverConnection.Connect();
 
         RenderEngine = VkRenderEngine.Instance;
         RenderEngine.Init(GameWindow, _camera);
@@ -66,7 +68,7 @@ public class GameClient {
         GlfwWindowing.Use();
         GlfwInput.RegisterPlatform();
         GameWindow = Window.Create(windowOptions);
-        GameWindow.UpdatesPerSecond = 30;
+        GameWindow.UpdatesPerSecond = 20;
         GameWindow.Load += OnWindowLoad;
         GameWindow.Initialize();
     }
@@ -82,8 +84,12 @@ public class GameClient {
         while (_renderActions.TryDequeue(out Action? renderAction)) {
             renderAction.Invoke();
         }
+
+        // if (_server.World != null) {
+        //     ((ClientWorld)_server.World).Render(delta);
+        // }
         
-        _world?.Render(delta);
+        // _world?.Render(delta);
         
         _inputHandler.Tick(delta, out Vector2D<float> mouseMovement);
         if (!_hasMouseMoved && mouseMovement.Equals(Vector2D<float>.Zero)) {
@@ -136,5 +142,7 @@ public class GameClient {
         while (_tickActions.TryDequeue(out Action? tickAction)) {
             tickAction.Invoke();
         }
+        _serverConnection.Tick(delta);
+        _server.Tick(delta);
     }
 }

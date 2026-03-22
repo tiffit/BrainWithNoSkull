@@ -2,8 +2,6 @@
 
 public class PacketWriter : BinaryWriter{
 
-    public PacketWriter(Stream output){
-        
-    }
+    public PacketWriter(Stream output): base(output){}
     
 }

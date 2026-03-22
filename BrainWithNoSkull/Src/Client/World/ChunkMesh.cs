@@ -20,12 +20,14 @@ public class ChunkMesh {
     }
 
     public void FullyGenerate(ChunkStorage storage){
-        Chunk chunk = storage.GetChunk(_chunkCoords);
-        for (int i = 0; i < _sections.Length; i++) {
-            if (_sections[i]?.Mesh != null) {
-                GameClient.Instance.RenderEngine.DestroyMesh(_sections[i]!.Mesh!);
+        Chunk? chunk = storage.GetChunk(_chunkCoords);
+        if (chunk != null) {
+            for (int i = 0; i < _sections.Length; i++) {
+                if (_sections[i]?.Mesh != null) {
+                    GameClient.Instance.RenderEngine.DestroyMesh(_sections[i]!.Mesh!);
+                }
+                _sections[i] = GenerateSection(storage, chunk, i);
             }
-            _sections[i] = GenerateSection(storage, chunk, i);
         }
     }
 

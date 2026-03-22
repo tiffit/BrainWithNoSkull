@@ -25,4 +25,7 @@ public class CbWorldInfoPacket : IPacket {
     public void Read(PacketReader reader){
         _settings = WorldSettings.Read(reader);
     }
+
+    public void Handle(PacketContext ctx){
+    }
 }

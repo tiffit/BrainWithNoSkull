@@ -7,8 +7,10 @@ public class CbChunkPacket : IPacket {
 
     private Block[,,] _blocks;
     private Vector2D<int> _chunkCoords;
-    
-    public CbChunkPacket(){}
+
+    public CbChunkPacket(){
+        _blocks = null!;
+    }
     
     public CbChunkPacket(Block[,,] blocks, Vector2D<int> chunkCoords){
         _blocks = blocks;
@@ -20,10 +22,14 @@ public class CbChunkPacket : IPacket {
     }
 
     public void Write(PacketWriter writer){
-        throw new NotImplementedException();
+        
     }
 
     public void Read(PacketReader reader){
-        throw new NotImplementedException();
+        
+    }
+
+    public void Handle(PacketContext ctx){
+        
     }
 }

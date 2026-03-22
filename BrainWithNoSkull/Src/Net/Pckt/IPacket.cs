@@ -8,6 +8,13 @@ public interface IPacket {
 
     void Write(PacketWriter writer);
     void Read(PacketReader reader);
+
+    void Handle(PacketContext ctx);
+
+    public void EncodePacket(PacketWriter writer){
+        writer.Write((ushort)GetPacketType());
+        Write(writer);
+    }
 }
 
 public enum PacketType: ushort{
@@ -28,4 +35,12 @@ public static class PacketRegistry {
 
     public static IPacket GetPacket(PacketType type) => Registry[type]();
 
+    public static IPacket DecodePacket(PacketReader reader){
+        PacketType type = (PacketType)reader.ReadUInt16();
+        IPacket packet = GetPacket(type);
+        packet.Read(reader);
+        return packet;
+    }
 }
+
+public record PacketContext(IConnectedClient? Client);
