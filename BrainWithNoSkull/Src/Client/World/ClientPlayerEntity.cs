@@ -6,9 +6,9 @@ namespace BrainWithNoSkull.Client.World;
 
 public class ClientPlayerEntity : PlayerEntity {
     
-    public IServerConnection ServerConnection{ get; private set; }
+    public ServerConnectionBase ServerConnection{ get; private set; }
     
-    public ClientPlayerEntity(IServerConnection serverConnection, WorldBase? world) : base(world){
+    public ClientPlayerEntity(ServerConnectionBase serverConnection, WorldBase? world) : base(world){
         ServerConnection = serverConnection;
     }
     

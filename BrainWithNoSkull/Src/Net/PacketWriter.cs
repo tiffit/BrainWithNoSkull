@@ -11,4 +11,10 @@ public class PacketWriter : BinaryWriter{
         Write(vec.Y);
     }
     
+    public void Write(Vector3D<float> vec){
+        Write(vec.X);
+        Write(vec.Y);
+        Write(vec.Z);
+    }
+    
 }

@@ -1,8 +1,11 @@
 ﻿using System.Collections.Concurrent;
 using BrainWithNoSkull.Client.Net;
 using BrainWithNoSkull.Client.Render.RenderEngine;
+using BrainWithNoSkull.Client.World;
+using BrainWithNoSkull.Net;
 using BrainWithNoSkull.Net.Pckt;
 using BrainWithNoSkull.Server;
+using BrainWithNoSkull.Util;
 using Silk.NET.Input;
 using Silk.NET.Input.Glfw;
 using Silk.NET.Maths;
@@ -26,8 +29,8 @@ public class GameClient {
 
     private LocalGameServer _server;
 
-    // private ClientWorld? _world;
-    private LocalServerConnection _serverConnection;
+    public ClientWorld? World;
+    private ServerConnectionBase _serverConnection;
 
     private ConcurrentQueue<Action> _tickActions = [];
     private ConcurrentQueue<Action> _renderActions = [];
@@ -49,8 +52,9 @@ public class GameClient {
         };
 
         _server = new LocalGameServer();
-        _serverConnection = new LocalServerConnection(_server);
-        _serverConnection.Connect();
+        LocalServerConnection localServerConnection = new LocalServerConnection(_server);
+        localServerConnection.Connect();
+        _serverConnection = localServerConnection;
 
         RenderEngine = VkRenderEngine.Instance;
         RenderEngine.Init(GameWindow, _camera);
@@ -85,12 +89,8 @@ public class GameClient {
             renderAction.Invoke();
         }
 
-        // if (_server.World != null) {
-        //     ((ClientWorld)_server.World).Render(delta);
-        // }
-        
-        // _world?.Render(delta);
-        
+        World?.Render(delta);
+
         _inputHandler.Tick(delta, out Vector2D<float> mouseMovement);
         if (!_hasMouseMoved && mouseMovement.Equals(Vector2D<float>.Zero)) {
             _hasMouseMoved = true;
@@ -142,6 +142,9 @@ public class GameClient {
         while (_tickActions.TryDequeue(out Action? tickAction)) {
             tickAction.Invoke();
         }
+        
+        _serverConnection.PlayerEntity?.SetPosition(_playerPos);
+        World?.Tick(delta);
         _serverConnection.Tick(delta);
         _server.Tick(delta);
     }

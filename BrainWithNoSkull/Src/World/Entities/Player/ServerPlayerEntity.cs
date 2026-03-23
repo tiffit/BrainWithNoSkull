@@ -9,9 +9,4 @@ public class ServerPlayerEntity : PlayerEntity {
     public ServerPlayerEntity(ConnectedClientBase client, WorldBase? world) : base(world){
         Client = client;
     }
-
-    public override void Tick(){
-        base.Tick();
-        Console.WriteLine("Ticking player");
-    }
 }

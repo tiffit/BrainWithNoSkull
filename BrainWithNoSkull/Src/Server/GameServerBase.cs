@@ -16,6 +16,10 @@ public class GameServerBase {
     }
 
     public virtual void Tick(double delta){
+        foreach (ConnectedClientBase client in _clients) {
+            client.Tick(delta);
+        }
+
         World.Tick(delta);
     }
 

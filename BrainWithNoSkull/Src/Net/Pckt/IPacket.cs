@@ -18,8 +18,10 @@ public interface IPacket {
 }
 
 public enum PacketType: ushort{
+    //Client-bound
     WorldInfo,
-    Chunk
+    Chunk,
+    PlayerInfo
 }
 
 public delegate IPacket PacketFactory();
@@ -31,6 +33,7 @@ public static class PacketRegistry {
     public static void Register(){
         Registry[PacketType.WorldInfo] = () => new CbWorldInfoPacket();
         Registry[PacketType.Chunk] = () => new CbChunkPacket();
+        Registry[PacketType.PlayerInfo] = () => new CbPlayerInfoPacket();
     }
 
     public static IPacket GetPacket(PacketType type) => Registry[type]();
@@ -43,4 +46,4 @@ public static class PacketRegistry {
     }
 }
 
-public record PacketContext(ConnectedClientBase? Client, IServerConnection? ServerConnection, IClientPacketHandler? ClientPacketHandler);
+public record PacketContext(ConnectedClientBase? Client, ServerConnectionBase? ServerConnection, IClientPacketHandler? ClientPacketHandler);

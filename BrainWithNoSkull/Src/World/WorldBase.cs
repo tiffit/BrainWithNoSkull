@@ -1,4 +1,6 @@
 ﻿using BrainWithNoSkull.Client.World;
+using BrainWithNoSkull.Util;
+using BrainWithNoSkull.World.Entities;
 using BrainWithNoSkull.World.Gen;
 using BrainWithNoSkull.World.Gen.Chunks;
 using Silk.NET.Maths;
@@ -10,13 +12,19 @@ public class WorldBase {
     public WorldGenerator WorldGenerator{ get; private set; }
     protected ChunkStorage Chunks;
     public WorldSettings Settings{ get; private set; }
-    public bool Remote{ get; private set; }
+    public bool OnServer{ get; private set; }
 
-    public WorldBase(WorldSettings settings, bool remote){
+    public WorldBase(WorldSettings settings, bool onServer){
         Settings = settings;
-        Remote = remote;
+        OnServer = onServer;
         WorldGenerator = new WorldGenerator(this, new FlatChunkGenerator(settings));
         Chunks = new ChunkStorage(this);
+    }
+    
+    public void AddEntity(Entity entity, Vector3D<float> position){
+        Chunk chunk = GetChunk(ChunkUtils.ToChunkCoords(position))!;
+        chunk.AddEntity(entity);
+        entity.SetPosition(position);
     }
 
     public Chunk? GetChunk(Vector2D<int> chunkCoords){
@@ -25,6 +33,10 @@ public class WorldBase {
 
     public virtual void Tick(double delta){
         Chunks.Tick(delta);
+    }
+    
+    public int WrapChunkCoord(int val){
+        return Chunks.WrapChunkCoord(val);
     }
 
 }

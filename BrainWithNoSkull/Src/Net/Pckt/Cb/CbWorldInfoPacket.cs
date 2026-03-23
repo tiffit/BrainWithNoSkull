@@ -5,12 +5,12 @@ namespace BrainWithNoSkull.Net.Pckt.Cb;
 
 public class CbWorldInfoPacket : IPacket {
 
-    private WorldSettings _settings;
+    public WorldSettings Settings;
     
     public CbWorldInfoPacket(){}
     
     public CbWorldInfoPacket(WorldSettings settings){
-        _settings = settings;
+        Settings = settings;
     }
     
     public PacketType GetPacketType(){
@@ -18,11 +18,11 @@ public class CbWorldInfoPacket : IPacket {
     }
 
     public void Write(PacketWriter writer){
-        _settings.Write(writer);
+        Settings.Write(writer);
     }
 
     public void Read(PacketReader reader){
-        _settings = WorldSettings.Read(reader);
+        Settings = WorldSettings.Read(reader);
     }
 
     public void Handle(PacketContext ctx){

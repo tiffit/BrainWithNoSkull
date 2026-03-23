@@ -11,7 +11,8 @@ using Silk.NET.Maths;
 namespace BrainWithNoSkull.Client.World;
 
 public class ChunkMesh {
-    private readonly Vector2D<int> _chunkCoords;
+    private Vector2D<int> _chunkCoords;
+    private Vector2D<int> _wrappedChunkCoords;
     private ChunkMeshSection?[] _sections;
 
     public ChunkMesh(Vector2D<int> chunkCoords){
@@ -19,16 +20,29 @@ public class ChunkMesh {
         _sections = new ChunkMeshSection[Constants.MaxWorldHeight / Constants.ChunkSize];
     }
 
-    public void FullyGenerate(ChunkStorage storage){
+    public bool FullyGenerate(ChunkStorage storage){
         Chunk? chunk = storage.GetChunk(_chunkCoords);
         if (chunk != null) {
+            _wrappedChunkCoords = chunk.Coords;
+        }
+        if (chunk != null && CanGenerate(storage)) {
             for (int i = 0; i < _sections.Length; i++) {
                 if (_sections[i]?.Mesh != null) {
                     GameClient.Instance.RenderEngine.DestroyMesh(_sections[i]!.Mesh!);
                 }
                 _sections[i] = GenerateSection(storage, chunk, i);
             }
+            return true;
         }
+
+        return false;
+    }
+
+    private bool CanGenerate(ChunkStorage storage){
+        return storage.IsChunkLoaded(_wrappedChunkCoords + Vector2D<int>.UnitX) &&
+               storage.IsChunkLoaded(_wrappedChunkCoords - Vector2D<int>.UnitX) &&
+               storage.IsChunkLoaded(_wrappedChunkCoords + Vector2D<int>.UnitY) &&
+               storage.IsChunkLoaded(_wrappedChunkCoords - Vector2D<int>.UnitY);
     }
 
     private ChunkMeshSection GenerateSection(ChunkStorage storage, Chunk chunk, int sectionIndex){
