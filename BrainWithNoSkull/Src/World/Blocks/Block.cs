@@ -1,6 +1,6 @@
 ﻿using BrainWithNoSkull.Registries;
 
-namespace BrainWithNoSkull.Blocks;
+namespace BrainWithNoSkull.World.Blocks;
 
 public class Block : IRegistryEntry {
     

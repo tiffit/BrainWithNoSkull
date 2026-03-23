@@ -43,4 +43,4 @@ public static class PacketRegistry {
     }
 }
 
-public record PacketContext(IConnectedClient? Client, IServerConnection? ServerConnection, IClientPacketHandler? ClientPacketHandler);
+public record PacketContext(ConnectedClientBase? Client, IServerConnection? ServerConnection, IClientPacketHandler? ClientPacketHandler);

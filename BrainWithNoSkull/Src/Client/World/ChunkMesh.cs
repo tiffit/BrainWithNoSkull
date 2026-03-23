@@ -1,11 +1,11 @@
-﻿using BrainWithNoSkull.Blocks;
-using BrainWithNoSkull.Client.Render;
+﻿using BrainWithNoSkull.Client.Render;
 using BrainWithNoSkull.Client.Render.Data;
 using BrainWithNoSkull.Client.Render.RenderEngine;
 using BrainWithNoSkull.Client.Render.Shader;
 using BrainWithNoSkull.Client.Render.Util;
 using BrainWithNoSkull.Registries;
 using BrainWithNoSkull.World;
+using BrainWithNoSkull.World.Blocks;
 using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.Client.World;

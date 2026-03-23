@@ -28,5 +28,6 @@ public class Registry<T> where T : IRegistryEntry {
 public class Registries {
     public static void RegisterAll(){
         BlockRegistry.Init();
+        EntityTypeRegistry.Init();
     }
 }

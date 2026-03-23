@@ -24,7 +24,7 @@ public class WorldBase {
     }
 
     public virtual void Tick(double delta){
-        
+        Chunks.Tick(delta);
     }
 
 }

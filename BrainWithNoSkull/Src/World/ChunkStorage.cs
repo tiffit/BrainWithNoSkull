@@ -21,12 +21,12 @@ public class ChunkStorage {
             return chunk;
         }
 
-        // if (!_remote) {
+        if (!_remote) {
             chunk = _worldGenerator.Generate(chunkCoords);
             _loadedChunks[chunkCoords] = chunk;
             return chunk;
-        // }
-        // return null;
+        }
+        return null;
     }
 
     public int WrapChunkCoord(int val){
@@ -35,6 +35,12 @@ public class ChunkStorage {
             val = (int)_world.Settings.WorldSize + val;
         }
         return val;
+    }
+
+    public void Tick(double delta){
+        foreach ((Vector2D<int> pos, Chunk chunk) in _loadedChunks) {
+            chunk.Tick();
+        }
     }
     
 }

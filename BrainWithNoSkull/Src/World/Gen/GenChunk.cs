@@ -1,5 +1,5 @@
-﻿using BrainWithNoSkull.Blocks;
-using BrainWithNoSkull.Registries;
+﻿using BrainWithNoSkull.Registries;
+using BrainWithNoSkull.World.Blocks;
 using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.World.Gen;
