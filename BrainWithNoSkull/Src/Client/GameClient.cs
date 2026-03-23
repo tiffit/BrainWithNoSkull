@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using BrainWithNoSkull.Client.Net;
+using BrainWithNoSkull.Client.Render;
 using BrainWithNoSkull.Client.Render.RenderEngine;
 using BrainWithNoSkull.Client.World;
 using BrainWithNoSkull.Net;
@@ -104,7 +105,7 @@ public class GameClient {
             Vector3D.Transform(new Vector3D<float>(0, 0, 1), Matrix4X4.CreateFromYawPitchRoll(_yaw, _pitch, 0))
         );
 
-        float movementSpeed = 3f * (float)delta;
+        float movementSpeed = 30f * (float)delta;
         Vector3D<float> lookHorizontal = Vector3D.Normalize(new Vector3D<float>(lookDirection.X, 0, lookDirection.Z));
         Vector3D<float> lookCross = Vector3D.Normalize(Vector3D.Cross(Vector3D<float>.UnitY, lookHorizontal));
 
@@ -134,6 +135,7 @@ public class GameClient {
 
         _camera.Position = _playerPos;
         _camera.Target = _playerPos + lookDirection;
+        _camera.Frustum = new Frustum(_camera);
 
         RenderEngine.OnRender(delta);
     }

@@ -4,6 +4,7 @@ using BrainWithNoSkull.Client.Render.RenderEngine;
 using BrainWithNoSkull.Client.Render.Shader;
 using BrainWithNoSkull.Client.Render.Util;
 using BrainWithNoSkull.Registries;
+using BrainWithNoSkull.Util;
 using BrainWithNoSkull.World;
 using BrainWithNoSkull.World.Blocks;
 using Silk.NET.Maths;
@@ -150,7 +151,9 @@ public class ChunkMesh {
             TransformPushConstant pushConstant = new TransformPushConstant{
                 Transform = Matrix4X4.CreateTranslation(Constants.ChunkSize * _chunkCoords.X, 0f, Constants.ChunkSize * _chunkCoords.Y)
             };
-            renderEngine.WriteMesh(mesh, builder, ref pushConstant);
+            Vector3D<float> aabbMin = new Vector3D<float>(chunk.Coords.X, sectionIndex, chunk.Coords.Y) * Constants.ChunkSize;
+            AABB aabb = new AABB(aabbMin, aabbMin + new Vector3D<float>(Constants.ChunkSize));
+            renderEngine.WriteMesh(mesh, builder, aabb, ref pushConstant);
             return new ChunkMeshSection{
                 Mesh = mesh
             };
@@ -175,11 +178,11 @@ public class ChunkMesh {
             chunk = storage.GetChunk(chunk.Coords + Vector2D<int>.UnitY);
             z -= Constants.ChunkSize;
         }
-
+        
         if (y < 0 || y >= Constants.MaxWorldHeight) {
             return BlockRegistry.Air;
         }
-
+        
         return chunk.GetBlock(x, y, z);
     }
 

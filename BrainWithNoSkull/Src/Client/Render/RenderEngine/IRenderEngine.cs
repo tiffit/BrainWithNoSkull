@@ -1,5 +1,6 @@
 ﻿using BrainWithNoSkull.Client.Render.Data;
 using BrainWithNoSkull.Client.Render.Shader;
+using BrainWithNoSkull.Util;
 using Silk.NET.Windowing;
 
 namespace BrainWithNoSkull.Client.Render.RenderEngine;
@@ -12,7 +13,7 @@ public interface IRenderEngine {
     void OnRender(double delta);
 
     Mesh CreateMesh(ShaderType shaderType, ulong size);
-    void WriteMesh(Mesh mesh, VertexBuilder builder, ref TransformPushConstant pushConstant);
+    void WriteMesh(Mesh mesh, VertexBuilder builder, AABB? aabb, ref TransformPushConstant pushConstant);
     void DestroyMesh(Mesh mesh);
 
     void Cleanup();

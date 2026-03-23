@@ -14,7 +14,7 @@ public class ClientWorld : WorldBase {
     private readonly GameClient _gameClient;
     private readonly ServerConnectionBase _serverConnection;
 
-    private int ViewDistance = 4;
+    private int ViewDistance = 6;
     private Vector2D<int>? _playerChunk;
     
     public ClientWorld(GameClient client, ServerConnectionBase serverConnection, WorldSettings settings) : base(settings, false){

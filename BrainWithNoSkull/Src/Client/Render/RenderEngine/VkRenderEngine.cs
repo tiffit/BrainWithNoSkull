@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using BrainWithNoSkull.Client.Render.Data;
 using BrainWithNoSkull.Client.Render.RenderEngine.Vulkan;
 using BrainWithNoSkull.Client.Render.Shader;
+using BrainWithNoSkull.Util;
 using Silk.NET.Core;
 using Silk.NET.Core.Native;
 using Silk.NET.Maths;
@@ -926,6 +927,9 @@ public unsafe class VkRenderEngine : IRenderEngine {
 
             foreach ((Mesh mesh, CompiledMeshData? data) in meshes) {
                 if (data != null) {
+                    if (_camera.Frustum != null && data.Aabb != null && !_camera.Frustum.IsBoxInside(data.Aabb)) {
+                        continue;
+                    }
                     fixed (Buffer* bufferPtr = new[]{ pipeline.VertexBuffer }) {
                         ulong offset = mesh.Memory.Offset;
                         _vk.CmdBindVertexBuffers(buffer, 0, 1, bufferPtr, ref offset);
@@ -945,10 +949,11 @@ public unsafe class VkRenderEngine : IRenderEngine {
     }
 
     private void UpdateUniformBuffer(uint frame, VkShaderPipeline pipeline){
+        _camera.AspectRatio = (float)_extent.Width / _extent.Height;
         UniformBufferObject ubo = new UniformBufferObject{
             Model = Matrix4X4<float>.Identity,
             View = Matrix4X4.CreateLookAt(_camera.Position, _camera.Target, new Vector3D<float>(0, 1, 0)),
-            Projection = Matrix4X4.CreatePerspectiveFieldOfView(Scalar.DegreesToRadians(_camera.FoV), (float)_extent.Width / _extent.Height, 0.1f, 1000.0f),
+            Projection = Matrix4X4.CreatePerspectiveFieldOfView(Scalar.DegreesToRadians(_camera.FoV), _camera.AspectRatio, _camera.Near, _camera.Far),
         };
         ubo.Projection.M22 *= -1;
 
@@ -1045,7 +1050,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
         throw new Exception($"Unable to allocate {size} bytes for shader {shaderType.Name}");
     }
 
-    public void WriteMesh(Mesh mesh, VertexBuilder builder, ref TransformPushConstant pushConstant){
+    public void WriteMesh(Mesh mesh, VertexBuilder builder, AABB? aabb, ref TransformPushConstant pushConstant){
         VkShaderPipeline pipeline = _pipelines[mesh.SType];
         float[] vertices = builder.Pack();
         void* data;
@@ -1054,7 +1059,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
         vertices.AsSpan().CopyTo(new Span<float>(data, vertices.Length));
         _vk.UnmapMemory(_logicalDevice, pipeline.StagingVertexBufferMemory);
         VkBuffers.CopyBuffer(_vk, _graphicsQueue, _queueFamilies, _logicalDevice, pipeline.StagingVertexBuffer, pipeline.VertexBuffer, mesh.Memory.Offset, dataSize);
-        pipeline.Meshes[mesh] = new CompiledMeshData(builder.VerticesCount, pushConstant);
+        pipeline.Meshes[mesh] = new CompiledMeshData(builder.VerticesCount, aabb, pushConstant);
     }
 
     public void DestroyMesh(Mesh mesh){
