@@ -952,7 +952,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
         _camera.AspectRatio = (float)_extent.Width / _extent.Height;
         UniformBufferObject ubo = new UniformBufferObject{
             Model = Matrix4X4<float>.Identity,
-            View = Matrix4X4.CreateLookAt(_camera.Position, _camera.Target, new Vector3D<float>(0, 1, 0)),
+            View = Matrix4X4.CreateLookAt(_camera.Position, _camera.Target, Vector3D<float>.UnitY),
             Projection = Matrix4X4.CreatePerspectiveFieldOfView(Scalar.DegreesToRadians(_camera.FoV), _camera.AspectRatio, _camera.Near, _camera.Far),
         };
         ubo.Projection.M22 *= -1;

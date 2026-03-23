@@ -151,7 +151,7 @@ public class ChunkMesh {
             TransformPushConstant pushConstant = new TransformPushConstant{
                 Transform = Matrix4X4.CreateTranslation(Constants.ChunkSize * _chunkCoords.X, 0f, Constants.ChunkSize * _chunkCoords.Y)
             };
-            Vector3D<float> aabbMin = new Vector3D<float>(chunk.Coords.X, sectionIndex, chunk.Coords.Y) * Constants.ChunkSize;
+            Vector3D<float> aabbMin = new Vector3D<float>(_chunkCoords.X, sectionIndex, _chunkCoords.Y) * Constants.ChunkSize;
             AABB aabb = new AABB(aabbMin, aabbMin + new Vector3D<float>(Constants.ChunkSize));
             renderEngine.WriteMesh(mesh, builder, aabb, ref pushConstant);
             return new ChunkMeshSection{
