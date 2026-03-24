@@ -7,12 +7,18 @@ public unsafe class VkImages {
     public static void CreateImage(Vk vk, Device device, PhysicalDevice physicalDevice, uint width, uint height,
         Format format, ImageTiling tiling, ImageUsageFlags usageFlags, MemoryPropertyFlags memoryFlags,
         out Image image, out DeviceMemory memory){
+        CreateImage(vk, device, physicalDevice, width, height, format, tiling, usageFlags, memoryFlags, 1, out image, out memory);
+    }
+    
+    public static void CreateImage(Vk vk, Device device, PhysicalDevice physicalDevice, uint width, uint height,
+        Format format, ImageTiling tiling, ImageUsageFlags usageFlags, MemoryPropertyFlags memoryFlags, uint arrayLayers,
+        out Image image, out DeviceMemory memory){
         ImageCreateInfo imageCreateInfo = new(){
             SType = StructureType.ImageCreateInfo,
             ImageType = ImageType.Type2D,
             Extent = new Extent3D(width, height, 1),
             MipLevels = 1,
-            ArrayLayers = 1,
+            ArrayLayers = arrayLayers,
             Format = format,
             Tiling = tiling,
             InitialLayout = ImageLayout.Undefined,

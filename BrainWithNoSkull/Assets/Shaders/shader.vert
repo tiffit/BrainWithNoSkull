@@ -17,13 +17,18 @@ layout (location = 2) in vec2 inUV;
 
 layout (location = 0) out vec3 fragColor;
 layout (location = 1) out vec2 fragUV;
+layout (location = 2) out vec4 fragViewPos;
+layout (location = 3) out vec4 fragPos;
 
 out gl_PerVertex {
     vec4 gl_Position;
 };
 
 void main() {
-    gl_Position = ubo.proj * ubo.view * ubo.model * transformConstant.model * vec4(inPosition, 1.0);
+    vec4 pos = transformConstant.model * vec4(inPosition, 1.0);
+    fragPos = pos;
+    fragViewPos = (ubo.view * pos);
+    gl_Position = ubo.proj * ubo.view * ubo.model * pos;
     fragColor = inColor;
     fragUV = inUV;
 }

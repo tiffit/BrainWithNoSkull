@@ -8,14 +8,21 @@ public class VkShaderProgram : ShaderProgram {
     private readonly Vk _vk;
     private readonly ShaderModule _vertModule;
     private readonly ShaderModule _fragModule;
+    private readonly ShaderModule _vertShadowModule;
+    private readonly ShaderModule _fragShadowModule;
 
     public PipelineShaderStageCreateInfo VertStage{ get; private set; }
     public PipelineShaderStageCreateInfo FragStage{ get; private set; }
+    
+    public PipelineShaderStageCreateInfo VertStageShadow{ get; private set; }
+    public PipelineShaderStageCreateInfo FragStageShadow{ get; private set; }
 
-    public VkShaderProgram(ShaderType shType, Vk vk, ShaderModule vertModule, ShaderModule fragModule) : base(shType){
+    public VkShaderProgram(ShaderType shType, Vk vk, ShaderModule vertModule, ShaderModule fragModule, ShaderModule vertShadowModule, ShaderModule fragShadowModule) : base(shType){
         _vk = vk;
         _vertModule = vertModule;
         _fragModule = fragModule;
+        _vertShadowModule = vertShadowModule;
+        _fragShadowModule = fragShadowModule;
         CreateStages();
     }
 
@@ -32,14 +39,31 @@ public class VkShaderProgram : ShaderProgram {
             Module = _fragModule,
             PName = (byte*)SilkMarshal.StringToPtr("main")
         };
+        
+        VertStageShadow = new PipelineShaderStageCreateInfo{
+            SType = StructureType.PipelineShaderStageCreateInfo,
+            Stage = ShaderStageFlags.VertexBit,
+            Module = _vertShadowModule,
+            PName = (byte*)SilkMarshal.StringToPtr("main")
+        };
+        FragStageShadow = new PipelineShaderStageCreateInfo{
+            SType = StructureType.PipelineShaderStageCreateInfo,
+            Stage = ShaderStageFlags.FragmentBit,
+            Module = _fragShadowModule,
+            PName = (byte*)SilkMarshal.StringToPtr("main")
+        };
     }
 
     public unsafe void DisposeModules(Device device){
         _vk.DestroyShaderModule(device, _vertModule, null);
         _vk.DestroyShaderModule(device, _fragModule, null);
+        _vk.DestroyShaderModule(device, _vertShadowModule, null);
+        _vk.DestroyShaderModule(device, _fragShadowModule, null);
 
         SilkMarshal.Free((nint)VertStage.PName);
         SilkMarshal.Free((nint)FragStage.PName);
+        SilkMarshal.Free((nint)VertStageShadow.PName);
+        SilkMarshal.Free((nint)FragStageShadow.PName);
     }
 
     public static unsafe ShaderModule CreateModule(Vk vk, Device device, byte[] data){

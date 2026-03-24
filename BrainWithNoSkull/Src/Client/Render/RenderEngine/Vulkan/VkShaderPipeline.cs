@@ -20,6 +20,16 @@ public unsafe class VkShaderPipeline {
     public void*[] UniformBufferMappedMemory = [];
     public DescriptorPool DescriptorPool;
     public DescriptorSet[] DescriptorSets = [];
+    
+    public Buffer[] ShadowUniformBuffers = [];
+    public DeviceMemory[] ShadowUniformBuffersMemory = [];
+    public void*[] ShadowUniformBufferMappedMemory = [];
+    public PipelineLayout ShadowPipelineLayout;
+    public Pipeline ShadowPipeline;
+    
+    public Buffer[] ShadowMapDataUniformBuffers = [];
+    public DeviceMemory[] ShadowMapDataUniformBuffersMemory = [];
+    public void*[] ShadowMapDataUniformBufferMappedMemory = [];
 
     public BufferAllocator Allocator;
     public Dictionary<Mesh, CompiledMeshData?> Meshes = [];

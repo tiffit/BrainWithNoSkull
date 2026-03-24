@@ -14,3 +14,17 @@ public struct TransformPushConstant {
         return arr;
     }
 }
+
+public struct TransformPushConstantShadow{
+    public const uint SizeInBytes = TransformPushConstant.SizeInBytes + 4;
+    public TransformPushConstant Transform;
+    public uint CascadeIndex;
+    
+    public float[] ToFloatArray(){
+        float[] arr = new float[SizeInBytes / 4];
+        Transform.Transform.CopyTo(arr, 0);
+        arr[^1] = BitConverter.UInt32BitsToSingle(CascadeIndex);
+        return arr;
+    }
+    
+}
