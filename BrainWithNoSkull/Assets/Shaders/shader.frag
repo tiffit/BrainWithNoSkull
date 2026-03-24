@@ -39,7 +39,7 @@ const mat4 biasMat = mat4(
 float textureProj(vec4 shadowCoord, vec2 offset, uint cascadeIndex)
 {
     float shadow = 1.0;
-    float bias = 0.005f; //0.001;
+    float bias = 0.001f;///0.005f; //0.001;
 
     if ( shadowCoord.z > -1.0 && shadowCoord.z < 1.0 ) {
         float dist = texture(shadowSampler, vec3(shadowCoord.st + offset, cascadeIndex)).r;
@@ -48,7 +48,26 @@ float textureProj(vec4 shadowCoord, vec2 offset, uint cascadeIndex)
         }
     }
     return shadow;
+}
 
+float filterPCF(vec4 sc, uint cascadeIndex)
+{
+    ivec2 texDim = textureSize(shadowSampler, 0).xy;
+    float scale = 0.75;
+    float dx = scale * 1.0 / float(texDim.x);
+    float dy = scale * 1.0 / float(texDim.y);
+
+    float shadowFactor = 0.0;
+    int count = 0;
+    int range = 1;
+
+    for (int x = -range; x <= range; x++) {
+        for (int y = -range; y <= range; y++) {
+            shadowFactor += textureProj(sc, vec2(dx*x, dy*y), cascadeIndex);
+            count++;
+        }
+    }
+    return shadowFactor / count;
 }
 
 void main() {
@@ -64,7 +83,7 @@ void main() {
     UniformBufferObject ubo = ubos.cascadeUbos[cascadeIndex];
     vec4 shadowCoord = (biasMat * ubo.proj * ubo.view) * inPos;
 
-    float shadow = textureProj(shadowCoord / shadowCoord.w, vec2(0.0), cascadeIndex);
+    float shadow = filterPCF(shadowCoord / shadowCoord.w, cascadeIndex);
 
     vec3 normal = inNormal;
     vec3 lightDir = normalize(shadowMapData.lightDir);
@@ -74,19 +93,4 @@ void main() {
     outColor.rgb = max(lightColor * (diffuse * color.rgb), vec3(0));
     outColor.rgb *= shadow;
     outColor.a = color.a;
-
-//    switch(cascadeIndex) {
-//        case 0 :
-//            outColor.rgb *= vec3(1.0f, 0.25f, 0.25f);
-//            break;
-//        case 1 :
-//            outColor.rgb *= vec3(0.25f, 1.0f, 0.25f);
-//            break;
-//        case 2 :
-//            outColor.rgb *= vec3(0.25f, 0.25f, 1.0f);
-//            break;
-//        case 3 :
-//            outColor.rgb *= vec3(1.0f, 1.0f, 0.25f);
-//            break;
-//    }
 }

@@ -1273,7 +1273,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
 
     private void UpdateCascadeUniformBuffers(uint frame, VkShaderPipeline pipeline, in UniformBufferObject cameraUbo){
         float[] cascadeSplits = new float[ShadowMapCascadeCount];
-        float[] cascadeSplitsRaw = new float[ShadowMapCascadeCount];
+        float[] cascadeSplitDepths = new float[ShadowMapCascadeCount];
         float near = _camera.Near;
         float far = _camera.Far;
         float clipRange = far - near;
@@ -1291,12 +1291,12 @@ public unsafe class VkRenderEngine : IRenderEngine {
             float log = minZ * MathF.Pow(ratio, p);
             float uniform = minZ + range * p;
             float d = 0.95f * (log - uniform) + uniform;
-            cascadeSplitsRaw[i] = -d;
+            cascadeSplitDepths[i] = -d;
             cascadeSplits[i] = (d-near) / clipRange;
         }
 
         float lastSplitDist = 0f;
-        float degs = 90f;//(float)_window!.Time * 5;
+        float degs = (float)_window!.Time * 5;
         Vector3D<float> lightPos = new Vector3D<float>(float.Cos(float.DegreesToRadians(degs)) * 20f, 10f, float.Sin(float.DegreesToRadians(degs)) * 20f);
         Vector3D<float> lightDir = Vector3D.Normalize(-lightPos);
         for (int i = 0; i < ShadowMapCascadeCount; i++) {
@@ -1331,6 +1331,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
                 frustumCenter += corners[j];
             }
             frustumCenter /= 8;
+            
             float radius = 0f;
             for (int j = 0; j < 8; j++) {
                 float distance = (corners[j] - frustumCenter).Length;
@@ -1338,13 +1339,12 @@ public unsafe class VkRenderEngine : IRenderEngine {
             }
             
             radius = MathF.Ceiling(radius * 16) / 16f;
-            Console.WriteLine(i + ": " + radius);
             
             Vector3D<float> maxExtents = new Vector3D<float>(radius);
             Vector3D<float> minExtents = -maxExtents;
             
             Matrix4X4<float> lightViewMatrix = Matrix4X4.CreateLookAt(frustumCenter - lightDir * -minExtents.Z, frustumCenter, Vector3D<float>.UnitY);
-            Matrix4X4<float> lightOrthoMatrix = Matrix4X4.CreateOrthographicOffCenter(-radius, radius, -radius, radius, 0f, 20f);
+            Matrix4X4<float> lightOrthoMatrix = Matrix4X4.CreateOrthographicOffCenter(minExtents.X, maxExtents.X, minExtents.Y, maxExtents.Y, 0, maxExtents.Z - minExtents.Z);
             lightOrthoMatrix.M22 *= -1;
 
             UniformBufferObject cascadeUbo = new UniformBufferObject{
@@ -1361,7 +1361,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
         data.AsSpan().CopyTo(new Span<float>(pipeline.ShadowUniformBufferMappedMemory[frame], data.Length));
 
         ShadowMapData shadowMapData = new ShadowMapData{
-            CascadeSplits = new Vector4D<float>(cascadeSplitsRaw[0], cascadeSplitsRaw[1], cascadeSplitsRaw[2], cascadeSplitsRaw[3]),
+            CascadeSplits = new Vector4D<float>(cascadeSplitDepths[0], cascadeSplitDepths[1], cascadeSplitDepths[2], cascadeSplitDepths[3]),
             LightDir = lightDir
         };
         float[] shadowMapDataArr = shadowMapData.ToFloatArray();
