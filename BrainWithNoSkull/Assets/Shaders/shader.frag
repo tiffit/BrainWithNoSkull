@@ -25,6 +25,7 @@ layout (location = 0) in vec3 fragColor;
 layout (location = 1) in vec2 fragUV;
 layout (location = 2) in vec4 inViewPos;
 layout (location = 3) in vec4 inPos;
+layout (location = 4) in vec3 inNormal;
 
 layout (location = 0) out vec4 outColor;
 
@@ -38,7 +39,7 @@ const mat4 biasMat = mat4(
 float textureProj(vec4 shadowCoord, vec2 offset, uint cascadeIndex)
 {
     float shadow = 1.0;
-    float bias = 0.1;
+    float bias = 0.005 * (cascadeIndex + 1);
 
     if ( shadowCoord.z > -1.0 && shadowCoord.z < 1.0 ) {
         float dist = texture(shadowSampler, vec3(shadowCoord.st + offset, cascadeIndex)).r;
@@ -65,11 +66,11 @@ void main() {
 
     float shadow = textureProj(shadowCoord / shadowCoord.w, vec2(0.0), cascadeIndex);
 
-    vec3 normal = vec3(0, 1, 0);
+    vec3 normal = inNormal;
     vec3 lightDir = normalize(-shadowMapData.lightDir);
 
     float diffuse = max(dot(normal, lightDir), 0.3);
-    vec3 lightColor = vec3(1.0, 0.0, 0.0);
+    vec3 lightColor = vec3(1);
     outColor.rgb = max(lightColor * (diffuse * color.rgb), vec3(0));
     outColor.rgb *= shadow;
     outColor.a = color.a;

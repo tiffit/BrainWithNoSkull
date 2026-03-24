@@ -24,7 +24,6 @@ public class ClientPacketHandler : IClientPacketHandler {
         if (world != null) {
             Chunk chunk = new Chunk(world, packet.ChunkCoords, packet.Blocks);
             world.OnChunkLoaded(chunk);
-            Console.WriteLine("Loaded chunk " + packet.ChunkCoords);
         }
     }
 

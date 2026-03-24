@@ -1296,7 +1296,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
         }
 
         float lastSplitDist = 0f;
-        Vector3D<float> lightPos = new Vector3D<float>(float.Cos(0) * 20f, 20f, float.Sin(0) * 20f);
+        Vector3D<float> lightPos = new Vector3D<float>(float.Cos(float.DegreesToRadians(90)) * 20f, 20f, float.Sin(float.DegreesToRadians(90)) * 20f);
         Vector3D<float> lightDir = Vector3D.Normalize(-lightPos);
         for (int i = 0; i < ShadowMapCascadeCount; i++) {
             float splitDist = cascadeSplits[i];

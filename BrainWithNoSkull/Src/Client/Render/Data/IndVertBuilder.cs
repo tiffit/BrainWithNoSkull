@@ -9,6 +9,7 @@ public class IndVertBuilder {
     private Vector3D<float> _pos;
     private Vector3D<float> _color;
     private Vector2D<float> _uv;
+    private Vector3D<float> _normal;
 
     public IndVertBuilder(LinkedList<Vertex> vertices, float x, float y, float z){
         _pos = new Vector3D<float>(x, y, z);
@@ -33,12 +34,18 @@ public class IndVertBuilder {
         _uv = uv;
         return this;
     }
+    
+    public IndVertBuilder Normal(Vector3D<float> normal){
+        _normal = normal;
+        return this;
+    }
 
     public void Build(){
         Vertex v = new Vertex {
             Pos = _pos,
             Color = _color,
-            Uv = _uv
+            Uv = _uv,
+            Normal = _normal
         };
         _vertices.AddLast(v);
     }

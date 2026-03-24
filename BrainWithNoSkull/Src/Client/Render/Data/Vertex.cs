@@ -6,6 +6,7 @@ public struct Vertex {
     public Vector3D<float> Pos;
     public Vector3D<float> Color;
     public Vector2D<float> Uv;
+    public Vector3D<float> Normal;
 
     public void Pack(float[] buffer, ref int index){
         buffer[index++] = Pos.X;
@@ -16,5 +17,8 @@ public struct Vertex {
         buffer[index++] = Color.Z;
         buffer[index++] = Uv.X;
         buffer[index++] = Uv.Y;
+        buffer[index++] = Normal.X;
+        buffer[index++] = Normal.Y;
+        buffer[index++] = Normal.Z;
     }
 }

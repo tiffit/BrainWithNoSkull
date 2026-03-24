@@ -27,7 +27,6 @@ public abstract class ConnectedClientBase {
                         if (toSend != null) {
                             chunkCoords = toSend.Coords;
                             if (_loadedChunks.Add(chunkCoords)) {
-                                Console.WriteLine("Sending chunk " + chunkCoords);
                                 SendPacket(toSend.ToChunkPacket());
                             }
                         }
