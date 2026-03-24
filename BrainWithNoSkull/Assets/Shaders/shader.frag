@@ -39,7 +39,7 @@ const mat4 biasMat = mat4(
 float textureProj(vec4 shadowCoord, vec2 offset, uint cascadeIndex)
 {
     float shadow = 1.0;
-    float bias = 0.05 * (cascadeIndex + 1);
+    float bias = 0.005f; //0.001;
 
     if ( shadowCoord.z > -1.0 && shadowCoord.z < 1.0 ) {
         float dist = texture(shadowSampler, vec3(shadowCoord.st + offset, cascadeIndex)).r;
@@ -67,7 +67,7 @@ void main() {
     float shadow = textureProj(shadowCoord / shadowCoord.w, vec2(0.0), cascadeIndex);
 
     vec3 normal = inNormal;
-    vec3 lightDir = normalize(-shadowMapData.lightDir);
+    vec3 lightDir = normalize(shadowMapData.lightDir);
 
     float diffuse = max(dot(normal, lightDir), 0.3);
     vec3 lightColor = vec3(1);

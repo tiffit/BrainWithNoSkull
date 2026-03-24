@@ -25,7 +25,17 @@ public class FlatChunkGenerator : IChunkGenerator {
                 double noiseZ = Math.Cos(angleZ);
                 double noiseW = Math.Sin(angleZ);
                 float noiseHeight = OpenSimplex2.Noise4_ImproveXYZ(DateTimeOffset.Now.ToUnixTimeMilliseconds(), noiseX, noiseY, noiseZ, noiseW);
-                int height = Constants.SeaLevel + (int)(noiseHeight * 5);
+                int height = Constants.SeaLevel;//+ (int)(noiseHeight * 5);
+                if (x == 0 && z == 0) {
+                    int newHeight = 4;
+                    if (chunkCoords.X % 3 == 0) {
+                        newHeight -= 2;
+                    }
+                    for (int y = 0; y < newHeight; y++) {
+                        chunk.Blocks[x, y + height, z] = BlockRegistry.Tile;
+                    }
+                }
+
                 for (int y = 0; y < height; y++) {
                     chunk.Blocks[x, y, z] = BlockRegistry.Tile;
                 }

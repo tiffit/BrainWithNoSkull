@@ -1296,11 +1296,12 @@ public unsafe class VkRenderEngine : IRenderEngine {
         }
 
         float lastSplitDist = 0f;
-        Vector3D<float> lightPos = new Vector3D<float>(float.Cos(float.DegreesToRadians(20)) * 20f, -20f, float.Sin(float.DegreesToRadians(20)) * 20f);
+        float degs = 90f;//(float)_window!.Time * 5;
+        Vector3D<float> lightPos = new Vector3D<float>(float.Cos(float.DegreesToRadians(degs)) * 20f, 10f, float.Sin(float.DegreesToRadians(degs)) * 20f);
         Vector3D<float> lightDir = Vector3D.Normalize(-lightPos);
         for (int i = 0; i < ShadowMapCascadeCount; i++) {
             float splitDist = cascadeSplits[i];
-
+            
             Vector3D<float>[] corners = [
                 new Vector3D<float>(-1.0f,  1.0f, 0.0f),
                 new Vector3D<float>( 1.0f,  1.0f, 0.0f),
@@ -1311,20 +1312,20 @@ public unsafe class VkRenderEngine : IRenderEngine {
                 new Vector3D<float>( 1.0f, -1.0f,  1.0f),
                 new Vector3D<float>(-1.0f, -1.0f,  1.0f),
             ];
-
+            
             Matrix4X4.Invert(cameraUbo.View * cameraUbo.Projection, out Matrix4X4<float> invCam);
             for (int j = 0; j < 8; j++) {
                 Vector4D<float> invCorner = Vector4D.Transform(new Vector4D<float>(corners[j], 1f), invCam);
                 Vector4D<float> invCornerNormalized = invCorner / invCorner.W;
                 corners[j] = new Vector3D<float>(invCornerNormalized.X, invCornerNormalized.Y, invCornerNormalized.Z);
             }
-
+            
             for (int j = 0; j < 4; j++) {
                 Vector3D<float> dist = corners[j + 4] - corners[j];
                 corners[j + 4] = corners[j] + (dist * splitDist);
                 corners[j] += (dist * lastSplitDist);
             }
-
+            
             Vector3D<float> frustumCenter = new Vector3D<float>(0);
             for (int j = 0; j < 8; j++) {
                 frustumCenter += corners[j];
@@ -1335,14 +1336,16 @@ public unsafe class VkRenderEngine : IRenderEngine {
                 float distance = (corners[j] - frustumCenter).Length;
                 radius = MathF.Max(radius, distance);
             }
-
+            
             radius = MathF.Ceiling(radius * 16) / 16f;
-
+            Console.WriteLine(i + ": " + radius);
+            
             Vector3D<float> maxExtents = new Vector3D<float>(radius);
             Vector3D<float> minExtents = -maxExtents;
             
             Matrix4X4<float> lightViewMatrix = Matrix4X4.CreateLookAt(frustumCenter - lightDir * -minExtents.Z, frustumCenter, Vector3D<float>.UnitY);
-            Matrix4X4<float> lightOrthoMatrix = Matrix4X4.CreateOrthographicOffCenter(-radius, radius, -radius, radius, -radius*10, radius*10);
+            Matrix4X4<float> lightOrthoMatrix = Matrix4X4.CreateOrthographicOffCenter(-radius, radius, -radius, radius, 0f, 20f);
+            lightOrthoMatrix.M22 *= -1;
 
             UniformBufferObject cascadeUbo = new UniformBufferObject{
                 Model = Matrix4X4<float>.Identity,
