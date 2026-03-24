@@ -1296,7 +1296,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
         }
 
         float lastSplitDist = 0f;
-        Vector3D<float> lightPos = new Vector3D<float>(float.Cos(float.DegreesToRadians(90)) * 20f, 20f, float.Sin(float.DegreesToRadians(90)) * 20f);
+        Vector3D<float> lightPos = new Vector3D<float>(float.Cos(float.DegreesToRadians(20)) * 20f, -20f, float.Sin(float.DegreesToRadians(20)) * 20f);
         Vector3D<float> lightDir = Vector3D.Normalize(-lightPos);
         for (int i = 0; i < ShadowMapCascadeCount; i++) {
             float splitDist = cascadeSplits[i];
@@ -1312,7 +1312,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
                 new Vector3D<float>(-1.0f, -1.0f,  1.0f),
             ];
 
-            Matrix4X4.Invert(cameraUbo.Projection * cameraUbo.View, out Matrix4X4<float> invCam);
+            Matrix4X4.Invert(cameraUbo.View * cameraUbo.Projection, out Matrix4X4<float> invCam);
             for (int j = 0; j < 8; j++) {
                 Vector4D<float> invCorner = Vector4D.Transform(new Vector4D<float>(corners[j], 1f), invCam);
                 Vector4D<float> invCornerNormalized = invCorner / invCorner.W;
@@ -1342,7 +1342,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
             Vector3D<float> minExtents = -maxExtents;
             
             Matrix4X4<float> lightViewMatrix = Matrix4X4.CreateLookAt(frustumCenter - lightDir * -minExtents.Z, frustumCenter, Vector3D<float>.UnitY);
-            Matrix4X4<float> lightOrthoMatrix = Matrix4X4.CreateOrthographicOffCenter(minExtents.X, maxExtents.X, minExtents.Y, maxExtents.Y, 0f, maxExtents.Z - minExtents.Z);
+            Matrix4X4<float> lightOrthoMatrix = Matrix4X4.CreateOrthographicOffCenter(-radius, radius, -radius, radius, -radius*10, radius*10);
 
             UniformBufferObject cascadeUbo = new UniformBufferObject{
                 Model = Matrix4X4<float>.Identity,
