@@ -87,9 +87,14 @@ public class GameClient {
         RenderEngine.PreRender(delta);
 
         VertexBuilder skymapBuilder = RenderEngine.GetVertexBuilder(ShaderType.Skybox);
-        // skymapBuilder.Pos(0, 2, 3).Build();
-        // skymapBuilder.Pos(4, 5, 6).Build();
-        // skymapBuilder.Pos(7, 8, 9).Build();
+        const float z = 0f;
+        skymapBuilder.Pos(-1, -1, z).Build();
+        skymapBuilder.Pos( 1, -1, z).Build();
+        skymapBuilder.Pos( 1,  1, z).Build();
+        
+        skymapBuilder.Pos( 1,  1, z).Build();
+        skymapBuilder.Pos(-1,  1, z).Build();
+        skymapBuilder.Pos(-1, -1, z).Build();
         
         while (_renderActions.TryDequeue(out Action? renderAction)) {
             renderAction.Invoke();

@@ -3,9 +3,9 @@
 public class ShaderType {
 
     public static readonly List<ShaderType> AllShaders = [];
+    public static readonly ShaderType Skybox = new ShaderType("skybox", 1024, [VertexParam.Position], ShaderFlag.Skybox);
     public static readonly ShaderType Shader = new ShaderType("shader", 0x100000*1024, [VertexParam.Position, VertexParam.Color, VertexParam.Uv, VertexParam.Normal], 
         ShaderFlag.Mesh | ShaderFlag.CastShadow);
-    public static readonly ShaderType Skybox = new ShaderType("skybox", 1024, [VertexParam.Position], ShaderFlag.None);
     
     public readonly string Name;
     public readonly uint BufferSize;

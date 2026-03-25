@@ -445,52 +445,57 @@ public unsafe class VkRenderEngine : IRenderEngine {
     }
 
     private void CreateDescriptorSetLayout(VkShaderPipeline shaderPipeline){
-        DescriptorSetLayoutBinding uboLayoutBinding = new(){
+        List<DescriptorSetLayoutBinding> layoutBindings = [];
+        
+        layoutBindings.Add(new DescriptorSetLayoutBinding{
             Binding = 0,
             DescriptorType = DescriptorType.UniformBuffer,
             DescriptorCount = 1,
             StageFlags = ShaderStageFlags.VertexBit
-        };
+        });
 
-        DescriptorSetLayoutBinding samplerLayoutBinding = new(){
+        layoutBindings.Add(new DescriptorSetLayoutBinding(){
             Binding = 1,
             DescriptorType = DescriptorType.CombinedImageSampler,
             DescriptorCount = 1,
             PImmutableSamplers = null,
             StageFlags = ShaderStageFlags.FragmentBit
-        };
-        
-        DescriptorSetLayoutBinding shadowUboLayoutBinding = new(){
-            Binding = 2,
-            DescriptorType = DescriptorType.UniformBuffer,
-            DescriptorCount = 1,
-            StageFlags = ShaderStageFlags.VertexBit | ShaderStageFlags.FragmentBit
-        };
-        
-        DescriptorSetLayoutBinding shadowMapSamplerLayoutBinding = new(){
-            Binding = 3,
-            DescriptorType = DescriptorType.CombinedImageSampler,
-            DescriptorCount = 1,
-            PImmutableSamplers = null,
-            StageFlags = ShaderStageFlags.FragmentBit
-        };
-        
-        DescriptorSetLayoutBinding shadowMapDataLayoutBinding = new(){
-            Binding = 4,
-            DescriptorType = DescriptorType.UniformBuffer,
-            DescriptorCount = 1,
-            StageFlags = ShaderStageFlags.FragmentBit
-        };
-        DescriptorSetLayoutBinding* layoutBindings = stackalloc[]{ uboLayoutBinding, samplerLayoutBinding, shadowUboLayoutBinding, shadowMapSamplerLayoutBinding, shadowMapDataLayoutBinding };
+        });
 
-        DescriptorSetLayoutCreateInfo createInfo = new(){
-            SType = StructureType.DescriptorSetLayoutCreateInfo,
-            BindingCount = 5,
-            PBindings = layoutBindings
-        };
+        if (shaderPipeline.ShaderProgram.ShType.HasFlag(ShaderFlag.CastShadow)) {
+            layoutBindings.Add(new DescriptorSetLayoutBinding(){
+                Binding = 2,
+                DescriptorType = DescriptorType.UniformBuffer,
+                DescriptorCount = 1,
+                StageFlags = ShaderStageFlags.VertexBit | ShaderStageFlags.FragmentBit
+            });
+        
+            layoutBindings.Add(new DescriptorSetLayoutBinding(){
+                Binding = 3,
+                DescriptorType = DescriptorType.CombinedImageSampler,
+                DescriptorCount = 1,
+                PImmutableSamplers = null,
+                StageFlags = ShaderStageFlags.FragmentBit
+            });
+        
+            layoutBindings.Add(new DescriptorSetLayoutBinding(){
+                Binding = 4,
+                DescriptorType = DescriptorType.UniformBuffer,
+                DescriptorCount = 1,
+                StageFlags = ShaderStageFlags.FragmentBit
+            });   
+        }
 
-        if (_vk.CreateDescriptorSetLayout(_logicalDevice, &createInfo, null, out shaderPipeline.DescriptorSetLayout) != Result.Success) {
-            throw new Exception("Unable to create descriptor set layout");
+        fixed (DescriptorSetLayoutBinding* ptr = layoutBindings.ToArray()) {
+            DescriptorSetLayoutCreateInfo createInfo = new(){
+                SType = StructureType.DescriptorSetLayoutCreateInfo,
+                BindingCount = (uint)layoutBindings.Count,
+                PBindings = ptr
+            };
+
+            if (_vk.CreateDescriptorSetLayout(_logicalDevice, &createInfo, null, out shaderPipeline.DescriptorSetLayout) != Result.Success) {
+                throw new Exception("Unable to create descriptor set layout");
+            }
         }
     }
 
@@ -542,7 +547,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
             RasterizerDiscardEnable = false,
             PolygonMode = PolygonMode.Fill,
             LineWidth = 1,
-            CullMode = CullModeFlags.BackBit,
+            CullMode = CullModeFlags.None,
             FrontFace = FrontFace.Clockwise,
             DepthBiasEnable = false,
         };
@@ -579,6 +584,11 @@ public unsafe class VkRenderEngine : IRenderEngine {
             DepthBoundsTestEnable = false,
             StencilTestEnable = false
         };
+
+        if (shaderPipeline.ShaderProgram.ShType.HasFlag(ShaderFlag.Skybox)) {
+            depthStencil.DepthWriteEnable = false;
+            depthStencil.DepthCompareOp = CompareOp.LessOrEqual;
+        }
 
         PushConstantRange pushConstants = new(){
             Offset = 0,
