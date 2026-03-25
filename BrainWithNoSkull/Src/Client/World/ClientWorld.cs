@@ -54,7 +54,7 @@ public class ClientWorld : WorldBase {
         }
     }
 
-    public void AddPlayer(PlayerEntity player, CbPlayerInfoPacket packet){
+    public void AddPlayer(ClientPlayerEntity player, CbPlayerInfoPacket packet){
         AddEntity(player, packet.PlayerPos);
         _playerChunk = null;
     }

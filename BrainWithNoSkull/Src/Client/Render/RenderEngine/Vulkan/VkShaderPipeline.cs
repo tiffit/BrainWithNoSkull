@@ -14,16 +14,12 @@ public unsafe class VkShaderPipeline {
     public DeviceMemory StagingVertexBufferMemory;
     public Buffer VertexBuffer;
     public DeviceMemory VertexBufferMemory;
-
-    public Buffer[] UniformBuffers = [];
-    public DeviceMemory[] UniformBuffersMemory = [];
-    public void*[] UniformBufferMappedMemory = [];
+    
+    public VkUniformStore Ubo = new VkUniformStore();
     public DescriptorPool DescriptorPool;
     public DescriptorSet[] DescriptorSets = [];
     
-    public Buffer[] ShadowUniformBuffers = [];
-    public DeviceMemory[] ShadowUniformBuffersMemory = [];
-    public void*[] ShadowUniformBufferMappedMemory = [];
+    public VkUniformStore ShadowUbo = new VkUniformStore();
     public PipelineLayout ShadowPipelineLayout;
     public Pipeline ShadowPipeline;
 
@@ -69,10 +65,10 @@ public unsafe class VkShaderPipeline {
     }
 
     public void Destroy(Vk vk, Device device){
-        for (var i = 0; i < UniformBuffers.Length; i++) {
-            vk.DestroyBuffer(device, UniformBuffers[i], null);
-            vk.FreeMemory(device, UniformBuffersMemory[i], null);
-        }
+        Ubo.Destroy(vk, device);
+        ShadowUbo.Destroy(vk, device);
+        ShadowMapDataUbo.Destroy(vk, device);
+        
         vk.DestroyDescriptorPool(device, DescriptorPool, null);
         vk.DestroyDescriptorSetLayout(device, DescriptorSetLayout, null);
         vk.DestroyPipeline(device, GraphicsPipeline, null);

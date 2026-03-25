@@ -968,33 +968,9 @@ public unsafe class VkRenderEngine : IRenderEngine {
     }
 
     private void CreateUniformBuffers(VkShaderPipeline pipeline){
-        ulong bufferSize = UniformBufferObject.SizeInBytes;
-        pipeline.UniformBuffers = new Buffer[_imageCount];
-        pipeline.UniformBuffersMemory = new DeviceMemory[_imageCount];
-        pipeline.UniformBufferMappedMemory = new void*[_imageCount];
-        
-        ulong shadowBufferSize = UniformBufferObjectArray.SizeInBytes;
-        pipeline.ShadowUniformBuffers = new Buffer[_imageCount];
-        pipeline.ShadowUniformBuffersMemory = new DeviceMemory[_imageCount];
-        pipeline.ShadowUniformBufferMappedMemory = new void*[_imageCount];
-
+        pipeline.Ubo.Create(_vk, _logicalDevice, _physicalDevice, _imageCount, UniformBufferObject.SizeInBytes);
+        pipeline.ShadowUbo.Create(_vk, _logicalDevice, _physicalDevice, _imageCount, UniformBufferObjectArray.SizeInBytes);
         pipeline.ShadowMapDataUbo.Create(_vk, _logicalDevice, _physicalDevice, _imageCount, ShadowMapData.SizeInBytes);
-        
-        for (int i = 0; i < _imageCount; i++) {
-            VkBuffers.CreateBuffer(_vk, _logicalDevice, _physicalDevice, bufferSize,
-                BufferUsageFlags.UniformBufferBit, MemoryPropertyFlags.HostVisibleBit | MemoryPropertyFlags.HostCoherentBit,
-                out pipeline.UniformBuffers[i], out pipeline.UniformBuffersMemory[i]);
-            fixed (void** mappedMemory = pipeline.UniformBufferMappedMemory) {
-                _vk.MapMemory(_logicalDevice, pipeline.UniformBuffersMemory[i], 0, bufferSize, 0, &mappedMemory[i]);
-            }
-            
-            VkBuffers.CreateBuffer(_vk, _logicalDevice, _physicalDevice, shadowBufferSize,
-                BufferUsageFlags.UniformBufferBit, MemoryPropertyFlags.HostVisibleBit | MemoryPropertyFlags.HostCoherentBit,
-                out pipeline.ShadowUniformBuffers[i], out pipeline.ShadowUniformBuffersMemory[i]);
-            fixed (void** mappedMemory = pipeline.ShadowUniformBufferMappedMemory) {
-                _vk.MapMemory(_logicalDevice, pipeline.ShadowUniformBuffersMemory[i], 0, shadowBufferSize, 0, &mappedMemory[i]);
-            }
-        }
     }
 
     private void CreateDescriptorPool(VkShaderPipeline pipeline){
@@ -1035,23 +1011,15 @@ public unsafe class VkRenderEngine : IRenderEngine {
         }
 
         for (int i = 0; i < _imageCount; i++) {
-            DescriptorBufferInfo bufferInfo = new(){
-                Buffer = pipeline.UniformBuffers[i],
-                Offset = 0,
-                Range = Vk.WholeSize
-            };
+            DescriptorBufferInfo bufferInfo = pipeline.Ubo.CreateBufferInfo(i);
 
             DescriptorImageInfo imageInfo = new(){
                 ImageLayout = ImageLayout.ReadOnlyOptimal,
                 ImageView = _textureImageView,
                 Sampler = _textureSampler
             };
-            
-            DescriptorBufferInfo shadowBufferInfo = new(){
-                Buffer = pipeline.ShadowUniformBuffers[i],
-                Offset = 0,
-                Range = Vk.WholeSize
-            };
+
+            DescriptorBufferInfo shadowBufferInfo = pipeline.ShadowUbo.CreateBufferInfo(i);
             
             DescriptorImageInfo shadowImageInfo = new(){
                 ImageLayout = ImageLayout.ReadOnlyOptimal,
@@ -1253,7 +1221,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
         ubo.Projection.M22 *= -1;
 
         float[] data = ubo.ToFloatArray();
-        data.AsSpan().CopyTo(new Span<float>(pipeline.UniformBufferMappedMemory[frame], data.Length));
+        data.AsSpan().CopyTo(new Span<float>(pipeline.Ubo.MappedMemories[frame], data.Length));
 
         UpdateCascadeUniformBuffers(frame, pipeline, in ubo);
     }
@@ -1345,7 +1313,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
         }
         
         float[] data = array.ToFloatArray();
-        data.AsSpan().CopyTo(new Span<float>(pipeline.ShadowUniformBufferMappedMemory[frame], data.Length));
+        data.AsSpan().CopyTo(new Span<float>(pipeline.ShadowUbo.MappedMemories[frame], data.Length));
 
         ShadowMapData shadowMapData = new ShadowMapData{
             CascadeSplits = new Vector4D<float>(cascadeSplitDepths[0], cascadeSplitDepths[1], cascadeSplitDepths[2], cascadeSplitDepths[3]),

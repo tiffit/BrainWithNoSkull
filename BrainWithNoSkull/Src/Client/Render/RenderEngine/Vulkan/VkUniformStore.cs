@@ -31,4 +31,12 @@ public unsafe class VkUniformStore {
             Range = Vk.WholeSize
         };
     }
+
+    public void Destroy(Vk vk, Device device){
+        for (var i = 0; i < Buffers.Length; i++) {
+            vk.UnmapMemory(device, Memories[i]);
+            vk.DestroyBuffer(device, Buffers[i], null);
+            vk.FreeMemory(device, Memories[i], null);
+        }
+    }
 }
