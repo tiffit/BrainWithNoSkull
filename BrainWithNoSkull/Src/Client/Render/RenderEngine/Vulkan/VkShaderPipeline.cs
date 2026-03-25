@@ -1,4 +1,6 @@
-﻿using Silk.NET.Vulkan;
+﻿using BrainWithNoSkull.Client.Render.Data;
+using BrainWithNoSkull.Client.Render.Shader;
+using Silk.NET.Vulkan;
 using Buffer = Silk.NET.Vulkan.Buffer;
 
 namespace BrainWithNoSkull.Client.Render.RenderEngine.Vulkan;
@@ -28,6 +30,8 @@ public unsafe class VkShaderPipeline {
     public BufferAllocator Allocator;
     public Dictionary<Mesh, CompiledMeshData?> Meshes = [];
     public Dictionary<BufferAllocator.MemoryBlock, int> MemoryBlockRefCount = [];
+
+    public VertexBuilder VertexBuilder = null!;
     
     public VkShaderPipeline(VkShaderProgram shader, in PhysicalDeviceLimits limits){
         ShaderProgram = shader;
@@ -66,15 +70,20 @@ public unsafe class VkShaderPipeline {
 
     public void Destroy(Vk vk, Device device){
         Ubo.Destroy(vk, device);
-        ShadowUbo.Destroy(vk, device);
-        ShadowMapDataUbo.Destroy(vk, device);
+        if (ShaderProgram.ShType.HasFlag(ShaderFlag.CastShadow)) {
+            ShadowUbo.Destroy(vk, device);
+            ShadowMapDataUbo.Destroy(vk, device);
+        }
         
         vk.DestroyDescriptorPool(device, DescriptorPool, null);
         vk.DestroyDescriptorSetLayout(device, DescriptorSetLayout, null);
         vk.DestroyPipeline(device, GraphicsPipeline, null);
         vk.DestroyPipelineLayout(device, PipelineLayout, null);
-        vk.DestroyBuffer(device, StagingVertexBuffer, null);
-        vk.FreeMemory(device, StagingVertexBufferMemory, null);
+        if (ShaderProgram.ShType.HasFlag(ShaderFlag.Mesh)) {
+            vk.DestroyBuffer(device, StagingVertexBuffer, null);
+            vk.FreeMemory(device, StagingVertexBufferMemory, null);
+        }
+
         vk.DestroyBuffer(device, VertexBuffer, null);
         vk.FreeMemory(device, VertexBufferMemory, null);
     }

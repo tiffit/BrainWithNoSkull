@@ -16,5 +16,7 @@ public interface IRenderEngine {
     void WriteMesh(Mesh mesh, VertexBuilder builder, AABB? aabb, ref TransformPushConstant pushConstant);
     void DestroyMesh(Mesh mesh);
 
+    VertexBuilder GetVertexBuilder(ShaderType shaderType);
+
     void Cleanup();
 }

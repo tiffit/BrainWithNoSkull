@@ -10,27 +10,25 @@ public class VertexBuilder {
     private readonly ShaderType _shaderProgram;
     private readonly LinkedList<Vertex> _vertices = [];
 
-    public MatrixStack MatrixStack{ get; }
-
     public uint VerticesCount => (uint)_vertices.Count;
 
-    public VertexBuilder(IRenderEngine renderEngine, ShaderType shader, MatrixStack matrixStack){
+    public VertexBuilder(IRenderEngine renderEngine, ShaderType shader){
         _renderEngine = renderEngine;
         _shaderProgram = shader;
-        MatrixStack = matrixStack;
     }
 
     public IndVertBuilder Pos(float x, float y, float z){
         return Pos(new Vector3D<float>(x, y, z));
     }
     
-    public IndVertBuilder Pos(Vector3D<float> pos, bool transform = true){
-        if (transform) {
-            pos = MatrixStack.Transform(pos);
-        }
+    public IndVertBuilder Pos(Vector3D<float> pos){
         return new IndVertBuilder(_vertices, pos.X, pos.Y, pos.Z);
     }
 
+    public IndVertBuilder Pos(Vector3D<float> pos, MatrixStack stack){
+        return Pos(stack.Transform(pos));
+    }
+    
     public ulong GetMeshSize(){
         return (ulong)(_vertices.Count * _shaderProgram.VertexSize * 4);
     }
@@ -38,8 +36,9 @@ public class VertexBuilder {
     public float[] Pack(){
         float[] buffer = new float[_vertices.Count * _shaderProgram.VertexSize];
         int index = 0;
+        HashSet<VertexParam> vParams = new HashSet<VertexParam>(_shaderProgram.Params);
         foreach (Vertex v in _vertices) {
-            v.Pack(buffer, ref index);
+            v.Pack(buffer, ref index, vParams);
         }
 
         return buffer;

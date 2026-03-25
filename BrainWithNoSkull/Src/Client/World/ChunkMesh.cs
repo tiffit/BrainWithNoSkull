@@ -56,7 +56,7 @@ public class ChunkMesh {
 
     private ChunkMeshSection GenerateSection(ChunkStorage storage, Chunk chunk, int sectionIndex){
         IRenderEngine renderEngine = GameClient.Instance.RenderEngine;
-        VertexBuilder builder = new VertexBuilder(renderEngine, ShaderType.Shader, new MatrixStack());
+        VertexBuilder builder = new VertexBuilder(renderEngine, ShaderType.Shader);
         for (int x = 0; x < Constants.ChunkSize; x++) {
             for (int y = 0; y < Constants.ChunkSize; y++) {
                 for (int z = 0; z < Constants.ChunkSize; z++) {
@@ -75,8 +75,7 @@ public class ChunkMesh {
                                 new Vector2D<float>(0, 0),
                                 new Vector2D<float>(0, 1),
                                 new Vector2D<float>(1, 1),
-                                new Vector2D<float>(1, 0),
-                                transformPos: false
+                                new Vector2D<float>(1, 0)
                             );
                         }
                     
@@ -89,8 +88,7 @@ public class ChunkMesh {
                                 new Vector2D<float>(0, 0),
                                 new Vector2D<float>(1, 0),
                                 new Vector2D<float>(1, 1),
-                                new Vector2D<float>(0, 1),
-                                transformPos: false
+                                new Vector2D<float>(0, 1)
                             );
                         }
                     
@@ -103,8 +101,7 @@ public class ChunkMesh {
                                 new Vector2D<float>(0, 0),
                                 new Vector2D<float>(1, 0),
                                 new Vector2D<float>(1, 1),
-                                new Vector2D<float>(0, 1),
-                                transformPos: false
+                                new Vector2D<float>(0, 1)
                             );
                         }
                     
@@ -117,8 +114,7 @@ public class ChunkMesh {
                                 new Vector2D<float>(0, 0),
                                 new Vector2D<float>(0, 1),
                                 new Vector2D<float>(1, 1),
-                                new Vector2D<float>(1, 0),
-                                transformPos: false
+                                new Vector2D<float>(1, 0)
                             );
                         }
                     
@@ -131,8 +127,7 @@ public class ChunkMesh {
                                 new Vector2D<float>(0, 0),
                                 new Vector2D<float>(1, 0),
                                 new Vector2D<float>(1, 1),
-                                new Vector2D<float>(0, 1),
-                                transformPos: false
+                                new Vector2D<float>(0, 1)
                             );
                         }
                     
@@ -145,8 +140,7 @@ public class ChunkMesh {
                                 new Vector2D<float>(0, 0),
                                 new Vector2D<float>(0, 1),
                                 new Vector2D<float>(1, 1),
-                                new Vector2D<float>(1, 0),
-                                transformPos: false
+                                new Vector2D<float>(1, 0)
                             );
                         }
                     }
