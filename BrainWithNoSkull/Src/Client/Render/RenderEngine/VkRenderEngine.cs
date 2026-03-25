@@ -978,10 +978,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
         pipeline.ShadowUniformBuffersMemory = new DeviceMemory[_imageCount];
         pipeline.ShadowUniformBufferMappedMemory = new void*[_imageCount];
 
-        ulong shadowMapDataBufferSize = ShadowMapData.SizeInBytes;
-        pipeline.ShadowMapDataUniformBuffers = new Buffer[_imageCount];
-        pipeline.ShadowMapDataUniformBuffersMemory = new DeviceMemory[_imageCount];
-        pipeline.ShadowMapDataUniformBufferMappedMemory = new void*[_imageCount];
+        pipeline.ShadowMapDataUbo.Create(_vk, _logicalDevice, _physicalDevice, _imageCount, ShadowMapData.SizeInBytes);
         
         for (int i = 0; i < _imageCount; i++) {
             VkBuffers.CreateBuffer(_vk, _logicalDevice, _physicalDevice, bufferSize,
@@ -996,13 +993,6 @@ public unsafe class VkRenderEngine : IRenderEngine {
                 out pipeline.ShadowUniformBuffers[i], out pipeline.ShadowUniformBuffersMemory[i]);
             fixed (void** mappedMemory = pipeline.ShadowUniformBufferMappedMemory) {
                 _vk.MapMemory(_logicalDevice, pipeline.ShadowUniformBuffersMemory[i], 0, shadowBufferSize, 0, &mappedMemory[i]);
-            }
-            
-            VkBuffers.CreateBuffer(_vk, _logicalDevice, _physicalDevice, shadowMapDataBufferSize,
-                BufferUsageFlags.UniformBufferBit, MemoryPropertyFlags.HostVisibleBit | MemoryPropertyFlags.HostCoherentBit,
-                out pipeline.ShadowMapDataUniformBuffers[i], out pipeline.ShadowMapDataUniformBuffersMemory[i]);
-            fixed (void** mappedMemory = pipeline.ShadowMapDataUniformBufferMappedMemory) {
-                _vk.MapMemory(_logicalDevice, pipeline.ShadowMapDataUniformBuffersMemory[i], 0, shadowMapDataBufferSize, 0, &mappedMemory[i]);
             }
         }
     }
@@ -1068,12 +1058,8 @@ public unsafe class VkRenderEngine : IRenderEngine {
                 ImageView = _shadowImageView,
                 Sampler = _shadowSampler
             };
-            
-            DescriptorBufferInfo shadowMapDataInfo = new(){
-                Buffer = pipeline.ShadowMapDataUniformBuffers[i],
-                Offset = 0,
-                Range = Vk.WholeSize
-            };
+
+            DescriptorBufferInfo shadowMapDataInfo = pipeline.ShadowMapDataUbo.CreateBufferInfo(i);
 
             WriteDescriptorSet bufferWriteSet = new(){
                 SType = StructureType.WriteDescriptorSet,
@@ -1366,7 +1352,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
             LightDir = lightDir
         };
         float[] shadowMapDataArr = shadowMapData.ToFloatArray();
-        shadowMapDataArr.AsSpan().CopyTo(new Span<float>(pipeline.ShadowMapDataUniformBufferMappedMemory[frame], shadowMapDataArr.Length));
+        shadowMapDataArr.AsSpan().CopyTo(new Span<float>(pipeline.ShadowMapDataUbo.MappedMemories[frame], shadowMapDataArr.Length));
     }
 
     private void CreateSyncObjects(){

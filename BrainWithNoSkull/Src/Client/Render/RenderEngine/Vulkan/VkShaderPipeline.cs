@@ -26,10 +26,8 @@ public unsafe class VkShaderPipeline {
     public void*[] ShadowUniformBufferMappedMemory = [];
     public PipelineLayout ShadowPipelineLayout;
     public Pipeline ShadowPipeline;
-    
-    public Buffer[] ShadowMapDataUniformBuffers = [];
-    public DeviceMemory[] ShadowMapDataUniformBuffersMemory = [];
-    public void*[] ShadowMapDataUniformBufferMappedMemory = [];
+
+    public VkUniformStore ShadowMapDataUbo = new VkUniformStore();
 
     public BufferAllocator Allocator;
     public Dictionary<Mesh, CompiledMeshData?> Meshes = [];
