@@ -133,6 +133,20 @@ public class GameClient {
             _playerPos -= new Vector3D<float>(0, 1, 0) * movementSpeed;
         }
 
+        if (World != null) {
+            float worldSize = World.Settings.WorldSize * 16;
+            if (_playerPos.X < 0) {
+                _playerPos.X = worldSize - _playerPos.X;
+            }else if (_playerPos.X > worldSize) {
+                _playerPos.X -= worldSize;
+            }
+            if (_playerPos.Z < 0) {
+                _playerPos.Z = worldSize - _playerPos.Z;
+            }else if (_playerPos.Z > worldSize) {
+                _playerPos.Z -= worldSize;
+            }   
+        }
+
         _camera.Position = _playerPos;
         _camera.Target = _playerPos + lookDirection;
         _camera.Frustum = new Frustum(_camera);
