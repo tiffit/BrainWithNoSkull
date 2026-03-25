@@ -15,6 +15,8 @@ public class Entity {
     public Vector3D<float> Position{ get; private set; }
     
     public bool IsPositionDirty = true;
+
+    public bool OnGround;
     
     public Entity(EntityType type, WorldBase? world){
         World = world;
@@ -31,6 +33,25 @@ public class Entity {
     public AABB GetBoundingBox(){
         return _boundingBox + Position;
     }
-    
-    public virtual void Tick(){}
+
+    public virtual void Tick(){
+        if (World != null) {
+            AABB currentBox = GetBoundingBox();
+            AABB groundTestBox = new AABB(currentBox.MinX, currentBox.MinY - 0.1f, currentBox.MinZ, currentBox.MaxX, currentBox.MinY, currentBox.MaxZ);
+            OnGround = IsOnGround();
+        }
+    }
+
+    public bool IsOnGround(){
+        if (World != null) {
+            AABB currentBox = GetBoundingBox();
+            AABB groundTestBox = new AABB(currentBox.MinX, currentBox.MinY - 0.1f, currentBox.MinZ, currentBox.MaxX, currentBox.MinY, currentBox.MaxZ);
+            return World.GetBlocksInBox(groundTestBox).Any(blockPos => {
+                AABB? box = World.GetBlock(blockPos).GetCollisionBox();
+                return box != null && (box + blockPos).Intersects(groundTestBox);
+            });
+        }
+
+        return false;
+    }
 }

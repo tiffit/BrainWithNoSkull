@@ -17,6 +17,7 @@ public class PlayerController {
     public Vector3D<float> LookDirection;
     
     private bool _hasMouseMoved;
+    private Vector3D<float> _velocity;
     
     public PlayerController(GameClient client, ClientPlayerEntity player, InputHandler inputHandler){
         _client = client;
@@ -38,7 +39,7 @@ public class PlayerController {
             Vector3D.Transform(new Vector3D<float>(0, 0, 1), Matrix4X4.CreateFromYawPitchRoll(Yaw, Pitch, 0))
         );
 
-        float movementSpeed = 10f * (float)delta;
+        float movementSpeed = 5f * (float)delta;
         Vector3D<float> lookHorizontal = Vector3D.Normalize(new Vector3D<float>(LookDirection.X, 0, LookDirection.Z));
         Vector3D<float> lookCross = Vector3D.Normalize(Vector3D.Cross(Vector3D<float>.UnitY, lookHorizontal));
 
@@ -60,17 +61,23 @@ public class PlayerController {
             moveDelta -= lookHorizontal;
         }
 
-        if (_inputHandler.IsKeyDown(Key.Space)) {
-            moveDelta += new Vector3D<float>(0, 1, 0);
-        }
-
-        if (_inputHandler.IsKeyDown(Key.ShiftLeft)) {
-            moveDelta -= new Vector3D<float>(0, 1, 0);
-        }
-
         if (moveDelta != Vector3D<float>.Zero) {
             moveDelta = Vector3D.Normalize(moveDelta) * movementSpeed;
         }
+
+        bool onGround = _player.IsOnGround();
+        if (onGround) {
+            _velocity.Y = MathF.Max(0, _velocity.Y);
+        }
+        else {
+            _velocity.Y = MathF.Max(-40, _velocity.Y + -18*(float)delta);
+        }
+        
+        if (onGround && _inputHandler.IsKeyDown(Key.Space) && _velocity.Y == 0) {
+            _velocity = new Vector3D<float>(0, 7, 0);
+        }
+
+        moveDelta += _velocity * (float)delta;
 
         CollisionTest test = new CollisionTest(_player.World!, _player.GetBoundingBox(), moveDelta);
         
