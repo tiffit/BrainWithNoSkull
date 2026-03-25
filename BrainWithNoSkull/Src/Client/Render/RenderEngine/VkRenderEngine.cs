@@ -1236,6 +1236,22 @@ public unsafe class VkRenderEngine : IRenderEngine {
                     }
                 }
             }
+            else {
+                VertexBuilder builder = pipeline.VertexBuilder;
+                if (builder.VerticesCount > 0) {
+                    float[] vertices = builder.Pack();
+                    void* data;
+                    ulong dataSize = (ulong)vertices.Length * 4;
+                    _vk.MapMemory(_logicalDevice, pipeline.VertexBufferMemory, 0, dataSize, 0, &data);
+                    vertices.AsSpan().CopyTo(new Span<float>(data, vertices.Length));
+                    _vk.UnmapMemory(_logicalDevice, pipeline.VertexBufferMemory);
+                    fixed (Buffer* bufferPtr = new[]{ pipeline.VertexBuffer }) {
+                        ulong offset = 0;
+                        _vk.CmdBindVertexBuffers(buffer, 0, 1, bufferPtr, ref offset);
+                        _vk.CmdDraw(buffer, builder.VerticesCount, 1, 0, 0);
+                    }
+                }
+            }
         }
     }
 

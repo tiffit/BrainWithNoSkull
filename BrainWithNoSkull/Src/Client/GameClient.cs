@@ -1,7 +1,9 @@
 ﻿using System.Collections.Concurrent;
 using BrainWithNoSkull.Client.Net;
 using BrainWithNoSkull.Client.Render;
+using BrainWithNoSkull.Client.Render.Data;
 using BrainWithNoSkull.Client.Render.RenderEngine;
+using BrainWithNoSkull.Client.Render.Shader;
 using BrainWithNoSkull.Client.World;
 using BrainWithNoSkull.Net;
 using BrainWithNoSkull.Net.Pckt;
@@ -83,6 +85,11 @@ public class GameClient {
 
     private void DoRender(double delta){
         RenderEngine.PreRender(delta);
+
+        VertexBuilder skymapBuilder = RenderEngine.GetVertexBuilder(ShaderType.Skybox);
+        // skymapBuilder.Pos(0, 2, 3).Build();
+        // skymapBuilder.Pos(4, 5, 6).Build();
+        // skymapBuilder.Pos(7, 8, 9).Build();
         
         while (_renderActions.TryDequeue(out Action? renderAction)) {
             renderAction.Invoke();
