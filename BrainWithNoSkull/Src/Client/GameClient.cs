@@ -71,6 +71,7 @@ public class GameClient {
         GlfwInput.RegisterPlatform();
         GameWindow = Window.Create(windowOptions);
         GameWindow.UpdatesPerSecond = 20;
+        GameWindow.FramesPerSecond = 144;
         GameWindow.Load += OnWindowLoad;
         GameWindow.Initialize();
     }
@@ -91,7 +92,7 @@ public class GameClient {
 
         if (_playerController != null) {
             _playerController.Update(delta);
-            _camera.Position = _serverConnection.PlayerEntity!.Position;
+            _camera.Position = _serverConnection.PlayerEntity!.Position + new Vector3D<float>(0, 1.4f, 0);
             _camera.Target = _camera.Position + _playerController.LookDirection;
         }
         

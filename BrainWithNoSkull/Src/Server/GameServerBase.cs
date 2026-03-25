@@ -28,7 +28,7 @@ public class GameServerBase {
         client.SendPacket(new CbWorldInfoPacket(World.Settings));
         ServerPlayerEntity player = new ServerPlayerEntity(client, World);
         client.Entity = player;
-        World.AddEntity(player, new Vector3D<float>(0.5f, Constants.SeaLevel, 0.5f));
+        World.AddEntity(player, new Vector3D<float>(0.5f, Constants.SeaLevel + 5, 0.5f));
     }
     
 }

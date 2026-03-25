@@ -1,8 +1,10 @@
-﻿using Silk.NET.Maths;
+﻿using BrainWithNoSkull.Util;
+using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.World.Entities;
 
 public class Entity {
+    private AABB _boundingBox = new AABB(-0.4f, 0, -0.4f, 0.4f, 1.5f, 0.4f);
     private static uint _nextId;
 
     public EntityType Type;
@@ -24,6 +26,10 @@ public class Entity {
             Position = pos;
             IsPositionDirty = true;
         }
+    }
+
+    public AABB GetBoundingBox(){
+        return _boundingBox + Position;
     }
     
     public virtual void Tick(){}

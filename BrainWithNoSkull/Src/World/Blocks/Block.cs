@@ -1,8 +1,11 @@
 ﻿using BrainWithNoSkull.Registries;
+using BrainWithNoSkull.Util;
 
 namespace BrainWithNoSkull.World.Blocks;
 
 public class Block : IRegistryEntry {
+
+    private static readonly AABB CollisionBox = new AABB(0, 0, 0, 1, 1, 1);
     
     public static ushort NextIndex;
     private readonly ushort _index;
@@ -23,5 +26,9 @@ public class Block : IRegistryEntry {
 
     public bool IsAir(){
         return this == BlockRegistry.Air;
+    }
+
+    public AABB? GetCollisionBox(){
+        return IsAir() ? null : CollisionBox;
     }
 }

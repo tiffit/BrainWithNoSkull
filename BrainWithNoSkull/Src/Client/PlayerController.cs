@@ -38,7 +38,7 @@ public class PlayerController {
             Vector3D.Transform(new Vector3D<float>(0, 0, 1), Matrix4X4.CreateFromYawPitchRoll(Yaw, Pitch, 0))
         );
 
-        float movementSpeed = 30f * (float)delta;
+        float movementSpeed = 10f * (float)delta;
         Vector3D<float> lookHorizontal = Vector3D.Normalize(new Vector3D<float>(LookDirection.X, 0, LookDirection.Z));
         Vector3D<float> lookCross = Vector3D.Normalize(Vector3D.Cross(Vector3D<float>.UnitY, lookHorizontal));
 
@@ -71,7 +71,10 @@ public class PlayerController {
         if (moveDelta != Vector3D<float>.Zero) {
             moveDelta = Vector3D.Normalize(moveDelta) * movementSpeed;
         }
-        Vector3D<float> newPlayerPos = _player.Position + moveDelta;
+
+        CollisionTest test = new CollisionTest(_player.World!, _player.GetBoundingBox(), moveDelta);
+        
+        Vector3D<float> newPlayerPos = _player.Position + test.RunTest();
 
         WorldBase? world = _player.World;
         if (world != null) {
