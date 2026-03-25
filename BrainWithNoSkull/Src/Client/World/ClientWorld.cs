@@ -48,9 +48,6 @@ public class ClientWorld : WorldBase {
                         if (Chunks.IsChunkLoaded(chunkCoords)) {
                             TryGenerateMesh(chunkCoords);
                         }
-                        else {
-                            Console.WriteLine("Chunk not loaded: " + chunkCoords);
-                        }
                     }
                 }
             // }

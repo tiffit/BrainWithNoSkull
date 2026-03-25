@@ -4,7 +4,7 @@ namespace BrainWithNoSkull.Client.World;
 
 public class WorldSettings {
 
-    public uint WorldSize = 4;
+    public uint WorldSize = 8;
 
     public void Write(PacketWriter writer){
         writer.Write(WorldSize);

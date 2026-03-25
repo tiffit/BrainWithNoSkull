@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using BrainWithNoSkull.Client.Render.Data;
 using BrainWithNoSkull.Client.Render.RenderEngine.Vulkan;
@@ -1158,7 +1159,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
             ClearValueCount = 1,
             PClearValues = &depthClearValue
         };
-
+        
         for (uint i = 0; i < ShadowMapCascadeCount; i++) {
             renderPassBegin.Framebuffer = _cascades[i]!.Framebuffer;
             _vk.CmdBeginRenderPass(buffer, &renderPassBegin, SubpassContents.Inline);
