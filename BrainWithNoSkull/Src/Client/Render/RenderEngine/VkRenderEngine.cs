@@ -1470,7 +1470,6 @@ public unsafe class VkRenderEngine : IRenderEngine {
     }
 
     public void DestroyMesh(Mesh mesh){
-        Console.WriteLine($"Destroying mesh for {mesh.SType.Name}");
         VkShaderPipeline pipeline = _pipelines[mesh.SType];
         pipeline.MemoryBlockRefCount[mesh.Memory]--;
         if (pipeline.MemoryBlockRefCount[mesh.Memory] == 0) {

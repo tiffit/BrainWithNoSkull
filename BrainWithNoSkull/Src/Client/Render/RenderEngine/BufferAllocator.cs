@@ -51,16 +51,17 @@ public class BufferAllocator {
         }
         else {
             _blocks.Insert(insertIndex, block);
-
-            bool finishedMerge = false;
-            while (!finishedMerge) {
+            while (true) {
+                if (insertIndex < _blocks.Count - 1) {
+                    break;
+                }
                 MemoryBlock next = _blocks[insertIndex + 1];
                 if (block.Offset + block.Size == next.Offset) {
                     _blocks[insertIndex] = block with{ Size = block.Size + next.Size };
                     _blocks.RemoveAt(insertIndex + 1);
                 }
                 else {
-                    finishedMerge = true;
+                    break;
                 }
             }
         }

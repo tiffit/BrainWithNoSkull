@@ -21,6 +21,14 @@ public class ChunkMesh {
         _sections = new ChunkMeshSection[Constants.MaxWorldHeight / Constants.ChunkSize];
     }
 
+    public void Unload(){
+        foreach (var section in _sections) {
+            if (section?.Mesh != null) {
+                GameClient.Instance.RenderEngine.DestroyMesh(section.Mesh!);
+            }
+        }
+    }
+
     public bool FullyGenerate(ChunkStorage storage){
         Chunk? chunk = storage.GetChunk(_chunkCoords);
         if (chunk != null) {
