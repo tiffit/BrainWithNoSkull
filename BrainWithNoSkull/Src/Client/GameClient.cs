@@ -23,10 +23,7 @@ public class GameClient {
 
     private InputHandler _inputHandler = null!;
     private Camera _camera = null!;
-    private float _pitch;
-    private float _yaw;
-    private Vector3D<float> _playerPos = new Vector3D<float>(0f, 130f, 0f);
-    private bool _hasMouseMoved;
+    private PlayerController? _playerController;
 
     private LocalGameServer _server;
 
@@ -48,8 +45,8 @@ public class GameClient {
 
         _camera = new Camera{
             FoV = 90,
-            Position = _playerPos,
-            Target = new Vector3D<float>(0, 0, 0)
+            Position = Vector3D<float>.Zero,
+            Target = new Vector3D<float>(0, 0, 1)
         };
 
         _server = new LocalGameServer();
@@ -92,66 +89,19 @@ public class GameClient {
 
         World?.Render(delta);
 
-        _inputHandler.Tick(delta, out Vector2D<float> mouseMovement);
-        if (!_hasMouseMoved && mouseMovement.Equals(Vector2D<float>.Zero)) {
-            _hasMouseMoved = true;
-            mouseMovement = Vector2D<float>.Zero;
+        if (_playerController != null) {
+            _playerController.Update(delta);
+            _camera.Position = _serverConnection.PlayerEntity!.Position;
+            _camera.Target = _camera.Position + _playerController.LookDirection;
         }
-
-        _pitch = Math.Clamp(_pitch + mouseMovement.Y / 300f, -MathF.PI / 2 + 0.0001f, MathF.PI / 2 - 0.0001f);
-        _yaw = (_yaw - mouseMovement.X / 300f) % MathF.Tau;
-
-        Vector3D<float> lookDirection = Vector3D.Normalize(
-            Vector3D.Transform(new Vector3D<float>(0, 0, 1), Matrix4X4.CreateFromYawPitchRoll(_yaw, _pitch, 0))
-        );
-
-        float movementSpeed = 30f * (float)delta;
-        Vector3D<float> lookHorizontal = Vector3D.Normalize(new Vector3D<float>(lookDirection.X, 0, lookDirection.Z));
-        Vector3D<float> lookCross = Vector3D.Normalize(Vector3D.Cross(Vector3D<float>.UnitY, lookHorizontal));
-
-        if (_inputHandler.IsKeyDown(Key.A)) {
-            _playerPos += lookCross * movementSpeed;
-        }
-
-        if (_inputHandler.IsKeyDown(Key.D)) {
-            _playerPos -= lookCross * movementSpeed;
-        }
-
-        if (_inputHandler.IsKeyDown(Key.W)) {
-            _playerPos += lookHorizontal * movementSpeed;
-        }
-
-        if (_inputHandler.IsKeyDown(Key.S)) {
-            _playerPos -= lookHorizontal * movementSpeed;
-        }
-
-        if (_inputHandler.IsKeyDown(Key.Space)) {
-            _playerPos += new Vector3D<float>(0, 1, 0) * movementSpeed;
-        }
-
-        if (_inputHandler.IsKeyDown(Key.ShiftLeft)) {
-            _playerPos -= new Vector3D<float>(0, 1, 0) * movementSpeed;
-        }
-
-        if (World != null) {
-            float worldSize = World.Settings.WorldSize * 16;
-            if (_playerPos.X < 0) {
-                _playerPos.X = worldSize + _playerPos.X;
-            }else if (_playerPos.X > worldSize) {
-                _playerPos.X -= worldSize;
-            }
-            if (_playerPos.Z < 0) {
-                _playerPos.Z = worldSize + _playerPos.Z;
-            }else if (_playerPos.Z > worldSize) {
-                _playerPos.Z -= worldSize;
-            }   
-        }
-
-        _camera.Position = _playerPos;
-        _camera.Target = _playerPos + lookDirection;
+        
         _camera.Frustum = new Frustum(_camera);
 
         RenderEngine.OnRender(delta);
+    }
+
+    public void CreatePlayerController(ClientPlayerEntity player){
+        _playerController = new PlayerController(this, player, _inputHandler);
     }
 
     private void Tick(double delta){
@@ -159,7 +109,6 @@ public class GameClient {
             tickAction.Invoke();
         }
         
-        _serverConnection.PlayerEntity?.SetPosition(_playerPos);
         World?.Tick(delta);
         _serverConnection.Tick(delta);
         _server.Tick(delta);

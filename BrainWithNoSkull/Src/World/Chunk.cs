@@ -2,6 +2,7 @@
 using BrainWithNoSkull.Net.Pckt;
 using BrainWithNoSkull.Net.Pckt.Cb;
 using BrainWithNoSkull.Registries;
+using BrainWithNoSkull.Util;
 using BrainWithNoSkull.World.Blocks;
 using BrainWithNoSkull.World.Entities;
 using Silk.NET.Maths;
@@ -26,6 +27,14 @@ public class Chunk {
         _pendingAdd.Enqueue(entity);
         entity.Chunk = this;
     }
+    
+    public void AddEntityNow(Entity entity){
+        _entities[entity.Id] = entity;
+    }
+    
+    public void RemoveEntityNow(uint id){
+        _entities.Remove(id);
+    }
 
     public Block GetBlock(int x, int y, int z){
         if (x < 0 || y < 0 || z < 0 || x >= Constants.ChunkSize || y >= Constants.MaxWorldHeight || z >= Constants.ChunkSize) {
@@ -41,11 +50,17 @@ public class Chunk {
 
     public void Tick(){
         while (_pendingAdd.TryDequeue(out Entity? pending)) {
-            _entities[pending.Id] = pending;
+            AddEntityNow(pending);
         }
         
         foreach (Entity entity in _entities.Values) {
             entity.Tick();
+            if (entity.IsPositionDirty) {
+                Vector2D<int> newChunkCoords = ChunkUtils.ToChunkCoords(entity.Position);
+                if (newChunkCoords != Coords) {
+                    EntityMoveChunkTicket ticket = new EntityMoveChunkTicket(entity, this, newChunkCoords);
+                }
+            }
         }
     }
     

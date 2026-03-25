@@ -33,6 +33,7 @@ public class ClientPacketHandler : IClientPacketHandler {
             ClientPlayerEntity player = new ClientPlayerEntity(_serverConnection, world);
             _serverConnection.PlayerEntity = player;
             world.AddPlayer(player, packet);
+            _client.CreatePlayerController(player);
         }
     }
 }

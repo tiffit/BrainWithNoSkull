@@ -9,6 +9,8 @@ namespace BrainWithNoSkull.World;
 
 public class WorldBase {
 
+    private Queue<EntityMoveChunkTicket> _entityMoveChunkTickets = [];
+    
     public WorldGenerator WorldGenerator{ get; private set; }
     protected ChunkStorage Chunks;
     public WorldSettings Settings{ get; private set; }
@@ -33,6 +35,12 @@ public class WorldBase {
 
     public virtual void Tick(double delta){
         Chunks.Tick(delta);
+        while (_entityMoveChunkTickets.TryDequeue(out EntityMoveChunkTicket? moveChunkTicket)) {
+            Chunk oldChunk = moveChunkTicket.OldChunk;
+            Chunk newChunk = GetChunk(moveChunkTicket.NewChunk)!;
+            oldChunk.RemoveEntityNow(moveChunkTicket.Entity.Id);
+            newChunk.AddEntity(moveChunkTicket.Entity);
+        }
     }
     
     public int WrapChunkCoord(int val){
