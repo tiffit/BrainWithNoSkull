@@ -552,7 +552,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
             RasterizerDiscardEnable = false,
             PolygonMode = PolygonMode.Fill,
             LineWidth = 1,
-            CullMode = CullModeFlags.None,
+            CullMode = CullModeFlags.BackBit,
             FrontFace = FrontFace.Clockwise,
             DepthBiasEnable = false,
         };
