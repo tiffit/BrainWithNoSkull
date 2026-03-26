@@ -34,6 +34,11 @@ public class AABB {
         return new AABB(minX, minY, minZ, minX + width, minY + height, minZ + depth);
     }
     
+    public static AABB ContainsBoth(AABB first, AABB second){
+        return new AABB(MathF.Min(first.MinX, second.MinX), MathF.Min(first.MinY, second.MinY), MathF.Min(first.MinZ, second.MinZ),
+            MathF.Max(first.MaxX, second.MaxX), MathF.Max(first.MaxY, second.MaxY), MathF.Max(first.MaxZ, second.MaxZ));
+    }
+    
     public static AABB operator +(AABB left, Vector3D<float> right){
         return new AABB(left.MinX + right.X, left.MinY + right.Y, left.MinZ + right.Z,
             left.MaxX + right.X, left.MaxY + right.Y, left.MaxZ + right.Z);

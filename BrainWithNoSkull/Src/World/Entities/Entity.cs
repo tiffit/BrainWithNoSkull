@@ -36,8 +36,6 @@ public class Entity {
 
     public virtual void Tick(){
         if (World != null) {
-            AABB currentBox = GetBoundingBox();
-            AABB groundTestBox = new AABB(currentBox.MinX, currentBox.MinY - 0.1f, currentBox.MinZ, currentBox.MaxX, currentBox.MinY, currentBox.MaxZ);
             OnGround = IsOnGround();
         }
     }

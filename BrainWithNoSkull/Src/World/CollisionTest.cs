@@ -19,14 +19,14 @@ public class CollisionTest {
         Vector3D<float> resultMovement = new Vector3D<float>(_movement.X, _movement.Y, _movement.Z);
 
         if (resultMovement.X != 0) {
-            AABB resultBox = _aabb + new Vector3D<float>(_movement.X, 0, 0);
+            AABB resultBox = AABB.ContainsBoth(_aabb, _aabb + new Vector3D<float>(_movement.X, 0, 0));
             foreach (Vector3D<int> pos in _world.GetBlocksInBox(resultBox)) {
                 AABB? blockBox = _world.GetBlock(pos).GetCollisionBox();
                 if (blockBox != null) {
                     blockBox += pos;
                     if (resultBox.Intersects(blockBox)) {
                         if (resultMovement.X < 0) {
-                            resultMovement.X = MathF.Min(0, blockBox.MaxX - resultBox.MinX);
+                            resultMovement.X = MathF.Min(0, resultMovement.X + (blockBox.MaxX - resultBox.MinX));
                         }else if (resultMovement.X > 0) {
                             resultMovement.X = MathF.Max(0, blockBox.MinX - resultBox.MaxX);
                         }
@@ -37,14 +37,14 @@ public class CollisionTest {
         }
 
         if (resultMovement.Y != 0) {
-            AABB resultBox = _aabb + new Vector3D<float>(0, _movement.Y, 0);
+            AABB resultBox = AABB.ContainsBoth(_aabb, _aabb + new Vector3D<float>(0, _movement.Y, 0));
             foreach (Vector3D<int> pos in _world.GetBlocksInBox(resultBox)) {
                 AABB? blockBox = _world.GetBlock(pos).GetCollisionBox();
                 if (blockBox != null) {
                     blockBox += pos;
                     if (resultBox.Intersects(blockBox)) {
                         if (resultMovement.Y < 0) {
-                            resultMovement.Y = MathF.Min(0, blockBox.MaxY - resultBox.MinY);
+                            resultMovement.Y = MathF.Min(0, resultMovement.Y + (blockBox.MaxY - resultBox.MinY));
                         }
                         else if (resultMovement.Y > 0) {
                             resultMovement.Y = MathF.Max(0, blockBox.MinY - resultBox.MaxY);
@@ -55,14 +55,14 @@ public class CollisionTest {
         }
 
         if (resultMovement.Z != 0) {
-            AABB resultBox = _aabb + new Vector3D<float>(0, 0, _movement.Z);
+            AABB resultBox = AABB.ContainsBoth(_aabb, _aabb + new Vector3D<float>(0, 0, _movement.Z));
             foreach (Vector3D<int> pos in _world.GetBlocksInBox(resultBox)) {
                 AABB? blockBox = _world.GetBlock(pos).GetCollisionBox();
                 if (blockBox != null) {
                     blockBox += pos;
                     if (resultBox.Intersects(blockBox)) {
                         if (resultMovement.Z < 0) {
-                            resultMovement.Z = MathF.Min(0, blockBox.MaxZ - resultBox.MinZ);
+                            resultMovement.Z = MathF.Min(0, resultMovement.Z + (blockBox.MaxZ - resultBox.MinZ));
                         }
                         else if (resultMovement.Z > 0) {
                             resultMovement.Z = MathF.Max(0, blockBox.MinZ - resultBox.MaxZ);
