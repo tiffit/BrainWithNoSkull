@@ -1,6 +1,7 @@
 ﻿using BrainWithNoSkull.Client.Render.RenderEngine;
 using BrainWithNoSkull.Client.Render.Shader;
 using Silk.NET.Maths;
+using Silk.NET.Vulkan;
 
 namespace BrainWithNoSkull.Client.Render.Data;
 
@@ -10,6 +11,9 @@ public class VertexBuilder {
     private readonly ShaderType _shaderProgram;
     private readonly LinkedList<Vertex> _vertices = [];
 
+    public byte[]? PushConstants;
+    public ShaderStageFlags PushConstantStages = ShaderStageFlags.None;
+    
     public uint VerticesCount => (uint)_vertices.Count;
 
     public VertexBuilder(IRenderEngine renderEngine, ShaderType shader){

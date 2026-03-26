@@ -1,12 +1,13 @@
 ﻿using BrainWithNoSkull.Client.Render.Data;
 using BrainWithNoSkull.Client.Render.Shader;
+using BrainWithNoSkull.Client.Render.Shader.PushConstants;
 using BrainWithNoSkull.Util;
 using Silk.NET.Windowing;
 
 namespace BrainWithNoSkull.Client.Render.RenderEngine;
 
 public interface IRenderEngine {
-    void Init(IWindow window, Camera camera);
+    void Init(IWindow window, Camera camera, LightData light);
 
     void PreRender(double delta);
     

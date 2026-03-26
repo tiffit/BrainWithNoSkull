@@ -1,12 +1,16 @@
 #version 450
 #extension GL_EXT_debug_printf : enable
 
+layout( push_constant ) uniform LightDataStruct {
+    vec4 lightData;
+} lightData;
+
 layout (location = 0) in vec3 inWorldPos;
 layout (location = 0) out vec4 outColor;
 
 void main() {
     vec3 color = vec3(0.5, 0.8, 0.9);
-    vec3 sunPos = vec3(0, 1, 0);
+    vec3 sunPos = vec3(-lightData.lightData);
     vec3 sunColor = vec3(1, 0.95, 0.1);
     float sunDist = dot(normalize(sunPos), normalize(inWorldPos));
     const float sunSize = 0.005;

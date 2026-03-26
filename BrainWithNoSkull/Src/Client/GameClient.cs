@@ -4,6 +4,7 @@ using BrainWithNoSkull.Client.Render;
 using BrainWithNoSkull.Client.Render.Data;
 using BrainWithNoSkull.Client.Render.RenderEngine;
 using BrainWithNoSkull.Client.Render.Shader;
+using BrainWithNoSkull.Client.Render.Shader.PushConstants;
 using BrainWithNoSkull.Client.World;
 using BrainWithNoSkull.Net;
 using BrainWithNoSkull.Net.Pckt;
@@ -12,6 +13,7 @@ using BrainWithNoSkull.Util;
 using Silk.NET.Input;
 using Silk.NET.Input.Glfw;
 using Silk.NET.Maths;
+using Silk.NET.Vulkan;
 using Silk.NET.Windowing;
 using Silk.NET.Windowing.Glfw;
 
@@ -25,6 +27,7 @@ public class GameClient {
 
     private InputHandler _inputHandler = null!;
     private Camera _camera = null!;
+    private LightData _lightData = new LightData();
     private PlayerController? _playerController;
 
     private LocalGameServer _server;
@@ -57,7 +60,7 @@ public class GameClient {
         _serverConnection = localServerConnection;
 
         RenderEngine = VkRenderEngine.Instance;
-        RenderEngine.Init(GameWindow, _camera);
+        RenderEngine.Init(GameWindow, _camera, _lightData);
         GameWindow.Render += DoRender;
         GameWindow.Update += Tick;
         GameWindow.Run();
@@ -86,7 +89,17 @@ public class GameClient {
     private void DoRender(double delta){
         RenderEngine.PreRender(delta);
 
+        float degrees = (float)GameWindow.Time * 5;
+        Vector3D<float> lightPos = new Vector3D<float>(float.Cos(float.DegreesToRadians(degrees)) * 20f, 10f, float.Sin(float.DegreesToRadians(degrees)) * 20f);
+        _lightData.LightDir = Vector3D.Normalize(-lightPos);
+        
         VertexBuilder skymapBuilder = RenderEngine.GetVertexBuilder(ShaderType.Skybox);
+        SkyboxPushConstant skyboxPushConstant = new SkyboxPushConstant{
+            LightData = new Vector4D<float>(_lightData.LightDir, 0)
+        };
+        skymapBuilder.PushConstants = MemUtil.StructToByteArray(skyboxPushConstant);
+        skymapBuilder.PushConstantStages = ShaderStageFlags.FragmentBit;
+        
         const float z = 0f;
         skymapBuilder.Pos(-1, -1, z).Build();
         skymapBuilder.Pos( 1, -1, z).Build();

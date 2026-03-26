@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using BrainWithNoSkull.Client.Render.Data;
 using BrainWithNoSkull.Client.Render.RenderEngine.Vulkan;
 using BrainWithNoSkull.Client.Render.Shader;
+using BrainWithNoSkull.Client.Render.Shader.PushConstants;
 using BrainWithNoSkull.Util;
 using Silk.NET.Core;
 using Silk.NET.Core.Native;
@@ -34,6 +35,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
     private readonly Vk _vk = Vk.GetApi();
     private IWindow? _window;
     private Camera _camera = null!;
+    private LightData _light = null!;
     private Instance _instance;
 
     private PhysicalDevice _physicalDevice;
@@ -90,9 +92,10 @@ public unsafe class VkRenderEngine : IRenderEngine {
     private static readonly string[] RequiredDeviceExtensions = [KhrSwapchain.ExtensionName];
     private static readonly string[] ValidationLayers = ["VK_LAYER_KHRONOS_validation"];
 
-    public void Init(IWindow window, Camera camera){
+    public void Init(IWindow window, Camera camera, LightData light){
         _window = window;
         _camera = camera;
+        _light = light;
         if (_window.VkSurface is null) {
             throw new Exception("Vulkan not supported");
         }
@@ -500,6 +503,8 @@ public unsafe class VkRenderEngine : IRenderEngine {
     }
 
     private void CreateGraphicsPipeline(VkShaderPipeline shaderPipeline){
+        ShaderType shType = shaderPipeline.ShaderProgram.ShType;
+        
         PipelineShaderStageCreateInfo* shaderStages = stackalloc[]{
             shaderPipeline.ShaderProgram.VertStage,
             shaderPipeline.ShaderProgram.FragStage
@@ -592,8 +597,8 @@ public unsafe class VkRenderEngine : IRenderEngine {
 
         PushConstantRange pushConstants = new(){
             Offset = 0,
-            Size = TransformPushConstant.SizeInBytes,
-            StageFlags = ShaderStageFlags.VertexBit
+            Size = shType.PushConstant.Size,
+            StageFlags = shType.PushConstant.Stage
         };
 
         DescriptorSetLayout* descriptorSetLayout = stackalloc[]{ shaderPipeline.DescriptorSetLayout };
@@ -608,9 +613,8 @@ public unsafe class VkRenderEngine : IRenderEngine {
         if (_vk.CreatePipelineLayout(_logicalDevice, in pipelineLayoutInfo, null, out shaderPipeline.PipelineLayout) != Result.Success) {
             throw new Exception("Unable to create pipeline layout");
         }
-
-
-        if (shaderPipeline.ShaderProgram.ShType.HasFlag(ShaderFlag.CastShadow)) {
+        
+        if (shType.HasFlag(ShaderFlag.CastShadow)) {
             PushConstantRange pushConstantsShadow = new(){
                 Offset = 0,
                 Size = TransformPushConstantShadow.SizeInBytes,
@@ -1258,6 +1262,11 @@ public unsafe class VkRenderEngine : IRenderEngine {
                     fixed (Buffer* bufferPtr = new[]{ pipeline.VertexBuffer }) {
                         ulong offset = 0;
                         _vk.CmdBindVertexBuffers(buffer, 0, 1, bufferPtr, ref offset);
+                        if (builder.PushConstants != null) {
+                            fixed (byte* pushConstants = builder.PushConstants) {
+                                _vk.CmdPushConstants(buffer, pipeline.PipelineLayout, builder.PushConstantStages, 0, (uint)builder.PushConstants.Length, pushConstants);
+                            }
+                        }
                         _vk.CmdDraw(buffer, builder.VerticesCount, 1, 0, 0);
                     }
                 }
@@ -1307,9 +1316,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
         }
 
         float lastSplitDist = 0f;
-        float degs = (float)_window!.Time * 5;
-        Vector3D<float> lightPos = new Vector3D<float>(float.Cos(float.DegreesToRadians(degs)) * 20f, 10f, float.Sin(float.DegreesToRadians(degs)) * 20f);
-        Vector3D<float> lightDir = Vector3D.Normalize(-lightPos);
+
         for (int i = 0; i < ShadowMapCascadeCount; i++) {
             float splitDist = cascadeSplits[i];
             
@@ -1354,7 +1361,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
             Vector3D<float> maxExtents = new Vector3D<float>(radius);
             Vector3D<float> minExtents = -maxExtents;
             
-            Matrix4X4<float> lightViewMatrix = Matrix4X4.CreateLookAt(frustumCenter - lightDir * -minExtents.Z, frustumCenter, Vector3D<float>.UnitY);
+            Matrix4X4<float> lightViewMatrix = Matrix4X4.CreateLookAt(frustumCenter - _light.LightDir * -minExtents.Z, frustumCenter, Vector3D<float>.UnitY);
             Matrix4X4<float> lightOrthoMatrix = Matrix4X4.CreateOrthographicOffCenter(minExtents.X, maxExtents.X, minExtents.Y, maxExtents.Y, 0, maxExtents.Z - minExtents.Z);
             lightOrthoMatrix.M22 *= -1;
 
@@ -1373,7 +1380,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
 
         ShadowMapData shadowMapData = new ShadowMapData{
             CascadeSplits = new Vector4D<float>(cascadeSplitDepths[0], cascadeSplitDepths[1], cascadeSplitDepths[2], cascadeSplitDepths[3]),
-            LightDir = lightDir
+            LightDir = _light.LightDir
         };
         float[] shadowMapDataArr = shadowMapData.ToFloatArray();
         shadowMapDataArr.AsSpan().CopyTo(new Span<float>(pipeline.ShadowMapDataUbo.MappedMemories[frame], shadowMapDataArr.Length));

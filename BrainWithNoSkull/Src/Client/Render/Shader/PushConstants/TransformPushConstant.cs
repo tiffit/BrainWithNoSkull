@@ -1,7 +1,8 @@
-﻿using BrainWithNoSkull.Util;
+﻿using System.Runtime.InteropServices;
+using BrainWithNoSkull.Util;
 using Silk.NET.Maths;
 
-namespace BrainWithNoSkull.Client.Render.Shader;
+namespace BrainWithNoSkull.Client.Render.Shader.PushConstants;
 
 public struct TransformPushConstant {
     public const uint SizeInBytes = 4 * 4 * 1 * 4;
@@ -26,5 +27,9 @@ public struct TransformPushConstantShadow{
         arr[^1] = BitConverter.UInt32BitsToSingle(CascadeIndex);
         return arr;
     }
-    
+}
+
+[StructLayout(LayoutKind.Sequential)]
+public struct SkyboxPushConstant {
+    public Vector4D<float> LightData;
 }
