@@ -952,6 +952,8 @@ public unsafe class VkRenderEngine : IRenderEngine {
 
         _vk.DestroyBuffer(_logicalDevice, stagingBuffer, null);
         _vk.FreeMemory(_logicalDevice, stagingBufferMemory, null);
+        ClientAssetLoader.BlockTextureAtlas.AtlasTexture?.Dispose();
+        ClientAssetLoader.BlockTextureAtlas.AtlasTexture = null;
 
         _textureImageView = VkImages.CreateImageView(_vk, _logicalDevice, _textureImage, Format.B8G8R8A8Srgb);
     }

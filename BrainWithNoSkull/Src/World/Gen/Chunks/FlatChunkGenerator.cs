@@ -1,6 +1,7 @@
 ﻿using BrainWithNoSkull.Client.World;
 using BrainWithNoSkull.Registries;
 using BrainWithNoSkull.Util;
+using BrainWithNoSkull.World.Blocks;
 using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.World.Gen.Chunks;
@@ -28,7 +29,8 @@ public class FlatChunkGenerator : IChunkGenerator {
                 int height = Constants.SeaLevel + (int)(noiseHeight * 5);
 
                 for (int y = 0; y < height; y++) {
-                    chunk.Blocks[x, y, z] = BlockRegistry.Grass;
+                    Block block = y == height - 1 ? BlockRegistry.Grass : BlockRegistry.Dirt;
+                    chunk.Blocks[x, y, z] = block;
                 }
             }
         }

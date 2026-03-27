@@ -13,7 +13,7 @@ public class BlockTextureAtlas : TextureAtlas {
 
     public void Create(ICollection<string> paths){
         _locations.Clear();
-        AtlasTexture = new SKBitmap(64, 64, SKColorType.Bgra8888, SKAlphaType.Premul);
+        AtlasTexture = new SKBitmap(128, 128, SKColorType.Bgra8888, SKAlphaType.Premul);
         using SKCanvas atlasCanvas = new SKCanvas(AtlasTexture);
         int index = 0;
         Dictionary<string, AtlasLocation> locations = new Dictionary<string, AtlasLocation>();
@@ -34,7 +34,7 @@ public class BlockTextureAtlas : TextureAtlas {
                 }
             }
 
-            locations[path] = new AtlasLocation(atlasX + SpritePadding, atlasY + SpritePadding, atlasX + SpriteSize, atlasY + SpriteSize);
+            locations[path] = new AtlasLocation(atlasX + SpritePadding, atlasY + SpritePadding, atlasX + SpritePadding + SpriteSize, atlasY + SpritePadding + SpriteSize);
             index++;
         }
 
