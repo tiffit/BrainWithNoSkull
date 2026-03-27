@@ -91,7 +91,7 @@ void main() {
     vec3 lightDir = normalize(shadowMapData.lightDir);
 
     float darken = (clamp(dot(lightDir, vec3(0, -1, 0)), -0.1, 0.1) + 0.1)*5;
-    shadow = mix(shadow, 0.3, 1 - darken);
+    shadow = mix(shadow, 0.1, 1 - darken);
     
     float diffuse = max(dot(normal, lightDir), 0.3);
     
