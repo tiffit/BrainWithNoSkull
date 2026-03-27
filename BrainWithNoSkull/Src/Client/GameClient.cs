@@ -92,25 +92,11 @@ public class GameClient {
     private void DoRender(double delta){
         RenderEngine.PreRender(delta);
 
-        float degrees = (float)GameWindow.Time * 5;
-        Vector3D<float> lightPos = new Vector3D<float>(float.Cos(float.DegreesToRadians(degrees)) * 20f, 10f, float.Sin(float.DegreesToRadians(degrees)) * 20f);
-        _lightData.LightDir = Vector3D.Normalize(-lightPos);
+        if (_serverConnection.PlayerEntity != null) {
+            UpdateSun(_serverConnection.PlayerEntity, World!);
+        }
         
-        VertexBuilder skymapBuilder = RenderEngine.GetVertexBuilder(ShaderType.Skybox);
-        SkyboxPushConstant skyboxPushConstant = new SkyboxPushConstant{
-            LightData = new Vector4D<float>(_lightData.LightDir, 0)
-        };
-        skymapBuilder.PushConstants = MemUtil.StructToByteArray(skyboxPushConstant);
-        skymapBuilder.PushConstantStages = ShaderStageFlags.FragmentBit;
-        
-        const float z = 0f;
-        skymapBuilder.Pos(-1, -1, z).Build();
-        skymapBuilder.Pos( 1, -1, z).Build();
-        skymapBuilder.Pos( 1,  1, z).Build();
-        
-        skymapBuilder.Pos( 1,  1, z).Build();
-        skymapBuilder.Pos(-1,  1, z).Build();
-        skymapBuilder.Pos(-1, -1, z).Build();
+        Skybox.Render(RenderEngine, _lightData);
         
         while (_renderActions.TryDequeue(out Action? renderAction)) {
             renderAction.Invoke();
@@ -141,5 +127,23 @@ public class GameClient {
         World?.Tick(delta);
         _serverConnection.Tick(delta);
         _server.Tick(delta);
+    }
+
+    private void UpdateSun(ClientPlayerEntity player, ClientWorld world){
+        Vector2D<float> playerPosMap = new Vector2D<float>(player.Position.X, player.Position.Z);
+        playerPosMap /= (float)world.Settings.WorldSize * Constants.ChunkSize;
+        Console.WriteLine(playerPosMap);
+        _lightData.LightDir = Vector3D.Normalize(-GetSunSkyProgress(playerPosMap.Y, GetSunSkyTilt(playerPosMap.X)));
+    }
+
+    private Vector3D<float> GetSunSkyTilt(float playerPosX){
+        Matrix4X4<float> mat = Matrix4X4.CreateRotationZ(MathF.Cos(playerPosX * 2 * MathF.PI) * MathF.PI/2);
+        return Vector3D.Transform(Vector3D<float>.UnitY, mat);
+    }
+    
+    private Vector3D<float> GetSunSkyProgress(float playerPosZ, Vector3D<float> currentPos){
+        Matrix4X4<float> mat = Matrix4X4.CreateRotationX(playerPosZ*MathF.PI*2 + MathF.PI);
+        Console.WriteLine(float.RadiansToDegrees(playerPosZ*MathF.PI*2));
+        return Vector3D.Transform(currentPos, mat);
     }
 }

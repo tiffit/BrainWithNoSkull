@@ -28,7 +28,8 @@ public class GameServerBase {
         client.SendPacket(new CbWorldInfoPacket(World.Settings));
         ServerPlayerEntity player = new ServerPlayerEntity(client, World);
         client.Entity = player;
-        World.AddEntity(player, new Vector3D<float>(0.5f, Constants.SeaLevel + 5, 0.5f));
+        float center = (World.Settings.WorldSize * 16) / 2;
+        World.AddEntity(player, new Vector3D<float>(center/2, Constants.SeaLevel + 5, center));
     }
     
 }
