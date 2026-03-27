@@ -32,8 +32,8 @@ void main() {
     fragTextureIndex = inTextureIndex;
     vec4 pos = transformConstant.model * vec4(inPosition, 1.0);
     fragPos = pos;
-    fragViewPos = (ubo.view * pos);
-    gl_Position = ubo.proj * ubo.view * ubo.model * pos;
+    fragViewPos = (ubo.view * ubo.model * pos);
+    gl_Position = ubo.proj * fragViewPos;
     fragColor = inColor;
     fragUV = inUV;
     fragNormal = inNormal;

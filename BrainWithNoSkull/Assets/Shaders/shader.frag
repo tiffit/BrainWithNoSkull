@@ -94,5 +94,16 @@ void main() {
     vec3 lightColor = vec3(1);
     outColor.rgb = max(lightColor * (diffuse * color.rgb), vec3(0));
     outColor.rgb *= shadow;
+    
+    const float fogStart = 40.0f;
+    const float fogEnd = 60.0f;
+    const vec3 fogColor = vec3(0.5, 0.8, 0.9);
+    float fogRange = fogEnd - fogStart;
+    float fogDist = fogEnd - abs(inViewPos.z);
+    float fog = clamp(fogDist/fogRange, 0, 1);
+    
+    outColor.rgb = mix(fogColor, outColor.rgb, fog);
+    
     outColor.a = color.a;
+    
 }
