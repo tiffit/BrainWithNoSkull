@@ -11,11 +11,14 @@ public static class BlockRegistry {
     public static readonly Registry<Block> Registry = new Registry<Block>();
 
     public static Block Air;
-    public static Block Tile;
+    public static Block Grass;
+    public static Block Dirt;
     
     public static void Init(){
-        Tile = Registry.Register(new Block("tile"));
-        Air = Registry.Register(new Block("air"));
+        Air = Registry.Register(new Block("Air"));
+        
+        Grass = Registry.Register(new Block("Grass"));
+        Dirt = Registry.Register(new Block("Dirt"));
     }
 
 }

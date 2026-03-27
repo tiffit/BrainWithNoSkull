@@ -1,0 +1,17 @@
+﻿using BrainWithNoSkull.Client.Atlas;
+using BrainWithNoSkull.Client.Models.Blocks;
+
+namespace BrainWithNoSkull.Client;
+
+public class ClientAssetLoader {
+
+    public static readonly BlockTextureAtlas BlockTextureAtlas = new BlockTextureAtlas();
+    
+    public static void Load(){
+        ICollection<string> deps = BlockModels.CreateUnbaked();
+        BlockTextureAtlas.Create(deps);
+        BlockModels.Bake(BlockTextureAtlas.Lookup);
+        Console.WriteLine("Baked " + BlockModels.BakedModels.Count + " block models");
+    }
+    
+}

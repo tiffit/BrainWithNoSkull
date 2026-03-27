@@ -28,7 +28,7 @@ public class FlatChunkGenerator : IChunkGenerator {
                 int height = Constants.SeaLevel + (int)(noiseHeight * 5);
 
                 for (int y = 0; y < height; y++) {
-                    chunk.Blocks[x, y, z] = BlockRegistry.Tile;
+                    chunk.Blocks[x, y, z] = BlockRegistry.Grass;
                 }
             }
         }

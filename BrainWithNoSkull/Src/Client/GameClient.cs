@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using BrainWithNoSkull.Client.Atlas;
 using BrainWithNoSkull.Client.Net;
 using BrainWithNoSkull.Client.Render;
 using BrainWithNoSkull.Client.Render.Data;
@@ -45,6 +46,8 @@ public class GameClient {
     public void Start(){
         Registries.Registries.RegisterAll();
         PacketRegistry.Register();
+        
+        ClientAssetLoader.Load();
 
         SetupWindow();
 

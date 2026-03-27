@@ -922,7 +922,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
     }
 
     private void CreateTextureImage(){
-        SKBitmap bitmap = SKBitmap.Decode("./Assets/Textures/Block/Tile.png");
+        SKBitmap bitmap = SKBitmap.Decode("./Assets/Textures/Block/Grass.png");
         uint width = (uint)bitmap.Width;
         uint height = (uint)bitmap.Height;
         Span<byte> pixels = bitmap.GetPixelSpan();

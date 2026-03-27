@@ -23,6 +23,10 @@ public class Registry<T> where T : IRegistryEntry {
         return _indexedEntries[index];
     }
 
+    public IEnumerable<T> GetEntries(){
+        return _entries.Values;
+    }
+
 }
 
 public class Registries {
