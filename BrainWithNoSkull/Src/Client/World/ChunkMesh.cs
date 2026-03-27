@@ -1,9 +1,9 @@
-﻿using BrainWithNoSkull.Client.Render;
+﻿using BrainWithNoSkull.Client.Models.Blocks;
+using BrainWithNoSkull.Client.Render;
 using BrainWithNoSkull.Client.Render.Data;
 using BrainWithNoSkull.Client.Render.RenderEngine;
 using BrainWithNoSkull.Client.Render.Shader;
 using BrainWithNoSkull.Client.Render.Shader.PushConstants;
-using BrainWithNoSkull.Client.Render.Util;
 using BrainWithNoSkull.Registries;
 using BrainWithNoSkull.Util;
 using BrainWithNoSkull.World;
@@ -66,84 +66,17 @@ public class ChunkMesh {
                     int blockZ = z;
                     Vector3D<float> blockPos = new Vector3D<float>(blockX, blockY, blockZ);
                     Block block = chunk.GetBlock(blockX, blockY, blockZ);
-                    if (!block.IsAir()) {
-                        if (GetBlock(chunk, storage, blockX, blockY, blockZ + 1).IsAir()) {
-                            VertexHelper.AddQuad(builder,
-                                blockPos + Vector3D<float>.UnitZ,
-                                blockPos + Vector3D<float>.UnitY + Vector3D<float>.UnitZ,
-                                blockPos + Vector3D<float>.UnitY + Vector3D<float>.UnitX + Vector3D<float>.UnitZ,
-                                blockPos + Vector3D<float>.UnitX + Vector3D<float>.UnitZ,
-                                new Vector2D<float>(0, 0),
-                                new Vector2D<float>(0, 1),
-                                new Vector2D<float>(1, 1),
-                                new Vector2D<float>(1, 0)
-                            );
-                        }
-                    
-                        if (GetBlock(chunk, storage, blockX, blockY, blockZ - 1).IsAir()) {
-                            VertexHelper.AddQuad(builder,
-                                blockPos,
-                                blockPos + Vector3D<float>.UnitX,
-                                blockPos + Vector3D<float>.UnitY + Vector3D<float>.UnitX,
-                                blockPos + Vector3D<float>.UnitY,
-                                new Vector2D<float>(0, 0),
-                                new Vector2D<float>(1, 0),
-                                new Vector2D<float>(1, 1),
-                                new Vector2D<float>(0, 1)
-                            );
-                        }
-                    
-                        if (GetBlock(chunk, storage, blockX, blockY - 1, blockZ).IsAir()) {
-                            VertexHelper.AddQuad(builder,
-                                blockPos,
-                                blockPos + Vector3D<float>.UnitZ,
-                                blockPos + Vector3D<float>.UnitZ + Vector3D<float>.UnitX,
-                                blockPos + Vector3D<float>.UnitX,
-                                new Vector2D<float>(0, 0),
-                                new Vector2D<float>(1, 0),
-                                new Vector2D<float>(1, 1),
-                                new Vector2D<float>(0, 1)
-                            );
-                        }
-                    
-                        if (GetBlock(chunk, storage, blockX, blockY + 1, blockZ).IsAir()) {
-                            VertexHelper.AddQuad(builder,
-                                blockPos + Vector3D<float>.UnitY,
-                                blockPos + Vector3D<float>.UnitX + Vector3D<float>.UnitY,
-                                blockPos + Vector3D<float>.UnitZ + Vector3D<float>.UnitX + Vector3D<float>.UnitY,
-                                blockPos + Vector3D<float>.UnitZ + Vector3D<float>.UnitY,
-                                new Vector2D<float>(0, 0),
-                                new Vector2D<float>(0, 1),
-                                new Vector2D<float>(1, 1),
-                                new Vector2D<float>(1, 0)
-                            );
-                        }
-                    
-                        if (GetBlock(chunk, storage, blockX + 1, blockY, blockZ).IsAir()) {
-                            VertexHelper.AddQuad(builder,
-                                blockPos + Vector3D<float>.UnitX,
-                                blockPos + Vector3D<float>.UnitZ + Vector3D<float>.UnitX,
-                                blockPos + Vector3D<float>.UnitY + Vector3D<float>.UnitZ + Vector3D<float>.UnitX,
-                                blockPos + Vector3D<float>.UnitY + Vector3D<float>.UnitX,
-                                new Vector2D<float>(0, 0),
-                                new Vector2D<float>(1, 0),
-                                new Vector2D<float>(1, 1),
-                                new Vector2D<float>(0, 1)
-                            );
-                        }
-                    
-                        if (GetBlock(chunk, storage, blockX - 1, blockY, blockZ).IsAir()) {
-                            VertexHelper.AddQuad(builder,
-                                blockPos,
-                                blockPos + Vector3D<float>.UnitY,
-                                blockPos + Vector3D<float>.UnitY + Vector3D<float>.UnitZ,
-                                blockPos + Vector3D<float>.UnitZ,
-                                new Vector2D<float>(0, 0),
-                                new Vector2D<float>(0, 1),
-                                new Vector2D<float>(1, 1),
-                                new Vector2D<float>(1, 0)
-                            );
-                        }
+                    if (!block.IsAir() && BlockModels.BakedModels.TryGetValue(block, out BakedBlockModel? model)) {
+                        List<Direction> visible = [];
+                        
+                        if(GetBlock(chunk, storage, blockX, blockY, blockZ + 1).IsAir()) visible.Add(Direction.East);
+                        if(GetBlock(chunk, storage, blockX, blockY, blockZ - 1).IsAir()) visible.Add(Direction.West);
+                        if(GetBlock(chunk, storage, blockX, blockY + 1, blockZ).IsAir()) visible.Add(Direction.Up);
+                        if(GetBlock(chunk, storage, blockX, blockY - 1, blockZ).IsAir()) visible.Add(Direction.Down);
+                        if(GetBlock(chunk, storage, blockX + 1, blockY, blockZ).IsAir()) visible.Add(Direction.North);
+                        if(GetBlock(chunk, storage, blockX - 1, blockY, blockZ).IsAir()) visible.Add(Direction.South);
+                        
+                        builder.AddAll(model.GetVertices(blockPos, visible));
                     }
                 }
             }

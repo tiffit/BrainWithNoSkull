@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using BrainWithNoSkull.Client.Atlas;
 using BrainWithNoSkull.Client.Render.Data;
 using BrainWithNoSkull.Client.Render.RenderEngine.Vulkan;
 using BrainWithNoSkull.Client.Render.Shader;
@@ -922,7 +923,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
     }
 
     private void CreateTextureImage(){
-        SKBitmap bitmap = SKBitmap.Decode("./Assets/Textures/Block/Grass.png");
+        SKBitmap bitmap = ClientAssetLoader.BlockTextureAtlas.AtlasTexture!;
         uint width = (uint)bitmap.Width;
         uint height = (uint)bitmap.Height;
         Span<byte> pixels = bitmap.GetPixelSpan();

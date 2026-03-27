@@ -32,6 +32,12 @@ public class VertexBuilder {
     public IndVertBuilder Pos(Vector3D<float> pos, MatrixStack stack){
         return Pos(stack.Transform(pos));
     }
+
+    public void AddAll(IEnumerable<Vertex> vertices){
+        foreach (Vertex v in vertices) {
+            _vertices.AddLast(v);
+        }
+    }
     
     public ulong GetMeshSize(){
         return (ulong)(_vertices.Count * _shaderProgram.VertexSize * 4);
