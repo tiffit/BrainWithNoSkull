@@ -25,7 +25,7 @@ public class ClientWorld : WorldBase {
     public void Render(double delta){
         ClientPlayerEntity? player = _serverConnection.PlayerEntity;
         if (player?.Chunk != null) {
-            // if (_newChunkLoaded || _playerChunk != player.Chunk.Coords) {
+            if (_newChunkLoaded || _playerChunk != player.Chunk.Coords) {
                 _newChunkLoaded = false;
                 _playerChunk = player.Chunk.Coords;
 
@@ -50,7 +50,7 @@ public class ClientWorld : WorldBase {
                         }
                     }
                 }
-            // }
+            }
         }
     }
 
@@ -64,12 +64,15 @@ public class ClientWorld : WorldBase {
         _newChunkLoaded = true;
     }
 
-    private void TryGenerateMesh(Vector2D<int> chunkCoords){
+    private bool TryGenerateMesh(Vector2D<int> chunkCoords){
         if (!_chunkMeshes.ContainsKey(chunkCoords)) {
             ChunkMesh mesh = new ChunkMesh(chunkCoords);
             if (mesh.FullyGenerate(Chunks)) {
                 _chunkMeshes[chunkCoords] = mesh;
+                return true;
             }
         }
+
+        return false;
     }
 }
