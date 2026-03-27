@@ -12,7 +12,7 @@ public class BlockModels {
     public static ICollection<string> CreateUnbaked(){
         UnbakedModels.Clear();
 
-        UnbakedModels[BlockRegistry.Grass] = new CubeBlockModel("Block/Grass");
+        UnbakedModels[BlockRegistry.Grass] = new CubeBlockModel("Block/Grass", "Block/Dirt", "Block/Grass_Side", "Block/Grass_Side", "Block/Grass_Side", "Block/Grass_Side");
         UnbakedModels[BlockRegistry.Dirt] = new CubeBlockModel("Block/Dirt");
 
         HashSet<string> deps = [];

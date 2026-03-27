@@ -468,7 +468,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
         layoutBindings.Add(new DescriptorSetLayoutBinding(){
             Binding = 1,
             DescriptorType = DescriptorType.CombinedImageSampler,
-            DescriptorCount = 2,
+            DescriptorCount = (uint)_textureImage.Length,
             PImmutableSamplers = null,
             StageFlags = ShaderStageFlags.FragmentBit
         });
