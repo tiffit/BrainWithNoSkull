@@ -29,7 +29,9 @@ public class FlatChunkGenerator : IChunkGenerator {
                 int height = Constants.SeaLevel + (int)(noiseHeight * 5);
 
                 for (int y = 0; y < height; y++) {
-                    Block block = y == height - 1 ? BlockRegistry.Grass : BlockRegistry.Dirt;
+                    Block block = BlockRegistry.Stone;
+                    if (y == height - 1) block = BlockRegistry.Grass;
+                    else if (y >= height - 3) block = BlockRegistry.Dirt;
                     chunk.Blocks[x, y, z] = block;
                 }
             }

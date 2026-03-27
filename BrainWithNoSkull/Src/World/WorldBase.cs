@@ -41,6 +41,8 @@ public class WorldBase {
             return BlockRegistry.Air;
         Chunk? chunk = Chunks.GetChunk(chunkCoords);
         blockPos = ChunkUtils.ToBlockInChunk(blockPos);
+        if (blockPos.Y is < 0 or > Constants.MaxWorldHeight)
+            return BlockRegistry.Air;
         return chunk == null ? BlockRegistry.Air : chunk.GetBlock(blockPos.X, blockPos.Y, blockPos.Z);
     }
 
