@@ -132,7 +132,6 @@ public class GameClient {
     private void UpdateSun(ClientPlayerEntity player, ClientWorld world){
         Vector2D<float> playerPosMap = new Vector2D<float>(player.Position.X, player.Position.Z);
         playerPosMap /= (float)world.Settings.WorldSize * Constants.ChunkSize;
-        Console.WriteLine(playerPosMap);
         _lightData.LightDir = Vector3D.Normalize(-GetSunSkyProgress(playerPosMap.Y, GetSunSkyTilt(playerPosMap.X)));
     }
 
@@ -143,7 +142,6 @@ public class GameClient {
     
     private Vector3D<float> GetSunSkyProgress(float playerPosZ, Vector3D<float> currentPos){
         Matrix4X4<float> mat = Matrix4X4.CreateRotationX(playerPosZ*MathF.PI*2 + MathF.PI);
-        Console.WriteLine(float.RadiansToDegrees(playerPosZ*MathF.PI*2));
         return Vector3D.Transform(currentPos, mat);
     }
 }
