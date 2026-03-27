@@ -54,7 +54,7 @@ public unsafe class VkShaderPipeline {
         uint offset = 0;
         return ShaderProgram.ShType.Params.Select(param => {
             Format format = param.Count switch{
-                1 => Format.R32Sfloat,
+                1 => param.AsUint ? Format.R8Uint : Format.R32Sfloat,
                 2 => Format.R32G32Sfloat,
                 3 => Format.R32G32B32Sfloat,
                 _ => Format.Undefined

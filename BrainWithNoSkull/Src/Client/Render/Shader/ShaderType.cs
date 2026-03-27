@@ -6,7 +6,7 @@ public class ShaderType {
 
     public static readonly List<ShaderType> AllShaders = [];
     public static readonly ShaderType Skybox = new ShaderType("skybox", 1024, [VertexParam.Position], ShaderFlag.Skybox, PushConstantType.Skybox);
-    public static readonly ShaderType Shader = new ShaderType("shader", 0x100000*1024, [VertexParam.Position, VertexParam.Color, VertexParam.Uv, VertexParam.Normal], 
+    public static readonly ShaderType Shader = new ShaderType("shader", 0x100000*1024, [VertexParam.Position, VertexParam.Color, VertexParam.Uv, VertexParam.Normal, VertexParam.TextureIndex], 
         ShaderFlag.Mesh | ShaderFlag.CastShadow, PushConstantType.Transform);
     
     public readonly string Name;

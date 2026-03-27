@@ -10,4 +10,4 @@ public abstract class UnbakedBlockModel {
     public abstract BakedBlockModel Bake(TextureResolver resolver);
 }
 
-public delegate AtlasLocation TextureResolver(string location);
+public delegate uint TextureResolver(string location);

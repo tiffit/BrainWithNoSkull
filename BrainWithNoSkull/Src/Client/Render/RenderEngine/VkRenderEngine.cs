@@ -66,10 +66,10 @@ public unsafe class VkRenderEngine : IRenderEngine {
     private CommandPool _commandPool;
     private CommandBuffer[] _commandBuffers = [];
 
-    private Image _textureImage;
-    private DeviceMemory _textureImageMemory;
-    private ImageView _textureImageView;
-    private Sampler _textureSampler;
+    private Image[] _textureImage;
+    private DeviceMemory[] _textureImageMemory;
+    private ImageView[] _textureImageView;
+    private Sampler[] _textureSampler;
 
     private Image _depthImage;
     private DeviceMemory _depthImageMemory;
@@ -119,8 +119,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
         CreateRenderPass();
         CreateDepthResources();
         CreateShadowMappingResources();
-        CreateTextureImage();
-        CreateTextureSampler();
+        CreateTextureImages();
         foreach (ShaderType details in ShaderType.AllShaders) {
             VkShaderProgram program = CreateShader(details);
             VkShaderPipeline pipeline = new VkShaderPipeline(program, in _physicalDeviceLimits);
@@ -461,7 +460,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
         layoutBindings.Add(new DescriptorSetLayoutBinding(){
             Binding = 1,
             DescriptorType = DescriptorType.CombinedImageSampler,
-            DescriptorCount = 1,
+            DescriptorCount = 2,
             PImmutableSamplers = null,
             StageFlags = ShaderStageFlags.FragmentBit
         });
@@ -922,8 +921,22 @@ public unsafe class VkRenderEngine : IRenderEngine {
         }
     }
 
-    private void CreateTextureImage(){
-        SKBitmap bitmap = ClientAssetLoader.BlockTextureAtlas.AtlasTexture!;
+    private void CreateTextureImages(){
+        List<SKBitmap> images = ClientAssetLoader.BlockTextureAtlas.Textures;
+        _textureImage = new Image[images.Count];
+        _textureImageMemory = new DeviceMemory[images.Count];
+        _textureImageView = new ImageView[images.Count];
+        _textureSampler = new Sampler[images.Count];
+        for (uint i = 0; i < ClientAssetLoader.BlockTextureAtlas.Textures.Count; i++) {
+            SKBitmap bitmap = images[(int)i];
+            CreateTextureImage(i, bitmap);
+            CreateTextureSampler(i);
+            bitmap.Dispose();
+        }
+        images.Clear();
+    }
+
+    private void CreateTextureImage(uint index, SKBitmap bitmap){
         uint width = (uint)bitmap.Width;
         uint height = (uint)bitmap.Height;
         Span<byte> pixels = bitmap.GetPixelSpan();
@@ -942,23 +955,21 @@ public unsafe class VkRenderEngine : IRenderEngine {
 
         VkImages.CreateImage(_vk, _logicalDevice, _physicalDevice, width, height, Format.B8G8R8A8Srgb,
             ImageTiling.Optimal, ImageUsageFlags.TransferDstBit | ImageUsageFlags.SampledBit, MemoryPropertyFlags.DeviceLocalBit,
-            out _textureImage, out _textureImageMemory);
+            out _textureImage[index], out _textureImageMemory[index]);
 
-        VkImages.TransitionImageLayout(_vk, _queueFamilies, _graphicsQueue, _logicalDevice, _textureImage,
+        VkImages.TransitionImageLayout(_vk, _queueFamilies, _graphicsQueue, _logicalDevice, _textureImage[index],
             Format.B8G8R8A8Srgb, ImageLayout.Undefined, ImageLayout.TransferDstOptimal);
-        VkImages.CopyBufferToImage(_vk, _queueFamilies, _graphicsQueue, _logicalDevice, stagingBuffer, _textureImage, width, height);
-        VkImages.TransitionImageLayout(_vk, _queueFamilies, _graphicsQueue, _logicalDevice, _textureImage,
+        VkImages.CopyBufferToImage(_vk, _queueFamilies, _graphicsQueue, _logicalDevice, stagingBuffer, _textureImage[index], width, height);
+        VkImages.TransitionImageLayout(_vk, _queueFamilies, _graphicsQueue, _logicalDevice, _textureImage[index],
             Format.B8G8R8A8Srgb, ImageLayout.TransferDstOptimal, ImageLayout.ShaderReadOnlyOptimal);
 
         _vk.DestroyBuffer(_logicalDevice, stagingBuffer, null);
         _vk.FreeMemory(_logicalDevice, stagingBufferMemory, null);
-        ClientAssetLoader.BlockTextureAtlas.AtlasTexture?.Dispose();
-        ClientAssetLoader.BlockTextureAtlas.AtlasTexture = null;
 
-        _textureImageView = VkImages.CreateImageView(_vk, _logicalDevice, _textureImage, Format.B8G8R8A8Srgb);
+        _textureImageView[index] = VkImages.CreateImageView(_vk, _logicalDevice, _textureImage[index], Format.B8G8R8A8Srgb);
     }
 
-    private void CreateTextureSampler(){
+    private void CreateTextureSampler(uint index){
         SamplerCreateInfo samplerCreateInfo = new(){
             SType = StructureType.SamplerCreateInfo,
             MagFilter = Filter.Nearest,
@@ -977,8 +988,8 @@ public unsafe class VkRenderEngine : IRenderEngine {
             MaxLod = 0
         };
 
-        if (_vk.CreateSampler(_logicalDevice, in samplerCreateInfo, null, out _textureSampler) != Result.Success) {
-            throw new Exception("Unable to create graphics command pool");
+        if (_vk.CreateSampler(_logicalDevice, in samplerCreateInfo, null, out _textureSampler[index]) != Result.Success) {
+            throw new Exception("Unable to create texture sampler");
         }
     }
 
@@ -1013,7 +1024,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
         List<DescriptorPoolSize> poolSizes = [];
         
         poolSizes.Add(new DescriptorPoolSize(DescriptorType.UniformBuffer, _imageCount));
-        poolSizes.Add(new DescriptorPoolSize(DescriptorType.CombinedImageSampler, _imageCount));
+        poolSizes.Add(new DescriptorPoolSize(DescriptorType.CombinedImageSampler, _imageCount*(uint)_textureImage.Length));
         if (shadows) {
             poolSizes.Add(new DescriptorPoolSize(DescriptorType.UniformBuffer, _imageCount));
             poolSizes.Add(new DescriptorPoolSize(DescriptorType.CombinedImageSampler, _imageCount));
@@ -1050,6 +1061,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
             throw new Exception("Unable to create descriptor sets");
         }
 
+        DescriptorImageInfo* textureImageInfos = stackalloc DescriptorImageInfo[_textureImage.Length];
         for (int i = 0; i < _imageCount; i++) {
             List<WriteDescriptorSet> writeSets = [];
             
@@ -1064,19 +1076,22 @@ public unsafe class VkRenderEngine : IRenderEngine {
                 PBufferInfo = &bufferInfo
             });
 
-            DescriptorImageInfo imageInfo = new(){
-                ImageLayout = ImageLayout.ReadOnlyOptimal,
-                ImageView = _textureImageView,
-                Sampler = _textureSampler
-            };
+            for (var imageIndex = 0; imageIndex < _textureImage.Length; imageIndex++) {
+                textureImageInfos[imageIndex] = new DescriptorImageInfo{
+                    ImageLayout = ImageLayout.ReadOnlyOptimal,
+                    ImageView = _textureImageView[imageIndex],
+                    Sampler = _textureSampler[imageIndex]
+                };
+            }
+            
             writeSets.Add(new WriteDescriptorSet{
                 SType = StructureType.WriteDescriptorSet,
                 DstSet = pipeline.DescriptorSets[i],
                 DstBinding = 1,
                 DstArrayElement = 0,
                 DescriptorType = DescriptorType.CombinedImageSampler,
-                DescriptorCount = 1,
-                PImageInfo = &imageInfo
+                DescriptorCount = (uint)_textureImage.Length,
+                PImageInfo = textureImageInfos
             });
 
             if (pipeline.ShaderProgram.ShType.HasFlag(ShaderFlag.CastShadow)) {
@@ -1540,10 +1555,12 @@ public unsafe class VkRenderEngine : IRenderEngine {
             cascade?.Destroy(_vk, _logicalDevice);
         }
 
-        _vk.DestroySampler(_logicalDevice, _textureSampler, null);
-        _vk.DestroyImageView(_logicalDevice, _textureImageView, null);
-        _vk.DestroyImage(_logicalDevice, _textureImage, null);
-        _vk.FreeMemory(_logicalDevice, _textureImageMemory, null);
+        for (var i = 0; i < _textureImage.Length; i++) {
+            _vk.DestroySampler(_logicalDevice, _textureSampler[i], null);
+            _vk.DestroyImageView(_logicalDevice, _textureImageView[i], null);
+            _vk.DestroyImage(_logicalDevice, _textureImage[i], null);
+            _vk.FreeMemory(_logicalDevice, _textureImageMemory[i], null);
+        }
 
         _vk.DestroyCommandPool(_logicalDevice, _commandPool, null);
         foreach (VkShaderPipeline pipeline in _pipelines.Values) {

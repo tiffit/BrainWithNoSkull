@@ -3,7 +3,7 @@
 
 #define SHADOW_MAP_CASCADE_COUNT 4
 
-layout (set = 0, binding = 1) uniform sampler2D texSampler;
+layout (set = 0, binding = 1) uniform sampler2D texSampler[2];
 layout (set = 0, binding = 3) uniform sampler2DArray shadowSampler;
 
 struct UniformBufferObject {
@@ -26,6 +26,7 @@ layout (location = 1) in vec2 fragUV;
 layout (location = 2) in vec4 inViewPos;
 layout (location = 3) in vec4 inPos;
 layout (location = 4) in vec3 inNormal;
+layout (location = 5) flat in uint inTextureIndex;
 
 layout (location = 0) out vec4 outColor;
 
@@ -71,7 +72,7 @@ float filterPCF(vec4 sc, uint cascadeIndex)
 }
 
 void main() {
-    vec4 color = texture(texSampler, fragUV) * vec4(fragColor, 1);
+    vec4 color = texture(texSampler[inTextureIndex], fragUV) * vec4(fragColor, 1);
 
     uint cascadeIndex = 0;
     for (uint i = 0; i < SHADOW_MAP_CASCADE_COUNT - 1; i++) {
