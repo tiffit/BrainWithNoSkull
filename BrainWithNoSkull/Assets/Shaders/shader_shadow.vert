@@ -1,6 +1,8 @@
 #version 450
 #extension GL_EXT_debug_printf : enable
 
+layout(constant_id = 0) const int SHADOW_MAP_CASCADE_COUNT = 4;
+
 layout( push_constant ) uniform TransformPushConstant {
     mat4 model;
     uint cascadeIndex;
@@ -13,7 +15,7 @@ struct UniformBufferObject {
 };
 
 layout(set = 0, binding = 2) uniform CascadeUbos {
-    UniformBufferObject cascadeUbos[4];
+    UniformBufferObject cascadeUbos[SHADOW_MAP_CASCADE_COUNT];
 } ubos;
 
 layout (location = 0) in vec3 inPosition;

@@ -1,9 +1,10 @@
 #version 450
 #extension GL_EXT_debug_printf : enable
 
-#define SHADOW_MAP_CASCADE_COUNT 4
+layout(constant_id = 0) const int SHADOW_MAP_CASCADE_COUNT = 4;
+layout(constant_id = 1) const int TEXTURE_ARRAY_COUNT = 1;
 
-layout (set = 0, binding = 1) uniform sampler2D texSampler[2];
+layout (set = 0, binding = 1) uniform sampler2D texSampler[TEXTURE_ARRAY_COUNT];
 layout (set = 0, binding = 3) uniform sampler2DArray shadowSampler;
 
 struct UniformBufferObject {
@@ -13,7 +14,7 @@ struct UniformBufferObject {
 };
 
 layout (set = 0, binding = 2) uniform CascadeUbos {
-    UniformBufferObject cascadeUbos[4];
+    UniformBufferObject cascadeUbos[SHADOW_MAP_CASCADE_COUNT];
 } ubos;
 
 layout (set = 0, binding = 4) uniform ShadowMapData {
@@ -40,7 +41,7 @@ const mat4 biasMat = mat4(
 float textureProj(vec4 shadowCoord, vec2 offset, uint cascadeIndex)
 {
     float shadow = 1.0;
-    float bias = 0.001f;///0.005f; //0.001;
+    float bias = 0.001f;
 
     if ( shadowCoord.z > -1.0 && shadowCoord.z < 1.0 ) {
         float dist = texture(shadowSampler, vec3(shadowCoord.st + offset, cascadeIndex)).r;

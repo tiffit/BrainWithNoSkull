@@ -92,6 +92,14 @@ public unsafe class VkRenderEngine : IRenderEngine {
 
     private static readonly string[] RequiredDeviceExtensions = [KhrSwapchain.ExtensionName];
     private static readonly string[] ValidationLayers = ["VK_LAYER_KHRONOS_validation"];
+    
+    private struct SpecializationConstData {
+        public readonly int CascadeCount = ShadowMapCascadeCount;
+        public int TextureCount;
+        public SpecializationConstData(){}
+    }
+
+    private SpecializationConstData _specializationConstData = new SpecializationConstData();
 
     public void Init(IWindow window, Camera camera, LightData light){
         _window = window;
@@ -504,11 +512,31 @@ public unsafe class VkRenderEngine : IRenderEngine {
 
     private void CreateGraphicsPipeline(VkShaderPipeline shaderPipeline){
         ShaderType shType = shaderPipeline.ShaderProgram.ShType;
+
+        SpecializationMapEntry cascadeCountEntry = new SpecializationMapEntry(0, 
+            (uint)Marshal.OffsetOf<SpecializationConstData>("CascadeCount"), 
+            (UIntPtr)Marshal.SizeOf(_specializationConstData.CascadeCount));
+        
+        SpecializationMapEntry textureCountEntry = new SpecializationMapEntry(1, 
+            (uint)Marshal.OffsetOf<SpecializationConstData>("TextureCount"), 
+            (UIntPtr)Marshal.SizeOf(_specializationConstData.TextureCount));
+
+        SpecializationConstData* constData = stackalloc[]{_specializationConstData};
+        SpecializationMapEntry* entries = stackalloc[]{ cascadeCountEntry, textureCountEntry };
+        
+        SpecializationInfo specInfo = new SpecializationInfo{
+            DataSize = (UIntPtr)sizeof(SpecializationConstData),
+            MapEntryCount = 2,
+            PData = constData,
+            PMapEntries = entries
+        };
         
         PipelineShaderStageCreateInfo* shaderStages = stackalloc[]{
             shaderPipeline.ShaderProgram.VertStage,
             shaderPipeline.ShaderProgram.FragStage
         };
+        shaderStages[0].PSpecializationInfo = &specInfo;
+        shaderStages[1].PSpecializationInfo = &specInfo;
 
         VertexInputBindingDescription bindingDescription = shaderPipeline.GetBindingDescription();
         VertexInputAttributeDescription[] attributeDescriptions = shaderPipeline.GetAttributeDescriptions();
@@ -658,6 +686,8 @@ public unsafe class VkRenderEngine : IRenderEngine {
                 shaderPipeline.ShaderProgram.VertStageShadow,
                 shaderPipeline.ShaderProgram.FragStageShadow
             };
+            shadowShaderStages[0].PSpecializationInfo = &specInfo;
+            shadowShaderStages[1].PSpecializationInfo = &specInfo;
             createInfo.PStages = shadowShaderStages;
             createInfo.Layout = shaderPipeline.ShadowPipelineLayout;
             if (_vk.CreateGraphicsPipelines(_logicalDevice, default, 1, in createInfo, null, out shaderPipeline.ShadowPipeline) != Result.Success) {
@@ -933,6 +963,8 @@ public unsafe class VkRenderEngine : IRenderEngine {
             CreateTextureSampler(i);
             bitmap.Dispose();
         }
+
+        _specializationConstData.TextureCount = images.Count;
         images.Clear();
     }
 
