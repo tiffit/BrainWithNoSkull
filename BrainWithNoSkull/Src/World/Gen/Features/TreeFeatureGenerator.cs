@@ -16,8 +16,8 @@ public class TreeFeatureGenerator : IFeatureGenerator {
     }
 
     public void GenerateFeatures(WorldBase world, Vector2D<int> coords, IChunkGenerator chunkGen, GenChunk genChunk){
-        for (int x = 0; x < Constants.ChunkSize; x++) {
-            for (int z = 0; z < Constants.ChunkSize; z++) {
+        for (int x = -4; x < Constants.ChunkSize + 4; x++) {
+            for (int z = -4; z < Constants.ChunkSize + 4; z++) {
                 if (CanGenerate(x + coords.X*Constants.ChunkSize, z+coords.Y*Constants.ChunkSize)) {
                     GenerateTreeAt(genChunk, x, chunkGen.GetHeight(coords, x, z), z);
                 }
@@ -28,6 +28,15 @@ public class TreeFeatureGenerator : IFeatureGenerator {
     private void GenerateTreeAt(GenChunk genChunk, int x, int y, int z){
         _random.SetSeed(_seed + (long)x * 1619 ^ ((long)z * 31337) + 3);
         int height = _random.NextInt(3) + 6;
+
+        for (int xOffset = -1; xOffset <= 1; xOffset++) {
+            for (int yOffset = 0; yOffset <= 1; yOffset++) {
+                for (int zOffset = -1; zOffset <= 1; zOffset++) {
+                    genChunk.SetBlock(x + xOffset, y + height + yOffset, z + zOffset, BlockRegistry.OakLeaves);
+                }
+            }
+        }
+        
         for (int h = y; h <= y + height; h++) {
             genChunk.SetBlock(x, h, z, BlockRegistry.OakLog);
         }
