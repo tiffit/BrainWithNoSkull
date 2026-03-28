@@ -12,6 +12,10 @@ public static class ChunkUtils {
     public static Vector2D<int> ToChunkCoords(Vector3D<int> position){
         return new Vector2D<int>(position.X >> 4, position.Z >> 4);
     }
+    
+    public static Vector3D<int> ToChunkSectionedCoords(Vector3D<int> position){
+        return new Vector3D<int>(position.X >> 4, position.Y >> 4, position.Z >> 4);
+    }
 
     public static Vector3D<int> ToBlockInChunk(Vector3D<int> pos){
         return new Vector3D<int>(ToBlockInChunk(pos.X), pos.Y, ToBlockInChunk(pos.Z));

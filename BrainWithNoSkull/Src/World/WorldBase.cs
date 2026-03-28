@@ -45,6 +45,15 @@ public class WorldBase {
             return BlockRegistry.Air;
         return chunk == null ? BlockRegistry.Air : chunk.GetBlock(blockPos.X, blockPos.Y, blockPos.Z);
     }
+    
+    public virtual void SetBlock(Vector3D<int> blockPos, Block block){
+        Vector2D<int> chunkCoords = ChunkUtils.ToChunkCoords(blockPos);
+        if (!Chunks.IsChunkLoaded(chunkCoords))
+            return;
+        Chunk? chunk = Chunks.GetChunk(chunkCoords);
+        blockPos = ChunkUtils.ToBlockInChunk(blockPos);
+        chunk?.SetBlock(blockPos.X, blockPos.Y, blockPos.Z, block);
+    }
 
     public virtual void Tick(double delta){
         Chunks.Tick(delta);

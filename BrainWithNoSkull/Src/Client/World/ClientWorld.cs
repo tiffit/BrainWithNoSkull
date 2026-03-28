@@ -4,7 +4,7 @@ using BrainWithNoSkull.Net.Pckt.Cb;
 using BrainWithNoSkull.Net.Pckt.Sb;
 using BrainWithNoSkull.Util;
 using BrainWithNoSkull.World;
-using BrainWithNoSkull.World.Entities.Player;
+using BrainWithNoSkull.World.Blocks;
 using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.Client.World;
@@ -19,6 +19,7 @@ public class ClientWorld : WorldBase {
     private bool _newChunkLoaded = false;
 
     private PriorityQueue<Vector2D<int>, int> _chunkMeshQueue = new PriorityQueue<Vector2D<int>, int>();
+    private HashSet<Vector3D<int>> _chunkMeshRebuilds = [];
 
     public ClientWorld(GameClient client, ServerConnectionBase serverConnection, WorldSettings settings) : base(settings, false){
         _gameClient = client;
@@ -56,6 +57,14 @@ public class ClientWorld : WorldBase {
                 }
             }
             
+            foreach (Vector3D<int> rebuildCoords in _chunkMeshRebuilds) {
+                Vector2D<int> chunkCoords = new Vector2D<int>(rebuildCoords.X, rebuildCoords.Z);
+                if (_chunkMeshes.TryGetValue(chunkCoords, out var mesh)) {
+                    mesh.RebuildSection(Chunks, rebuildCoords.Y);
+                }
+            }
+            _chunkMeshRebuilds.Clear();
+            
             if (_chunkMeshQueue.TryDequeue(out Vector2D<int> generateCoords, out int _)) {
                 TryGenerateMesh(generateCoords);
             }
@@ -89,5 +98,10 @@ public class ClientWorld : WorldBase {
         }
 
         return false;
+    }
+
+    public override void SetBlock(Vector3D<int> blockPos, Block block){
+        base.SetBlock(blockPos, block);
+        _chunkMeshRebuilds.Add(ChunkUtils.ToChunkSectionedCoords(blockPos));
     }
 }

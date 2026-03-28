@@ -17,4 +17,9 @@ public class PacketWriter : BinaryWriter{
         Write(vec.Z);
     }
     
+    public void Write(Vector3D<int> vec){
+        Write(vec.X);
+        Write(vec.Y);
+    }
+    
 }

@@ -37,8 +37,10 @@ public class GameClient {
     public ClientWorld? World;
     private ServerConnectionBase _serverConnection;
 
-    private ConcurrentQueue<Action> _tickActions = [];
-    private ConcurrentQueue<Action> _renderActions = [];
+    public ConcurrentQueue<Action> TickActions = [];
+    public ConcurrentQueue<Action> RenderActions = [];
+
+    public WorldRayResult? BlockRayResult;
 
     public GameClient(){
         Instance = this;
@@ -99,7 +101,7 @@ public class GameClient {
         
         Skybox.Render(RenderEngine, _lightData);
         
-        while (_renderActions.TryDequeue(out Action? renderAction)) {
+        while (RenderActions.TryDequeue(out Action? renderAction)) {
             renderAction.Invoke();
         }
 
@@ -111,9 +113,9 @@ public class GameClient {
             _camera.Target = _camera.Position + _playerController.LookDirection;
 
             WorldRay ray = new WorldRay(_camera.Position, _playerController.LookDirection, 5);
-            WorldRayResult? result = ray.RunBlockTest(World!);
-            if (result != null) {
-                DrawBlockOutline(result.Value);
+            BlockRayResult = ray.RunBlockTest(World!);
+            if (BlockRayResult != null) {
+                DrawBlockOutline(BlockRayResult.Value);
             }
         }
         
@@ -127,7 +129,7 @@ public class GameClient {
     }
 
     private void Tick(double delta){
-        while (_tickActions.TryDequeue(out Action? tickAction)) {
+        while (TickActions.TryDequeue(out Action? tickAction)) {
             tickAction.Invoke();
         }
         

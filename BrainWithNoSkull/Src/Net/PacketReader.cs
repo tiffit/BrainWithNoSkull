@@ -15,4 +15,8 @@ public class PacketReader : BinaryReader{
         return new Vector3D<float>(ReadSingle(), ReadSingle(), ReadSingle());
     }
     
+    public Vector3D<int> Read3DIntVec(){
+        return new Vector3D<int>(ReadInt32(), ReadInt32(), ReadInt32());
+    }
+    
 }

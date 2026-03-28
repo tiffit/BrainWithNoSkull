@@ -48,6 +48,16 @@ public class ChunkMesh {
         return false;
     }
 
+    public void RebuildSection(ChunkStorage storage, int sectionIndex){
+        if (_sections[sectionIndex]?.Mesh != null) {
+            GameClient.Instance.RenderEngine.DestroyMesh(_sections[sectionIndex]!.Mesh!);
+        }
+        Chunk? chunk = storage.GetChunk(_chunkCoords);
+        if (chunk != null) {
+            _sections[sectionIndex] = GenerateSection(storage, chunk, sectionIndex);
+        }
+    }
+
     private bool CanGenerate(ChunkStorage storage){
         return storage.IsChunkLoaded(_wrappedChunkCoords + Vector2D<int>.UnitX) &&
                storage.IsChunkLoaded(_wrappedChunkCoords - Vector2D<int>.UnitX) &&

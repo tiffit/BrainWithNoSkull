@@ -1,6 +1,7 @@
 ﻿using BrainWithNoSkull.Client.World;
+using BrainWithNoSkull.Net.Pckt.Sb;
+using BrainWithNoSkull.Registries;
 using BrainWithNoSkull.World;
-using BrainWithNoSkull.World.Entities.Player;
 using Silk.NET.Input;
 using Silk.NET.Maths;
 
@@ -98,7 +99,20 @@ public class PlayerController {
             }   
         }
 
+        if (_inputHandler.IsButtonPressedThisFrame(MouseButton.Left)) {
+            if (_client.BlockRayResult != null) {
+                Vector3D<int> blockPos = _client.BlockRayResult.Value.Pos;
+                _client.TickActions.Enqueue(() => {
+                    if (world != null) {
+                        world.SetBlock(blockPos, BlockRegistry.Air);
+                    }
+                });
+                _player.ServerConnection.SendPacket(new SbPlayerBreakBlockPacket(blockPos));
+            }
+        }
+
         _player.SetPosition(newPlayerPos);
+        _inputHandler.Reset();
     }
     
 }

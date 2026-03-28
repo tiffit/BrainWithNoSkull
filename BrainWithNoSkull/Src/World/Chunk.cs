@@ -37,11 +37,23 @@ public class Chunk {
     }
 
     public Block GetBlock(int x, int y, int z){
-        if (x < 0 || y < 0 || z < 0 || x >= Constants.ChunkSize || y >= Constants.MaxWorldHeight || z >= Constants.ChunkSize) {
+        if (OutsideChunkBounds(x, y, z)) {
             Console.WriteLine("Accessing block outside of chunk, returning air");
             return BlockRegistry.Air;
         }
         return _blocks[x, y, z];
+    }
+
+    public void SetBlock(int x, int y, int z, Block block){
+        if (OutsideChunkBounds(x, y, z)) {
+            Console.WriteLine("Setting block outside of chunk");
+        }
+
+        _blocks[x, y, z] = block;
+    }
+
+    public bool OutsideChunkBounds(int x, int y, int z){
+        return x < 0 || y < 0 || z < 0 || x >= Constants.ChunkSize || y >= Constants.MaxWorldHeight || z >= Constants.ChunkSize;
     }
 
     public CbChunkPacket ToChunkPacket(){
