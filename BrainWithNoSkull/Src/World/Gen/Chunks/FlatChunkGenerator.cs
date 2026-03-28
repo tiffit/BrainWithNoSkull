@@ -21,10 +21,11 @@ public class FlatChunkGenerator : IChunkGenerator {
                 double worldZ = chunkCoords.Y * size + z;
                 double angleX = MathF.PI * 2 * worldX / (_settings.WorldSize * Constants.ChunkSize);
                 double angleZ = MathF.PI * 2 * worldZ / (_settings.WorldSize * Constants.ChunkSize);
-                double noiseX = Math.Cos(angleX);
-                double noiseY = Math.Sin(angleX);
-                double noiseZ = Math.Cos(angleZ);
-                double noiseW = Math.Sin(angleZ);
+                double scale = _settings.WorldSize / 8;
+                double noiseX = Math.Cos(angleX) * scale;
+                double noiseY = Math.Sin(angleX) * scale;
+                double noiseZ = Math.Cos(angleZ) * scale;
+                double noiseW = Math.Sin(angleZ) * scale;
                 float noiseHeight = OpenSimplex2.Noise4_ImproveXYZ(DateTimeOffset.Now.ToUnixTimeMilliseconds(), noiseX, noiseY, noiseZ, noiseW);
                 int height = Constants.SeaLevel + (int)(noiseHeight * 5);
 
