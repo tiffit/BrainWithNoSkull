@@ -33,7 +33,9 @@ public class PlayerController {
             mouseMovement = Vector2D<float>.Zero;
         }
 
-        Pitch = Math.Clamp(Pitch + mouseMovement.Y / 300f, -MathF.PI / 2 + 0.0001f, MathF.PI / 2 - 0.0001f);
+        float pitchPadding = float.DegreesToRadians(0.5f);
+
+        Pitch = Math.Clamp(Pitch + mouseMovement.Y / 300f, -MathF.PI / 2 + pitchPadding, MathF.PI / 2 - pitchPadding);
         Yaw = (Yaw - mouseMovement.X / 300f) % MathF.Tau;
 
         LookDirection = Vector3D.Normalize(
