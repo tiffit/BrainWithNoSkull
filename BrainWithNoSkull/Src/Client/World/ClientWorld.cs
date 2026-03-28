@@ -102,6 +102,18 @@ public class ClientWorld : WorldBase {
 
     public override void SetBlock(Vector3D<int> blockPos, Block block){
         base.SetBlock(blockPos, block);
-        _chunkMeshRebuilds.Add(ChunkUtils.ToChunkSectionedCoords(blockPos));
+        Vector3D<int> sectionCoords = ChunkUtils.ToChunkSectionedCoords(blockPos);
+        _chunkMeshRebuilds.Add(sectionCoords);
+        int offsetX = blockPos.X - sectionCoords.X * Constants.ChunkSize;
+        int offsetY = blockPos.Y - sectionCoords.Y * Constants.ChunkSize;
+        int offsetZ = blockPos.Z - sectionCoords.Z * Constants.ChunkSize;
+        if (offsetY == 0)_chunkMeshRebuilds.Add(sectionCoords + new Vector3D<int>(0, -1, 0));
+        else if (offsetY == Constants.ChunkSize - 1)_chunkMeshRebuilds.Add(sectionCoords + new Vector3D<int>(0, 1, 0));
+        
+        if (offsetX == 0)_chunkMeshRebuilds.Add(sectionCoords + new Vector3D<int>(-1, 0, 0));
+        else if (offsetX == Constants.ChunkSize - 1)_chunkMeshRebuilds.Add(sectionCoords + new Vector3D<int>(1, 0, 0));
+        
+        if (offsetZ == 0)_chunkMeshRebuilds.Add(sectionCoords + new Vector3D<int>(0, 0, -1));
+        else if (offsetZ == Constants.ChunkSize - 1)_chunkMeshRebuilds.Add(sectionCoords + new Vector3D<int>(0, 0, 1));
     }
 }

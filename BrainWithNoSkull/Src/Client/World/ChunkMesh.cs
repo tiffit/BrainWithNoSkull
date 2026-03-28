@@ -49,6 +49,8 @@ public class ChunkMesh {
     }
 
     public void RebuildSection(ChunkStorage storage, int sectionIndex){
+        if (sectionIndex < 0 || sectionIndex >= _sections.Length)
+            return;
         if (_sections[sectionIndex]?.Mesh != null) {
             GameClient.Instance.RenderEngine.DestroyMesh(_sections[sectionIndex]!.Mesh!);
         }
