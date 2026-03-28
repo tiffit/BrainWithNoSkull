@@ -8,6 +8,7 @@ public class ShaderType {
     public static readonly ShaderType Skybox = new ShaderType("skybox", 1024, [VertexParam.Position], ShaderFlag.Skybox, PushConstantType.Skybox);
     public static readonly ShaderType Shader = new ShaderType("shader", 0x100000*1024, [VertexParam.Position, VertexParam.Color, VertexParam.Uv, VertexParam.Normal, VertexParam.TextureIndex], 
         ShaderFlag.Mesh | ShaderFlag.CastShadow, PushConstantType.Transform);
+    public static readonly ShaderType Lines = new ShaderType("lines", 1024, [VertexParam.Position, VertexParam.Color], ShaderFlag.Lines, PushConstantType.None);
     
     public readonly string Name;
     public readonly uint BufferSize;

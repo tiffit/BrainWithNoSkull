@@ -39,6 +39,10 @@ public class VertexBuilder {
         }
     }
     
+    public void Add(Vertex v){
+        _vertices.AddLast(v);
+    }
+    
     public ulong GetMeshSize(){
         return (ulong)(_vertices.Count * _shaderProgram.VertexSize * 4);
     }

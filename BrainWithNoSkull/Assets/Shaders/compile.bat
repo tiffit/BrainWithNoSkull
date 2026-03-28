@@ -5,4 +5,7 @@ C:\VulkanSDK\1.4.341.1\Bin\glslc.exe shader_shadow.frag -o Compiled/shader_shado
 
 C:\VulkanSDK\1.4.341.1\Bin\glslc.exe skybox.vert -o Compiled/skybox_vert.spv
 C:\VulkanSDK\1.4.341.1\Bin\glslc.exe skybox.frag -o Compiled/skybox_frag.spv
+
+C:\VulkanSDK\1.4.341.1\Bin\glslc.exe lines.vert -o Compiled/lines_vert.spv
+C:\VulkanSDK\1.4.341.1\Bin\glslc.exe lines.frag -o Compiled/lines_frag.spv
 pause

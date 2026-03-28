@@ -130,6 +130,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
         CreateTextureImages();
         foreach (ShaderType details in ShaderType.AllShaders) {
             VkShaderProgram program = CreateShader(details);
+            Console.WriteLine("Loading shader " + details.Name);
             VkShaderPipeline pipeline = new VkShaderPipeline(program, in _physicalDeviceLimits);
             CreateDescriptorSetLayout(pipeline);
             CreateGraphicsPipeline(pipeline);
@@ -139,6 +140,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
             CreateDescriptorSets(pipeline);
             _pipelines[details] = pipeline;
         }
+        Console.WriteLine("All shaders loaded");
 
         CreateFramebuffers();
         CreateCommandPool();
@@ -230,7 +232,8 @@ public unsafe class VkRenderEngine : IRenderEngine {
         DeviceQueueCreateInfo* createInfoPtr = CreateQueueFamilyStructs(_queueFamilies, out uint numQueueFamilies, out GlobalMemory queueMemory);
         PhysicalDeviceFeatures deviceFeatures = new(){
             SamplerAnisotropy = true,
-            DepthClamp = true
+            DepthClamp = true,
+            WideLines = true
         };
 
         PhysicalDeviceVulkan13Features features13 = new(){
@@ -556,15 +559,22 @@ public unsafe class VkRenderEngine : IRenderEngine {
             Topology = PrimitiveTopology.TriangleList,
             PrimitiveRestartEnable = false,
         };
+        
+        if (shType.HasFlag(ShaderFlag.Lines)) {
+            inputAssembly.Topology = PrimitiveTopology.LineList;
+        }
 
-        DynamicState* dynamicStates = stackalloc[]{
-            DynamicState.Viewport,
-            DynamicState.Scissor
-        };
+        List<DynamicState> dynamicStatesList = [DynamicState.Viewport, DynamicState.Scissor];
+        
+        
+        DynamicState* dynamicStates = stackalloc DynamicState[dynamicStatesList.Count];
+        for (int i = 0; i < dynamicStatesList.Count; i++) {
+            dynamicStates[i] = dynamicStatesList[i];
+        }
 
         PipelineDynamicStateCreateInfo dynamicState = new(){
             SType = StructureType.PipelineDynamicStateCreateInfo,
-            DynamicStateCount = 2,
+            DynamicStateCount = (uint)dynamicStatesList.Count,
             PDynamicStates = dynamicStates
         };
 
@@ -579,7 +589,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
             DepthClampEnable = false,
             RasterizerDiscardEnable = false,
             PolygonMode = PolygonMode.Fill,
-            LineWidth = 1,
+            LineWidth = 2f,
             CullMode = CullModeFlags.BackBit,
             FrontFace = FrontFace.Clockwise,
             DepthBiasEnable = false,
@@ -637,6 +647,10 @@ public unsafe class VkRenderEngine : IRenderEngine {
             PushConstantRangeCount = 1,
             PPushConstantRanges = &pushConstants
         };
+
+        if (shType.PushConstant == PushConstantType.None) {
+            pipelineLayoutInfo.PushConstantRangeCount = 0;
+        }
 
         if (_vk.CreatePipelineLayout(_logicalDevice, in pipelineLayoutInfo, null, out shaderPipeline.PipelineLayout) != Result.Success) {
             throw new Exception("Unable to create pipeline layout");

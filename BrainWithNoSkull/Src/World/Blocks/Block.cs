@@ -31,4 +31,8 @@ public class Block : IRegistryEntry {
     public AABB? GetCollisionBox(){
         return IsAir() ? null : CollisionBox;
     }
+
+    public override string ToString(){
+        return _id;
+    }
 }

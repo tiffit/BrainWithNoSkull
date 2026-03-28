@@ -11,6 +11,7 @@ using BrainWithNoSkull.Net;
 using BrainWithNoSkull.Net.Pckt;
 using BrainWithNoSkull.Server;
 using BrainWithNoSkull.Util;
+using BrainWithNoSkull.World;
 using Silk.NET.Input;
 using Silk.NET.Input.Glfw;
 using Silk.NET.Maths;
@@ -108,6 +109,12 @@ public class GameClient {
             _playerController.Update(delta);
             _camera.Position = _serverConnection.PlayerEntity!.Position + new Vector3D<float>(0, 1.4f, 0);
             _camera.Target = _camera.Position + _playerController.LookDirection;
+
+            WorldRay ray = new WorldRay(_camera.Position, _playerController.LookDirection, 5);
+            WorldRayResult? result = ray.RunBlockTest(World!);
+            if (result != null) {
+                DrawBlockOutline(result.Value);
+            }
         }
         
         _camera.Frustum = new Frustum(_camera);
@@ -143,5 +150,60 @@ public class GameClient {
     private Vector3D<float> GetSunSkyProgress(float playerPosZ, Vector3D<float> currentPos){
         Matrix4X4<float> mat = Matrix4X4.CreateRotationX(playerPosZ*MathF.PI*2 + MathF.PI);
         return Vector3D.Transform(currentPos, mat);
+    }
+
+    private void DrawBlockOutline(WorldRayResult result){
+        Vector3D<int> blockPos = result.Pos;
+        Vector3D<float> p000 = new Vector3D<float>(blockPos.X - 0.001f, blockPos.Y - 0.001f, blockPos.Z - 0.001f);
+        Vector3D<float> p111 = new Vector3D<float>(blockPos.X + 1.001f, blockPos.Y + 1.001f, blockPos.Z + 1.001f);
+        
+        Vector3D<float> p100 = new Vector3D<float>(p111.X, p000.Y, p000.Z);
+        Vector3D<float> p010 = new Vector3D<float>(p000.X, p111.Y, p000.Z);
+        Vector3D<float> p001 = new Vector3D<float>(p000.X, p000.Y, p111.Z);
+        
+        Vector3D<float> p011 = new Vector3D<float>(p000.X, p111.Y, p111.Z);
+        Vector3D<float> p101 = new Vector3D<float>(p111.X, p000.Y, p111.Z);
+        Vector3D<float> p110 = new Vector3D<float>(p111.X, p111.Y, p000.Z);
+
+        Vector3D<float> color = new Vector3D<float>(0.8f, 0.8f, 0.8f);
+        
+        VertexBuilder builder = RenderEngine.GetVertexBuilder(ShaderType.Lines);
+        builder.Add(new Vertex{ Pos = p000, Color = color });
+        builder.Add(new Vertex{ Pos = p100, Color = color });
+        
+        builder.Add(new Vertex{ Pos = p000, Color = color });
+        builder.Add(new Vertex{ Pos = p010, Color = color });
+        
+        builder.Add(new Vertex{ Pos = p000, Color = color });
+        builder.Add(new Vertex{ Pos = p001, Color = color });
+        
+        
+        builder.Add(new Vertex{ Pos = p111, Color = color });
+        builder.Add(new Vertex{ Pos = p011, Color = color });
+        
+        builder.Add(new Vertex{ Pos = p111, Color = color });
+        builder.Add(new Vertex{ Pos = p101, Color = color });
+        
+        builder.Add(new Vertex{ Pos = p111, Color = color });
+        builder.Add(new Vertex{ Pos = p110, Color = color });
+        
+        
+        builder.Add(new Vertex{ Pos = p110, Color = color });
+        builder.Add(new Vertex{ Pos = p010, Color = color });
+        
+        builder.Add(new Vertex{ Pos = p110, Color = color });
+        builder.Add(new Vertex{ Pos = p100, Color = color });
+        
+        builder.Add(new Vertex{ Pos = p010, Color = color });
+        builder.Add(new Vertex{ Pos = p011, Color = color });
+        
+        builder.Add(new Vertex{ Pos = p100, Color = color });
+        builder.Add(new Vertex{ Pos = p101, Color = color });
+        
+        builder.Add(new Vertex{ Pos = p101, Color = color });
+        builder.Add(new Vertex{ Pos = p001, Color = color });
+        
+        builder.Add(new Vertex{ Pos = p001, Color = color });
+        builder.Add(new Vertex{ Pos = p011, Color = color });
     }
 }
