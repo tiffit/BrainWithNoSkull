@@ -59,6 +59,7 @@ public class Chunk {
                 Vector2D<int> newChunkCoords = ChunkUtils.ToChunkCoords(entity.Position);
                 if (newChunkCoords != Coords) {
                     EntityMoveChunkTicket ticket = new EntityMoveChunkTicket(entity, this, newChunkCoords);
+                    _world.EntityMoveChunkTickets.Enqueue(ticket);
                 }
             }
         }

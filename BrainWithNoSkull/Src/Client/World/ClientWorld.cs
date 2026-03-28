@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using BrainWithNoSkull.Net;
 using BrainWithNoSkull.Net.Pckt.Cb;
+using BrainWithNoSkull.Net.Pckt.Sb;
 using BrainWithNoSkull.Util;
 using BrainWithNoSkull.World;
 using BrainWithNoSkull.World.Entities.Player;
@@ -17,6 +18,8 @@ public class ClientWorld : WorldBase {
     private Vector2D<int>? _playerChunk;
     private bool _newChunkLoaded = false;
 
+    private PriorityQueue<Vector2D<int>, int> _chunkMeshQueue = new PriorityQueue<Vector2D<int>, int>();
+
     public ClientWorld(GameClient client, ServerConnectionBase serverConnection, WorldSettings settings) : base(settings, false){
         _gameClient = client;
         _serverConnection = serverConnection;
@@ -27,6 +30,7 @@ public class ClientWorld : WorldBase {
         if (player?.Chunk != null) {
             if (_newChunkLoaded || _playerChunk != player.Chunk.Coords) {
                 _newChunkLoaded = false;
+                _chunkMeshQueue.Clear();
                 _playerChunk = player.Chunk.Coords;
 
                 List<Vector2D<int>> cleared = [];
@@ -46,11 +50,22 @@ public class ClientWorld : WorldBase {
                     for (int z = -ViewDistance; z <= ViewDistance; z++) {
                         Vector2D<int> chunkCoords = new Vector2D<int>(x, z) + ChunkUtils.ToChunkCoords(player.Position);
                         if (Chunks.IsChunkLoaded(chunkCoords)) {
-                            TryGenerateMesh(chunkCoords);
+                            _chunkMeshQueue.Enqueue(chunkCoords, (chunkCoords - _playerChunk.Value).LengthSquared);
                         }
                     }
                 }
             }
+            
+            if (_chunkMeshQueue.TryDequeue(out Vector2D<int> generateCoords, out int _)) {
+                TryGenerateMesh(generateCoords);
+            }
+        }
+    }
+
+    public override void Tick(double delta){
+        base.Tick(delta);
+        if (_serverConnection.PlayerEntity != null) {
+            _serverConnection.SendPacket(new SbPlayerMovePacket(_serverConnection.PlayerEntity!.Position));
         }
     }
 

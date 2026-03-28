@@ -11,7 +11,7 @@ namespace BrainWithNoSkull.World;
 
 public class WorldBase {
 
-    private readonly Queue<EntityMoveChunkTicket> _entityMoveChunkTickets = [];
+    public readonly Queue<EntityMoveChunkTicket> EntityMoveChunkTickets = [];
     
     public WorldGenerator WorldGenerator{ get; private set; }
     protected ChunkStorage Chunks;
@@ -48,7 +48,7 @@ public class WorldBase {
 
     public virtual void Tick(double delta){
         Chunks.Tick(delta);
-        while (_entityMoveChunkTickets.TryDequeue(out EntityMoveChunkTicket? moveChunkTicket)) {
+        while (EntityMoveChunkTickets.TryDequeue(out EntityMoveChunkTicket? moveChunkTicket)) {
             Chunk oldChunk = moveChunkTicket.OldChunk;
             Chunk newChunk = GetChunk(moveChunkTicket.NewChunk)!;
             oldChunk.RemoveEntityNow(moveChunkTicket.Entity.Id);

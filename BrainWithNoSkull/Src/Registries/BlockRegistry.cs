@@ -14,6 +14,8 @@ public static class BlockRegistry {
     public static Block Grass;
     public static Block Dirt;
     public static Block Stone;
+    public static Block OakLog;
+    public static Block OakLeaves;
     
     public static void Init(){
         Air = Registry.Register(new Block("Air"));
@@ -21,6 +23,8 @@ public static class BlockRegistry {
         Grass = Registry.Register(new Block("Grass"));
         Dirt = Registry.Register(new Block("Dirt"));
         Stone = Registry.Register(new Block("Stone"));
+        OakLog = Registry.Register(new Block("OakLog"));
+        OakLeaves = Registry.Register(new Block("OakLeaves"));
     }
 
 }

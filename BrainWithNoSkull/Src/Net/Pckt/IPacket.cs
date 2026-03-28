@@ -1,4 +1,5 @@
 ﻿using BrainWithNoSkull.Net.Pckt.Cb;
+using BrainWithNoSkull.Net.Pckt.Sb;
 
 namespace BrainWithNoSkull.Net.Pckt;
 
@@ -21,7 +22,10 @@ public enum PacketType: ushort{
     //Client-bound
     WorldInfo,
     Chunk,
-    PlayerInfo
+    PlayerInfo,
+    
+    //Server-bound
+    PlayerMove
 }
 
 public delegate IPacket PacketFactory();
@@ -34,6 +38,8 @@ public static class PacketRegistry {
         Registry[PacketType.WorldInfo] = () => new CbWorldInfoPacket();
         Registry[PacketType.Chunk] = () => new CbChunkPacket();
         Registry[PacketType.PlayerInfo] = () => new CbPlayerInfoPacket();
+        
+        Registry[PacketType.PlayerMove] = () => new SbPlayerMovePacket();
     }
 
     public static IPacket GetPacket(PacketType type) => Registry[type]();

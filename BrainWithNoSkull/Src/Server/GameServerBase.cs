@@ -12,7 +12,7 @@ public class GameServerBase {
     private readonly List<ConnectedClientBase> _clients = [];
     
     public GameServerBase(){
-        World = new ServerWorld(new WorldSettings(){ WorldSize = 8 });
+        World = new ServerWorld(new WorldSettings(){ WorldSize = 512 });
     }
 
     public virtual void Tick(double delta){

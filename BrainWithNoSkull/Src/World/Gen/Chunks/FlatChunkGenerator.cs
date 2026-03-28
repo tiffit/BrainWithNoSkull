@@ -28,6 +28,15 @@ public class FlatChunkGenerator : IChunkGenerator {
                 float noiseHeight = OpenSimplex2.Noise4_ImproveXYZ(DateTimeOffset.Now.ToUnixTimeMilliseconds(), noiseX, noiseY, noiseZ, noiseW);
                 int height = Constants.SeaLevel + (int)(noiseHeight * 5);
 
+                if (x == 4 && z == 4) {
+                    for (int y = height; y < height + 4; y++) {
+                        chunk.Blocks[x, y, z] = BlockRegistry.OakLog;
+                    }
+                    for (int y = height + 4; y < height + 8; y++) {
+                        chunk.Blocks[x, y, z] = BlockRegistry.OakLeaves;
+                    }
+                }
+                
                 for (int y = 0; y < height; y++) {
                     Block block = BlockRegistry.Stone;
                     if (y == height - 1) block = BlockRegistry.Grass;
