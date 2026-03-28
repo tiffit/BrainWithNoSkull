@@ -22,6 +22,14 @@ public class GenChunk {
         }
     }
 
+    public void SetBlock(int x, int y, int z, Block block){
+        if (x < 0 || y < 0 || z < 0 || x >= Constants.ChunkSize || y >= Constants.MaxWorldHeight || z >= Constants.ChunkSize) {
+            return;
+        }
+
+        Blocks[x, y, z] = block;
+    }
+
     public Chunk ToChunk(WorldBase world){
         Chunk chunk = new Chunk(world, _chunkCoords, Blocks);
         return chunk;
