@@ -11,7 +11,8 @@ public class ClientAssetLoader {
     public static void Load(){
         ICollection<string> deps = BlockModels.CreateUnbaked();
         BlockTextureAtlas.Create(deps);
-        BlockModels.Bake(BlockTextureAtlas.Lookup);
+        BlockTextureAtlas.CreateGuiTextures();
+        BlockModels.Bake(BlockTextureAtlas.LookupBlock);
         Console.WriteLine("Baked " + BlockModels.BakedModels.Count + " block models");
         FontTextureAtlas.Create();
     }

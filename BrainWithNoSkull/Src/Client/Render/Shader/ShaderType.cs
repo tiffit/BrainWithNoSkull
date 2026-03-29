@@ -10,6 +10,7 @@ public class ShaderType {
         ShaderFlag.Mesh | ShaderFlag.CastShadow, PushConstantType.Transform);
     public static readonly ShaderType Lines = new ShaderType("lines", 1024, [VertexParam.Position, VertexParam.Color], ShaderFlag.Lines, PushConstantType.None);
     public static readonly ShaderType GuiText = new ShaderType("font", 1024*1000, [VertexParam.Position, VertexParam.Color, VertexParam.Uv], ShaderFlag.Gui | ShaderFlag.Font, PushConstantType.None);
+    // public static readonly ShaderType Gui = new ShaderType("gui", 1024*1000, [VertexParam.Position, VertexParam.Color, VertexParam.Uv, VertexParam.TextureIndex], ShaderFlag.Gui, PushConstantType.None);
     
     public readonly string Name;
     public readonly uint BufferSize;

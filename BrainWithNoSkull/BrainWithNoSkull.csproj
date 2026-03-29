@@ -22,6 +22,7 @@
       <Folder Include="Assets\Shaders\Compiled\" />
       <Folder Include="Assets\Textures\Block\" />
       <Folder Include="Assets\Textures\Font\" />
+      <Folder Include="Assets\Textures\Gui\" />
     </ItemGroup>
 
 </Project>
