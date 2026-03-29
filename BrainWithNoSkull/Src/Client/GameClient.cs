@@ -42,6 +42,10 @@ public class GameClient {
 
     public WorldRayResult? BlockRayResult;
 
+    private int fps = 0;
+    private int frameCount = 0;
+    private long lastFrameSecond = 0;
+
     public GameClient(){
         Instance = this;
     }
@@ -82,7 +86,7 @@ public class GameClient {
         GlfwInput.RegisterPlatform();
         GameWindow = Window.Create(windowOptions);
         GameWindow.UpdatesPerSecond = 20;
-        GameWindow.FramesPerSecond = 144;
+        GameWindow.FramesPerSecond = 100;
         GameWindow.Load += OnWindowLoad;
         GameWindow.Initialize();
     }
@@ -100,6 +104,13 @@ public class GameClient {
         }
         
         Skybox.Render(RenderEngine, _lightData);
+
+        FontRenderer fr = new FontRenderer(this, RenderEngine);
+        fr.RenderString(24, 25, 0.01f, "FPS " + fps, new Vector3D<float>(0, 0, 0));
+        fr.RenderString(26, 25, 0.01f, "FPS " + fps, new Vector3D<float>(0, 0, 0));
+        fr.RenderString(25, 24, 0.01f, "FPS " + fps, new Vector3D<float>(0, 0, 0));
+        fr.RenderString(25, 26, 0.01f, "FPS " + fps, new Vector3D<float>(0, 0, 0));
+        fr.RenderString(25, 25, 0, "FPS " + fps, new Vector3D<float>(1, 1, 1));
         
         while (RenderActions.TryDequeue(out Action? renderAction)) {
             renderAction.Invoke();
@@ -122,6 +133,14 @@ public class GameClient {
         _camera.Frustum = new Frustum(_camera);
 
         RenderEngine.OnRender(delta);
+
+        frameCount++;
+        long nowTime = DateTimeOffset.Now.ToUnixTimeMilliseconds() / 1000;
+        if (nowTime != lastFrameSecond) {
+            fps = frameCount;
+            frameCount = 0;
+            lastFrameSecond = nowTime;
+        }
     }
 
     public void CreatePlayerController(ClientPlayerEntity player){
