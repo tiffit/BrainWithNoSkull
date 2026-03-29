@@ -66,15 +66,8 @@ public unsafe class VkRenderEngine : IRenderEngine {
     private CommandPool _commandPool;
     private CommandBuffer[] _commandBuffers = [];
 
-    private Image[] _textureImage = [];
-    private DeviceMemory[] _textureImageMemory = [];
-    private ImageView[] _textureImageView = [];
-    private Sampler[] _textureSampler = [];
-    
-    private Image _fontImage;
-    private DeviceMemory _fontImageMemory;
-    private ImageView _fontImageView;
-    private Sampler _fontImageSampler;
+    private VkTextureImage[] _textureImages = [];
+    private VkTextureImage _fontImage = null!;
 
     private Image _depthImage;
     private DeviceMemory _depthImageMemory;
@@ -481,13 +474,14 @@ public unsafe class VkRenderEngine : IRenderEngine {
             DescriptorCount = 1,
             StageFlags = ShaderStageFlags.VertexBit
         });
-        
-        if(!shaderPipeline.ShaderProgram.ShType.HasFlag(ShaderFlag.Font))
-        {
+
+        ShaderType shType = shaderPipeline.ShaderProgram.ShType;
+
+        if (shType.HasFlag(ShaderFlag.Font)) {
             layoutBindings.Add(new DescriptorSetLayoutBinding(){
                 Binding = 1,
                 DescriptorType = DescriptorType.CombinedImageSampler,
-                DescriptorCount = (uint)_textureImage.Length,
+                DescriptorCount = 1,
                 PImmutableSamplers = null,
                 StageFlags = ShaderStageFlags.FragmentBit
             });
@@ -496,7 +490,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
             layoutBindings.Add(new DescriptorSetLayoutBinding(){
                 Binding = 1,
                 DescriptorType = DescriptorType.CombinedImageSampler,
-                DescriptorCount = 1,
+                DescriptorCount = (uint)_textureImages.Length,
                 PImmutableSamplers = null,
                 StageFlags = ShaderStageFlags.FragmentBit
             });
@@ -1028,116 +1022,27 @@ public unsafe class VkRenderEngine : IRenderEngine {
 
     private void CreateTextureImages(){
         List<SKBitmap> images = ClientAssetLoader.BlockTextureAtlas.Textures;
-        _textureImage = new Image[images.Count];
-        _textureImageMemory = new DeviceMemory[images.Count];
-        _textureImageView = new ImageView[images.Count];
-        _textureSampler = new Sampler[images.Count];
+        _textureImages = new VkTextureImage[images.Count];
         for (uint i = 0; i < ClientAssetLoader.BlockTextureAtlas.Textures.Count; i++) {
             SKBitmap bitmap = images[(int)i];
-            CreateTextureImage(i, bitmap);
-            CreateTextureSampler(i);
+            VkTextureImage textureImage = new VkTextureImage();
+            textureImage.CreateImage(bitmap, _vk, _logicalDevice, _physicalDevice, _queueFamilies, _graphicsQueue, Format.B8G8R8A8Srgb);
+            textureImage.CreateSampler(true, _physicalDeviceLimits, _vk, _logicalDevice);
+            _textureImages[i] = textureImage;
             bitmap.Dispose();
         }
 
         _specializationConstData.TextureCount = images.Count;
         images.Clear();
     }
-
-    private void CreateTextureImage(uint index, SKBitmap bitmap){
-        uint width = (uint)bitmap.Width;
-        uint height = (uint)bitmap.Height;
-        Span<byte> pixels = bitmap.GetPixelSpan();
-        ulong imageSize = (ulong)bitmap.ByteCount;
-
-        VkBuffers.CreateBuffer(_vk, _logicalDevice, _physicalDevice, imageSize,
-            BufferUsageFlags.TransferSrcBit, MemoryPropertyFlags.HostVisibleBit | MemoryPropertyFlags.HostCoherentBit,
-            out Buffer stagingBuffer, out DeviceMemory stagingBufferMemory);
-
-        void* data;
-        _vk.MapMemory(_logicalDevice, stagingBufferMemory, 0, imageSize, 0, &data);
-        pixels.CopyTo(new Span<byte>(data, (int)imageSize));
-        _vk.UnmapMemory(_logicalDevice, stagingBufferMemory);
-
-        bitmap.Dispose();
-
-        VkImages.CreateImage(_vk, _logicalDevice, _physicalDevice, width, height, Format.B8G8R8A8Srgb,
-            ImageTiling.Optimal, ImageUsageFlags.TransferDstBit | ImageUsageFlags.SampledBit, MemoryPropertyFlags.DeviceLocalBit,
-            out _textureImage[index], out _textureImageMemory[index]);
-
-        VkImages.TransitionImageLayout(_vk, _queueFamilies, _graphicsQueue, _logicalDevice, _textureImage[index],
-            Format.B8G8R8A8Srgb, ImageLayout.Undefined, ImageLayout.TransferDstOptimal);
-        VkImages.CopyBufferToImage(_vk, _queueFamilies, _graphicsQueue, _logicalDevice, stagingBuffer, _textureImage[index], width, height);
-        VkImages.TransitionImageLayout(_vk, _queueFamilies, _graphicsQueue, _logicalDevice, _textureImage[index],
-            Format.B8G8R8A8Srgb, ImageLayout.TransferDstOptimal, ImageLayout.ShaderReadOnlyOptimal);
-
-        _vk.DestroyBuffer(_logicalDevice, stagingBuffer, null);
-        _vk.FreeMemory(_logicalDevice, stagingBufferMemory, null);
-
-        _textureImageView[index] = VkImages.CreateImageView(_vk, _logicalDevice, _textureImage[index], Format.B8G8R8A8Srgb);
-    }
     
     private void CreateFontImage(){
         SKBitmap bitmap = ClientAssetLoader.FontTextureAtlas.Textures[0];
-        uint width = (uint)bitmap.Width;
-        uint height = (uint)bitmap.Height;
-        Span<byte> pixels = bitmap.GetPixelSpan();
-        ulong imageSize = (ulong)bitmap.ByteCount;
-        
-        VkBuffers.CreateBuffer(_vk, _logicalDevice, _physicalDevice, imageSize,
-            BufferUsageFlags.TransferSrcBit, MemoryPropertyFlags.HostVisibleBit | MemoryPropertyFlags.HostCoherentBit,
-            out Buffer stagingBuffer, out DeviceMemory stagingBufferMemory);
-        
-        void* data;
-        _vk.MapMemory(_logicalDevice, stagingBufferMemory, 0, imageSize, 0, &data);
-        pixels.CopyTo(new Span<byte>(data, (int)imageSize));
-        _vk.UnmapMemory(_logicalDevice, stagingBufferMemory);
-        
+        _fontImage = new VkTextureImage();
+        _fontImage.CreateImage(bitmap, _vk, _logicalDevice, _physicalDevice, _queueFamilies, _graphicsQueue, Format.R8Unorm);
+        _fontImage.CreateSampler(false, _physicalDeviceLimits, _vk, _logicalDevice);
         bitmap.Dispose();
-        
-        VkImages.CreateImage(_vk, _logicalDevice, _physicalDevice, width, height, Format.R8Unorm,
-            ImageTiling.Optimal, ImageUsageFlags.TransferDstBit | ImageUsageFlags.SampledBit, MemoryPropertyFlags.DeviceLocalBit,
-            out _fontImage, out _fontImageMemory);
-        
-        VkImages.TransitionImageLayout(_vk, _queueFamilies, _graphicsQueue, _logicalDevice, _fontImage,
-            Format.R8Unorm, ImageLayout.Undefined, ImageLayout.TransferDstOptimal);
-        VkImages.CopyBufferToImage(_vk, _queueFamilies, _graphicsQueue, _logicalDevice, stagingBuffer, _fontImage, width, height);
-        VkImages.TransitionImageLayout(_vk, _queueFamilies, _graphicsQueue, _logicalDevice, _fontImage,
-            Format.R8Unorm, ImageLayout.TransferDstOptimal, ImageLayout.ShaderReadOnlyOptimal);
-        
-        _vk.DestroyBuffer(_logicalDevice, stagingBuffer, null);
-        _vk.FreeMemory(_logicalDevice, stagingBufferMemory, null);
-        
-        _fontImageView = VkImages.CreateImageView(_vk, _logicalDevice, _fontImage, Format.R8Unorm);
-    }
-
-    private void CreateTextureSampler(uint index){
-        SamplerCreateInfo samplerCreateInfo = new(){
-            SType = StructureType.SamplerCreateInfo,
-            MagFilter = Filter.Nearest,
-            MinFilter = Filter.Nearest,
-            AddressModeU = SamplerAddressMode.ClampToEdge,
-            AddressModeV = SamplerAddressMode.ClampToEdge,
-            AddressModeW = SamplerAddressMode.ClampToEdge,
-            AnisotropyEnable = true,
-            MaxAnisotropy = _physicalDeviceLimits.MaxSamplerAnisotropy,
-            UnnormalizedCoordinates = false,
-            CompareEnable = false,
-            CompareOp = CompareOp.Always,
-            MipmapMode = SamplerMipmapMode.Linear,
-            MipLodBias = 0,
-            MinLod = 0,
-            MaxLod = 0
-        };
-
-        if (_vk.CreateSampler(_logicalDevice, in samplerCreateInfo, null, out _textureSampler[index]) != Result.Success) {
-            throw new Exception("Unable to create texture sampler");
-        }
-
-        samplerCreateInfo.AnisotropyEnable = false;
-        samplerCreateInfo.MaxAnisotropy = 0;
-        if (_vk.CreateSampler(_logicalDevice, in samplerCreateInfo, null, out _fontImageSampler) != Result.Success) {
-            throw new Exception("Unable to create font sampler");
-        }
+        ClientAssetLoader.FontTextureAtlas.Textures.Clear();
     }
 
     private void CreateVertexBuffer(VkShaderPipeline pipeline){
@@ -1169,7 +1074,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
         List<DescriptorPoolSize> poolSizes = [];
         
         poolSizes.Add(new DescriptorPoolSize(DescriptorType.UniformBuffer, _imageCount));
-        poolSizes.Add(new DescriptorPoolSize(DescriptorType.CombinedImageSampler, _imageCount*(uint)_textureImage.Length));
+        poolSizes.Add(new DescriptorPoolSize(DescriptorType.CombinedImageSampler, _imageCount*(uint)_textureImages.Length));
         if (shadows) {
             poolSizes.Add(new DescriptorPoolSize(DescriptorType.UniformBuffer, _imageCount));
             poolSizes.Add(new DescriptorPoolSize(DescriptorType.CombinedImageSampler, _imageCount));
@@ -1206,9 +1111,12 @@ public unsafe class VkRenderEngine : IRenderEngine {
             throw new Exception("Unable to create descriptor sets");
         }
 
-        bool font = pipeline.ShaderProgram.ShType.HasFlag(ShaderFlag.Font);
 
-        int textImageSize = font ? 1 : _textureImage.Length;
+        ShaderType shType = pipeline.ShaderProgram.ShType;
+        bool font = shType.HasFlag(ShaderFlag.Font);
+        bool gui = shType.HasFlag(ShaderFlag.Gui);
+
+        int textImageSize = font ? 1 : _textureImages.Length;
         
         DescriptorImageInfo* textureImageInfos = stackalloc DescriptorImageInfo[textImageSize];
         for (int i = 0; i < _imageCount; i++) {
@@ -1226,19 +1134,11 @@ public unsafe class VkRenderEngine : IRenderEngine {
             });
 
             if (font) {
-                textureImageInfos[0] = new DescriptorImageInfo{
-                    ImageLayout = ImageLayout.ReadOnlyOptimal,
-                    ImageView = _fontImageView,
-                    Sampler = _fontImageSampler
-                };
+                textureImageInfos[0] = _fontImage.ToDescriptorInfo();
             }
             else {
-                for (var imageIndex = 0; imageIndex < _textureImage.Length; imageIndex++) {
-                    textureImageInfos[imageIndex] = new DescriptorImageInfo{
-                        ImageLayout = ImageLayout.ReadOnlyOptimal,
-                        ImageView = _textureImageView[imageIndex],
-                        Sampler = _textureSampler[imageIndex]
-                    };
+                for (var imageIndex = 0; imageIndex < _textureImages.Length; imageIndex++) {
+                    textureImageInfos[imageIndex] = _textureImages[imageIndex].ToDescriptorInfo();
                 }
             }
             
@@ -1252,7 +1152,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
                 PImageInfo = textureImageInfos
             });
 
-            if (pipeline.ShaderProgram.ShType.HasFlag(ShaderFlag.CastShadow)) {
+            if (shType.HasFlag(ShaderFlag.CastShadow)) {
                 var shadowBufferInfo = _shadowUbo.CreateBufferInfo(i);
                 writeSets.Add(new WriteDescriptorSet{
                     SType = StructureType.WriteDescriptorSet,
@@ -1720,12 +1620,11 @@ public unsafe class VkRenderEngine : IRenderEngine {
             cascade?.Destroy(_vk, _logicalDevice);
         }
 
-        for (var i = 0; i < _textureImage.Length; i++) {
-            _vk.DestroySampler(_logicalDevice, _textureSampler[i], null);
-            _vk.DestroyImageView(_logicalDevice, _textureImageView[i], null);
-            _vk.DestroyImage(_logicalDevice, _textureImage[i], null);
-            _vk.FreeMemory(_logicalDevice, _textureImageMemory[i], null);
+        foreach (VkTextureImage image in _textureImages) {
+            image.Destroy(_vk, _logicalDevice);
         }
+
+        _fontImage.Destroy(_vk, _logicalDevice);
 
         _vk.DestroyCommandPool(_logicalDevice, _commandPool, null);
         foreach (VkShaderPipeline pipeline in _pipelines.Values) {
