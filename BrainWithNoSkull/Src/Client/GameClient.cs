@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using BrainWithNoSkull.Client.Atlas;
+using BrainWithNoSkull.Client.Gui;
 using BrainWithNoSkull.Client.Net;
 using BrainWithNoSkull.Client.Render;
 using BrainWithNoSkull.Client.Render.Data;
@@ -42,9 +43,11 @@ public class GameClient {
 
     public WorldRayResult? BlockRayResult;
 
-    private int fps = 0;
-    private int frameCount = 0;
-    private long lastFrameSecond = 0;
+    public int GuiScale = 3;
+    public Vector2D<int> ScaledWindowSize;
+
+    public HudGui? Hud;
+    public FontRenderer FontRenderer;
 
     public GameClient(){
         Instance = this;
@@ -73,6 +76,11 @@ public class GameClient {
         RenderEngine.Init(GameWindow, _camera, _lightData);
         GameWindow.Render += DoRender;
         GameWindow.Update += Tick;
+        
+        FontRenderer = new FontRenderer(this, RenderEngine);
+        Hud = new HudGui();
+        Hud.Init(RenderEngine, FontRenderer, ScaledWindowSize.X, ScaledWindowSize.Y);
+        
         GameWindow.Run();
         RenderEngine.Cleanup();
     }
@@ -87,13 +95,20 @@ public class GameClient {
         GameWindow = Window.Create(windowOptions);
         GameWindow.UpdatesPerSecond = 20;
         GameWindow.FramesPerSecond = 100;
+        GameWindow.Resize += OnWindowResize;
         GameWindow.Load += OnWindowLoad;
         GameWindow.Initialize();
+        OnWindowResize(windowOptions.Size);
     }
 
     private void OnWindowLoad(){
         IInputContext ctx = GameWindow.CreateInput();
         _inputHandler = new InputHandler(this, ctx);
+    }
+
+    private void OnWindowResize(Vector2D<int> newSize){
+        ScaledWindowSize = newSize / GuiScale;
+        Hud?.Init(RenderEngine, FontRenderer, ScaledWindowSize.X, ScaledWindowSize.Y);
     }
 
     private void DoRender(double delta){
@@ -105,12 +120,16 @@ public class GameClient {
         
         Skybox.Render(RenderEngine, _lightData);
 
-        FontRenderer fr = new FontRenderer(this, RenderEngine);
-        fr.RenderString(24, 25, 0.01f, "FPS " + fps, new Vector3D<float>(0, 0, 0));
-        fr.RenderString(26, 25, 0.01f, "FPS " + fps, new Vector3D<float>(0, 0, 0));
-        fr.RenderString(25, 24, 0.01f, "FPS " + fps, new Vector3D<float>(0, 0, 0));
-        fr.RenderString(25, 26, 0.01f, "FPS " + fps, new Vector3D<float>(0, 0, 0));
-        fr.RenderString(25, 25, 0, "FPS " + fps, new Vector3D<float>(1, 1, 1));
+        VertexBuilder guiVb = RenderEngine.GetVertexBuilder(ShaderType.Gui);
+        Hud?.Render(guiVb);
+        
+        // FontRenderer fr = new FontRenderer(this, RenderEngine);
+        // const int fpsPos = 6;
+        // fr.RenderString(fpsPos - 1, fpsPos, 0.01f, "FPS " + fps, new Vector3D<float>(0, 0, 0));
+        // fr.RenderString(fpsPos + 1, fpsPos, 0.01f, "FPS " + fps, new Vector3D<float>(0, 0, 0));
+        // fr.RenderString(fpsPos, fpsPos - 1, 0.01f, "FPS " + fps, new Vector3D<float>(0, 0, 0));
+        // fr.RenderString(fpsPos, fpsPos + 1, 0.01f, "FPS " + fps, new Vector3D<float>(0, 0, 0));
+        // fr.RenderString(fpsPos, fpsPos, 0, "FPS " + fps, new Vector3D<float>(1, 1, 1));
         
         while (RenderActions.TryDequeue(out Action? renderAction)) {
             renderAction.Invoke();
@@ -133,18 +152,17 @@ public class GameClient {
         _camera.Frustum = new Frustum(_camera);
 
         RenderEngine.OnRender(delta);
-
-        frameCount++;
-        long nowTime = DateTimeOffset.Now.ToUnixTimeMilliseconds() / 1000;
-        if (nowTime != lastFrameSecond) {
-            fps = frameCount;
-            frameCount = 0;
-            lastFrameSecond = nowTime;
-        }
     }
 
     public void CreatePlayerController(ClientPlayerEntity player){
         _playerController = new PlayerController(this, player, _inputHandler);
+    }
+
+    public Vector2D<float> GetScreenPos(float x, float y){
+        Vector2D<int> windowSize = GameWindow.Size;
+        float screenX = x * GuiScale / windowSize.X * 2 - 1;
+        float screenY = y * GuiScale / windowSize.Y * 2 - 1;
+        return new Vector2D<float>(screenX, screenY);
     }
 
     private void Tick(double delta){

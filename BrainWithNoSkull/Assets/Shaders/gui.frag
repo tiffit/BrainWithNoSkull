@@ -12,7 +12,7 @@ layout (location = 2) flat in uint fragTextureIndex;
 layout (location = 0) out vec4 outColor;
 
 void main() {
-    float val = texture(texSampler[fragTextureIndex], fragUV).r;
-    if(val == 0) discard;
-    outColor = vec4(val) * vec4(fragColor, 1);
+    vec4 val = texture(texSampler[fragTextureIndex], fragUV);
+    if(val.a == 0) discard;
+    outColor = val;
 }
