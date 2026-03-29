@@ -12,6 +12,7 @@ public unsafe class VkShaderPipeline {
     public DescriptorSetLayout DescriptorSetLayout;
     public PipelineLayout PipelineLayout;
     public Pipeline GraphicsPipeline;
+    public uint SubpassIndex = 0;
     
     public Buffer StagingVertexBuffer;
     public DeviceMemory StagingVertexBufferMemory;

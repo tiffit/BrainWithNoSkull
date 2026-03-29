@@ -21,6 +21,7 @@
       <Content Include="Assets/**" CopyToOutputDirectory="Always" />
       <Folder Include="Assets\Shaders\Compiled\" />
       <Folder Include="Assets\Textures\Block\" />
+      <Folder Include="Assets\Textures\Font\" />
     </ItemGroup>
 
 </Project>

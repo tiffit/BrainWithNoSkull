@@ -66,14 +66,23 @@ public unsafe class VkRenderEngine : IRenderEngine {
     private CommandPool _commandPool;
     private CommandBuffer[] _commandBuffers = [];
 
-    private Image[] _textureImage;
-    private DeviceMemory[] _textureImageMemory;
-    private ImageView[] _textureImageView;
-    private Sampler[] _textureSampler;
+    private Image[] _textureImage = [];
+    private DeviceMemory[] _textureImageMemory = [];
+    private ImageView[] _textureImageView = [];
+    private Sampler[] _textureSampler = [];
+    
+    private Image _fontImage;
+    private DeviceMemory _fontImageMemory;
+    private ImageView _fontImageView;
+    private Sampler _fontImageSampler;
 
     private Image _depthImage;
     private DeviceMemory _depthImageMemory;
     private ImageView _depthImageView;
+    
+    private Image _depthImageGui;
+    private DeviceMemory _depthImageMemoryGui;
+    private ImageView _depthImageViewGui;
 
     private RenderPass _shadowRenderPass;
     private Image _shadowImage;
@@ -128,6 +137,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
         CreateDepthResources();
         CreateShadowMappingResources();
         CreateTextureImages();
+        CreateFontImage();
         foreach (ShaderType details in ShaderType.AllShaders) {
             VkShaderProgram program = CreateShader(details);
             Console.WriteLine("Loading shader " + details.Name);
@@ -467,14 +477,27 @@ public unsafe class VkRenderEngine : IRenderEngine {
             DescriptorCount = 1,
             StageFlags = ShaderStageFlags.VertexBit
         });
+        
+        if(!shaderPipeline.ShaderProgram.ShType.HasFlag(ShaderFlag.Font))
+        {
+            layoutBindings.Add(new DescriptorSetLayoutBinding(){
+                Binding = 1,
+                DescriptorType = DescriptorType.CombinedImageSampler,
+                DescriptorCount = (uint)_textureImage.Length,
+                PImmutableSamplers = null,
+                StageFlags = ShaderStageFlags.FragmentBit
+            });
+        }
+        else {
+            layoutBindings.Add(new DescriptorSetLayoutBinding(){
+                Binding = 1,
+                DescriptorType = DescriptorType.CombinedImageSampler,
+                DescriptorCount = 1,
+                PImmutableSamplers = null,
+                StageFlags = ShaderStageFlags.FragmentBit
+            });
+        }
 
-        layoutBindings.Add(new DescriptorSetLayoutBinding(){
-            Binding = 1,
-            DescriptorType = DescriptorType.CombinedImageSampler,
-            DescriptorCount = (uint)_textureImage.Length,
-            PImmutableSamplers = null,
-            StageFlags = ShaderStageFlags.FragmentBit
-        });
 
         if (shaderPipeline.ShaderProgram.ShType.HasFlag(ShaderFlag.CastShadow)) {
             layoutBindings.Add(new DescriptorSetLayoutBinding(){
@@ -680,12 +703,18 @@ public unsafe class VkRenderEngine : IRenderEngine {
             PRasterizationState = &rasterization,
             PMultisampleState = &multisample,
             PColorBlendState = &colorBlend,
-            PDynamicState = &dynamicState,
+            PDynamicState = &dynamicState,  
             PDepthStencilState = &depthStencil,
             Layout = shaderPipeline.PipelineLayout,
             RenderPass = _renderPass,
             Subpass = 0
         };
+
+        if (shType.HasFlag(ShaderFlag.Gui)) {
+            createInfo.Subpass = 1;
+        }
+
+        shaderPipeline.SubpassIndex = createInfo.Subpass;
 
         if (_vk.CreateGraphicsPipelines(_logicalDevice, default, 1, in createInfo, null, out shaderPipeline.GraphicsPipeline) != Result.Success) {
             throw new Exception("Unable to create pipeline");
@@ -758,12 +787,24 @@ public unsafe class VkRenderEngine : IRenderEngine {
             Attachment = 1,
             Layout = ImageLayout.DepthStencilAttachmentOptimal
         };
+        
+        AttachmentReference guiDepthAttachmentRef = new(){
+            Attachment = 2,
+            Layout = ImageLayout.DepthStencilAttachmentOptimal
+        };
 
         SubpassDescription subpass = new(){
             PipelineBindPoint = PipelineBindPoint.Graphics,
             ColorAttachmentCount = 1,
             PColorAttachments = &colorAttachmentRef,
             PDepthStencilAttachment = &depthAttachmentRef
+        };
+        
+        SubpassDescription subpassGui = new(){
+            PipelineBindPoint = PipelineBindPoint.Graphics,
+            ColorAttachmentCount = 1,
+            PColorAttachments = &colorAttachmentRef,
+            PDepthStencilAttachment = &guiDepthAttachmentRef
         };
 
         SubpassDependency dependency = new(){
@@ -774,16 +815,27 @@ public unsafe class VkRenderEngine : IRenderEngine {
             DstStageMask = PipelineStageFlags.ColorAttachmentOutputBit | PipelineStageFlags.EarlyFragmentTestsBit,
             DstAccessMask = AccessFlags.ColorAttachmentWriteBit | AccessFlags.DepthStencilAttachmentWriteBit
         };
+        
+        SubpassDependency dependencyGui = new(){
+            SrcSubpass = Vk.SubpassExternal,
+            DstSubpass = 1,
+            SrcStageMask = PipelineStageFlags.ColorAttachmentOutputBit | PipelineStageFlags.LateFragmentTestsBit,
+            SrcAccessMask = AccessFlags.DepthStencilAttachmentWriteBit,
+            DstStageMask = PipelineStageFlags.ColorAttachmentOutputBit | PipelineStageFlags.EarlyFragmentTestsBit,
+            DstAccessMask = AccessFlags.ColorAttachmentWriteBit | AccessFlags.DepthStencilAttachmentWriteBit
+        };
 
-        AttachmentDescription* attachmentDescriptions = stackalloc[]{ colorAttachment, depthAttachment };
+        AttachmentDescription* attachmentDescriptions = stackalloc[]{ colorAttachment, depthAttachment, depthAttachment };
+        SubpassDescription* subpasses = stackalloc[]{ subpass, subpassGui };
+        SubpassDependency* dependencies = stackalloc[]{ dependency, dependencyGui };
         RenderPassCreateInfo createInfo = new(){
             SType = StructureType.RenderPassCreateInfo,
-            AttachmentCount = 2,
+            AttachmentCount = 3,
             PAttachments = attachmentDescriptions,
-            SubpassCount = 1,
-            PSubpasses = &subpass,
-            DependencyCount = 1,
-            PDependencies = &dependency
+            SubpassCount = 2,
+            PSubpasses = subpasses,
+            DependencyCount = 2,
+            PDependencies = dependencies
         };
 
         if (_vk.CreateRenderPass(_logicalDevice, in createInfo, null, out _renderPass) != Result.Success) {
@@ -794,7 +846,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
     private void CreateFramebuffers(){
         _framebuffers = new Framebuffer[_imageCount];
         for (var i = 0; i < _framebuffers.Length; i++) {
-            ImageView[] attachments = [_swapChainImageViews[i], _depthImageView];
+            ImageView[] attachments = [_swapChainImageViews[i], _depthImageView, _depthImageViewGui];
 
             fixed (ImageView* attachmentsPtr = attachments) {
                 FramebufferCreateInfo createInfo = new(){
@@ -830,6 +882,11 @@ public unsafe class VkRenderEngine : IRenderEngine {
             ImageTiling.Optimal, ImageUsageFlags.DepthStencilAttachmentBit, MemoryPropertyFlags.DeviceLocalBit,
             out _depthImage, out _depthImageMemory);
         _depthImageView = VkImages.CreateImageView(_vk, _logicalDevice, _depthImage, depthFormat, ImageAspectFlags.DepthBit);
+        
+        VkImages.CreateImage(_vk, _logicalDevice, _physicalDevice, _extent.Width, _extent.Height, depthFormat,
+            ImageTiling.Optimal, ImageUsageFlags.DepthStencilAttachmentBit, MemoryPropertyFlags.DeviceLocalBit,
+            out _depthImageGui, out _depthImageMemoryGui);
+        _depthImageViewGui = VkImages.CreateImageView(_vk, _logicalDevice, _depthImageGui, depthFormat, ImageAspectFlags.DepthBit);
     }
 
     private void CreateShadowMappingResources(){
@@ -1014,6 +1071,40 @@ public unsafe class VkRenderEngine : IRenderEngine {
 
         _textureImageView[index] = VkImages.CreateImageView(_vk, _logicalDevice, _textureImage[index], Format.B8G8R8A8Srgb);
     }
+    
+    private void CreateFontImage(){
+        SKBitmap bitmap = ClientAssetLoader.FontTextureAtlas.Textures[0];
+        uint width = (uint)bitmap.Width;
+        uint height = (uint)bitmap.Height;
+        Span<byte> pixels = bitmap.GetPixelSpan();
+        ulong imageSize = (ulong)bitmap.ByteCount;
+        
+        VkBuffers.CreateBuffer(_vk, _logicalDevice, _physicalDevice, imageSize,
+            BufferUsageFlags.TransferSrcBit, MemoryPropertyFlags.HostVisibleBit | MemoryPropertyFlags.HostCoherentBit,
+            out Buffer stagingBuffer, out DeviceMemory stagingBufferMemory);
+        
+        void* data;
+        _vk.MapMemory(_logicalDevice, stagingBufferMemory, 0, imageSize, 0, &data);
+        pixels.CopyTo(new Span<byte>(data, (int)imageSize));
+        _vk.UnmapMemory(_logicalDevice, stagingBufferMemory);
+        
+        bitmap.Dispose();
+        
+        VkImages.CreateImage(_vk, _logicalDevice, _physicalDevice, width, height, Format.R8Unorm,
+            ImageTiling.Optimal, ImageUsageFlags.TransferDstBit | ImageUsageFlags.SampledBit, MemoryPropertyFlags.DeviceLocalBit,
+            out _fontImage, out _fontImageMemory);
+        
+        VkImages.TransitionImageLayout(_vk, _queueFamilies, _graphicsQueue, _logicalDevice, _fontImage,
+            Format.R8Unorm, ImageLayout.Undefined, ImageLayout.TransferDstOptimal);
+        VkImages.CopyBufferToImage(_vk, _queueFamilies, _graphicsQueue, _logicalDevice, stagingBuffer, _fontImage, width, height);
+        VkImages.TransitionImageLayout(_vk, _queueFamilies, _graphicsQueue, _logicalDevice, _fontImage,
+            Format.R8Unorm, ImageLayout.TransferDstOptimal, ImageLayout.ShaderReadOnlyOptimal);
+        
+        _vk.DestroyBuffer(_logicalDevice, stagingBuffer, null);
+        _vk.FreeMemory(_logicalDevice, stagingBufferMemory, null);
+        
+        _fontImageView = VkImages.CreateImageView(_vk, _logicalDevice, _fontImage, Format.R8Unorm);
+    }
 
     private void CreateTextureSampler(uint index){
         SamplerCreateInfo samplerCreateInfo = new(){
@@ -1036,6 +1127,12 @@ public unsafe class VkRenderEngine : IRenderEngine {
 
         if (_vk.CreateSampler(_logicalDevice, in samplerCreateInfo, null, out _textureSampler[index]) != Result.Success) {
             throw new Exception("Unable to create texture sampler");
+        }
+
+        samplerCreateInfo.AnisotropyEnable = false;
+        samplerCreateInfo.MaxAnisotropy = 0;
+        if (_vk.CreateSampler(_logicalDevice, in samplerCreateInfo, null, out _fontImageSampler) != Result.Success) {
+            throw new Exception("Unable to create font sampler");
         }
     }
 
@@ -1107,7 +1204,11 @@ public unsafe class VkRenderEngine : IRenderEngine {
             throw new Exception("Unable to create descriptor sets");
         }
 
-        DescriptorImageInfo* textureImageInfos = stackalloc DescriptorImageInfo[_textureImage.Length];
+        bool font = pipeline.ShaderProgram.ShType.HasFlag(ShaderFlag.Font);
+
+        int textImageSize = font ? 1 : _textureImage.Length;
+        
+        DescriptorImageInfo* textureImageInfos = stackalloc DescriptorImageInfo[textImageSize];
         for (int i = 0; i < _imageCount; i++) {
             List<WriteDescriptorSet> writeSets = [];
             
@@ -1122,12 +1223,21 @@ public unsafe class VkRenderEngine : IRenderEngine {
                 PBufferInfo = &bufferInfo
             });
 
-            for (var imageIndex = 0; imageIndex < _textureImage.Length; imageIndex++) {
-                textureImageInfos[imageIndex] = new DescriptorImageInfo{
+            if (font) {
+                textureImageInfos[0] = new DescriptorImageInfo{
                     ImageLayout = ImageLayout.ReadOnlyOptimal,
-                    ImageView = _textureImageView[imageIndex],
-                    Sampler = _textureSampler[imageIndex]
+                    ImageView = _fontImageView,
+                    Sampler = _fontImageSampler
                 };
+            }
+            else {
+                for (var imageIndex = 0; imageIndex < _textureImage.Length; imageIndex++) {
+                    textureImageInfos[imageIndex] = new DescriptorImageInfo{
+                        ImageLayout = ImageLayout.ReadOnlyOptimal,
+                        ImageView = _textureImageView[imageIndex],
+                        Sampler = _textureSampler[imageIndex]
+                    };
+                }
             }
             
             writeSets.Add(new WriteDescriptorSet{
@@ -1136,7 +1246,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
                 DstBinding = 1,
                 DstArrayElement = 0,
                 DescriptorType = DescriptorType.CombinedImageSampler,
-                DescriptorCount = (uint)_textureImage.Length,
+                DescriptorCount = (uint)textImageSize,
                 PImageInfo = textureImageInfos
             });
 
@@ -1235,7 +1345,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
 
         ClearValue colorClearValue = new ClearValue(new ClearColorValue(0f, 0f, 0f, 1f));
         ClearValue depthClearValue = new ClearValue(null, new ClearDepthStencilValue(1f, 0));
-        ClearValue* clearValues = stackalloc[]{ colorClearValue, depthClearValue };
+        ClearValue* clearValues = stackalloc[]{ colorClearValue, depthClearValue, depthClearValue };
         RenderPassBeginInfo renderPassBegin = new(){
             SType = StructureType.RenderPassBeginInfo,
             RenderPass = _renderPass,
@@ -1244,7 +1354,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
                 Offset = new Offset2D(0, 0),
                 Extent = _extent
             },
-            ClearValueCount = 2,
+            ClearValueCount = 3,
             PClearValues = clearValues
         };
 
@@ -1257,6 +1367,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
     }
 
     private void RenderScene(CommandBuffer buffer, Extent2D extent, bool shadowMapping, uint cascadeIndex = 0){
+        uint previousSubpass = 0;
         foreach ((ShaderType shaderType, VkShaderPipeline pipeline) in _pipelines) {
             if(shadowMapping && !shaderType.HasFlag(ShaderFlag.CastShadow))
                 continue;
@@ -1270,6 +1381,10 @@ public unsafe class VkRenderEngine : IRenderEngine {
             Pipeline vkPipeline = shadowMapping ? pipeline.ShadowPipeline : pipeline.GraphicsPipeline;
             _vk.CmdBindDescriptorSets(buffer, PipelineBindPoint.Graphics, pipelineLayout, 0, 1, ref pipeline.DescriptorSets[_frameIndex], 0, null);
             _vk.CmdBindPipeline(buffer, PipelineBindPoint.Graphics, vkPipeline);
+            if (pipeline.SubpassIndex != previousSubpass) {
+                previousSubpass = pipeline.SubpassIndex;
+                _vk.CmdNextSubpass(buffer, SubpassContents.Inline);
+            }
 
             Viewport viewport = new(){
                 X = 0f,
