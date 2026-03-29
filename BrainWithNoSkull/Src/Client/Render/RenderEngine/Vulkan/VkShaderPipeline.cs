@@ -20,15 +20,11 @@ public unsafe class VkShaderPipeline {
     public Buffer VertexBuffer;
     public DeviceMemory VertexBufferMemory;
     
-    public VkUniformStore Ubo = new VkUniformStore();
     public DescriptorPool DescriptorPool;
     public DescriptorSet[] DescriptorSets = [];
     
-    public VkUniformStore ShadowUbo = new VkUniformStore();
     public PipelineLayout ShadowPipelineLayout;
     public Pipeline ShadowPipeline;
-
-    public VkUniformStore ShadowMapDataUbo = new VkUniformStore();
 
     public BufferAllocator Allocator;
     public Dictionary<Mesh, CompiledMeshData?> Meshes = [];
@@ -72,12 +68,6 @@ public unsafe class VkShaderPipeline {
     }
 
     public void Destroy(Vk vk, Device device){
-        Ubo.Destroy(vk, device);
-        if (ShaderProgram.ShType.HasFlag(ShaderFlag.CastShadow)) {
-            ShadowUbo.Destroy(vk, device);
-            ShadowMapDataUbo.Destroy(vk, device);
-        }
-        
         vk.DestroyDescriptorPool(device, DescriptorPool, null);
         vk.DestroyDescriptorSetLayout(device, DescriptorSetLayout, null);
         vk.DestroyPipeline(device, GraphicsPipeline, null);
