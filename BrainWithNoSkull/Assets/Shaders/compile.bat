@@ -11,4 +11,7 @@ C:\VulkanSDK\1.4.341.1\Bin\glslc.exe lines.frag -o Compiled/lines_frag.spv
 
 C:\VulkanSDK\1.4.341.1\Bin\glslc.exe font.vert -o Compiled/font_vert.spv
 C:\VulkanSDK\1.4.341.1\Bin\glslc.exe font.frag -o Compiled/font_frag.spv
+
+C:\VulkanSDK\1.4.341.1\Bin\glslc.exe gui.vert -o Compiled/gui_vert.spv
+C:\VulkanSDK\1.4.341.1\Bin\glslc.exe gui.frag -o Compiled/gui_frag.spv
 pause
