@@ -1,6 +1,8 @@
 ﻿using BrainWithNoSkull.Client.Render;
 using BrainWithNoSkull.Client.Render.Data;
 using BrainWithNoSkull.Client.Render.RenderEngine;
+using BrainWithNoSkull.Registries;
+using BrainWithNoSkull.World.ItemStacks;
 using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.Client.Gui;
@@ -21,6 +23,9 @@ public class HudGui : Gui {
     public override void Render(VertexBuilder guiVb){
         RenderFps();
         RenderHotbar(guiVb);
+
+        ItemStack stack = new ItemStack(ItemRegistry.BlockItems[BlockRegistry.Grass], 1);
+        GameClient.Instance.ItemRenderer.RenderItemInGui(guiVb, stack, 60, 30, 0.5f, 16, 16);
     }
 
     public void RenderHotbar(VertexBuilder vb){

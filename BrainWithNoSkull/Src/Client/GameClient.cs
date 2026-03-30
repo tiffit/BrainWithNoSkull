@@ -48,6 +48,7 @@ public class GameClient {
 
     public HudGui? Hud;
     public FontRenderer FontRenderer;
+    public ItemRenderer ItemRenderer;
 
     public GameClient(){
         Instance = this;
@@ -78,6 +79,7 @@ public class GameClient {
         GameWindow.Update += Tick;
         
         FontRenderer = new FontRenderer(this, RenderEngine);
+        ItemRenderer = new ItemRenderer(this, RenderEngine);
         Hud = new HudGui();
         Hud.Init(RenderEngine, FontRenderer, ScaledWindowSize.X, ScaledWindowSize.Y);
         
@@ -123,14 +125,6 @@ public class GameClient {
         VertexBuilder guiVb = RenderEngine.GetVertexBuilder(ShaderType.Gui);
         Hud?.Render(guiVb);
         
-        // FontRenderer fr = new FontRenderer(this, RenderEngine);
-        // const int fpsPos = 6;
-        // fr.RenderString(fpsPos - 1, fpsPos, 0.01f, "FPS " + fps, new Vector3D<float>(0, 0, 0));
-        // fr.RenderString(fpsPos + 1, fpsPos, 0.01f, "FPS " + fps, new Vector3D<float>(0, 0, 0));
-        // fr.RenderString(fpsPos, fpsPos - 1, 0.01f, "FPS " + fps, new Vector3D<float>(0, 0, 0));
-        // fr.RenderString(fpsPos, fpsPos + 1, 0.01f, "FPS " + fps, new Vector3D<float>(0, 0, 0));
-        // fr.RenderString(fpsPos, fpsPos, 0, "FPS " + fps, new Vector3D<float>(1, 1, 1));
-        
         while (RenderActions.TryDequeue(out Action? renderAction)) {
             renderAction.Invoke();
         }
@@ -162,6 +156,13 @@ public class GameClient {
         Vector2D<int> windowSize = GameWindow.Size;
         float screenX = x * GuiScale / windowSize.X * 2 - 1;
         float screenY = y * GuiScale / windowSize.Y * 2 - 1;
+        return new Vector2D<float>(screenX, screenY);
+    }
+    
+    public Vector2D<float> GetScreenSize(float x, float y){
+        Vector2D<int> windowSize = GameWindow.Size;
+        float screenX = x * GuiScale / windowSize.X * 2;
+        float screenY = y * GuiScale / windowSize.Y * 2;
         return new Vector2D<float>(screenX, screenY);
     }
 
