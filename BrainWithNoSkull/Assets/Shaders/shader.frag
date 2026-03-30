@@ -88,8 +88,8 @@ void main() {
     vec3 lightDir = normalize(shadowMapData.lightDir);
     float normalLightDot = dot(normal, lightDir);
     
-    float biasSlopeScale = 1.0 - max(0.0, normalLightDot);
-    vec4 shadowWorldPos = inPos + vec4(normal*-0.1f*biasSlopeScale, 0.0);
+    float biasSlopeScale = 1.0 - abs(normalLightDot);
+    vec4 shadowWorldPos = inPos + vec4(normal*-0.5f*biasSlopeScale, 0.0);
     
     vec4 shadowCoord = (biasMat * ubo.proj * ubo.view) * shadowWorldPos;
     
