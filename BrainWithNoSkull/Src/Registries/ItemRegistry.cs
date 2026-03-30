@@ -1,0 +1,22 @@
+﻿using System.Diagnostics.CodeAnalysis;
+using BrainWithNoSkull.World.Blocks;
+using BrainWithNoSkull.World.Items;
+
+#pragma warning disable CS8618
+
+namespace BrainWithNoSkull.Registries;
+
+[SuppressMessage("Usage", "CA2211:Non-constant fields should not be visible")]
+public static class ItemRegistry {
+
+    public static readonly Registry<Item> Registry = new Registry<Item>();
+
+    public static readonly Dictionary<Block, BlockItem> BlockItems = new Dictionary<Block, BlockItem>();
+    
+    public static void Init(){
+        foreach (Block block in BlockRegistry.Registry.GetEntries()) {
+            BlockItems[block] = new BlockItem(block);
+        }
+    }
+
+}
