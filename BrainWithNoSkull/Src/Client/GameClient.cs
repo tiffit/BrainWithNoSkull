@@ -159,10 +159,10 @@ public class GameClient {
         return new Vector2D<float>(screenX, screenY);
     }
     
-    public Vector2D<float> GetScreenSize(float x, float y){
+    public Vector2D<float> GetScreenSize(float w, float h){
         Vector2D<int> windowSize = GameWindow.Size;
-        float screenX = x * GuiScale / windowSize.X * 2;
-        float screenY = y * GuiScale / windowSize.Y * 2;
+        float screenX = w * GuiScale / windowSize.X / 2;
+        float screenY = h * GuiScale / windowSize.Y / 2;
         return new Vector2D<float>(screenX, screenY);
     }
 

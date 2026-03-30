@@ -25,7 +25,7 @@ public class HudGui : Gui {
         RenderHotbar(guiVb);
 
         ItemStack stack = new ItemStack(ItemRegistry.BlockItems[BlockRegistry.Grass], 1);
-        GameClient.Instance.ItemRenderer.RenderItemInGui(guiVb, stack, 60, 30, 0.5f, 16, 16);
+        GameClient.Instance.ItemRenderer.RenderItemInGui(guiVb, stack, 60, 30, 0.5f, 32, 32);
     }
 
     public void RenderHotbar(VertexBuilder vb){

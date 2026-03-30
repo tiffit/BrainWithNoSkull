@@ -23,11 +23,11 @@ public class ItemRenderer {
         Vector2D<float> size = _client.GetScreenSize(width, height);
         
         BakedBlockModel model = BlockModels.BakedModels[(stack.Item as BlockItem)!.Block];
-        Quaternion<float> quat = Quaternion<float>.CreateFromAxisAngle(new Vector3D<float>(1, 0, 0), float.DegreesToRadians(30));
-        quat *= Quaternion<float>.CreateFromAxisAngle(new Vector3D<float>(0, 1, 0), float.DegreesToRadians(225));
+        Quaternion<float> quat = Quaternion<float>.CreateFromAxisAngle(new Vector3D<float>(1, 0, 0), float.DegreesToRadians(180+30));
+        quat *= Quaternion<float>.CreateFromAxisAngle(new Vector3D<float>(0, 1, 0), float.DegreesToRadians(45));
         
         Matrix4X4<float> rotMatrix = Matrix4X4.CreateFromQuaternion(quat);
-        Matrix4X4<float> posMatrix = Matrix4X4.CreateScale(size.X, size.Y, 1) * rotMatrix * Matrix4X4.CreateScale(1, 1, 0.001f);
+        Matrix4X4<float> posMatrix = rotMatrix * Matrix4X4.CreateScale(size.X, size.Y, 0.001f);
         posMatrix *= Matrix4X4.CreateTranslation(screenPos.X, screenPos.Y, z);
         foreach (Vertex v in model.GetVertices(new Vector3D<float>(-0.5f, -0.5f, -0.5f), [..Direction.All])) {
             vb.Add(v with{
