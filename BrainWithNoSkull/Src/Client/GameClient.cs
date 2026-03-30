@@ -36,7 +36,7 @@ public class GameClient {
     private LocalGameServer _server;
 
     public ClientWorld? World;
-    private ServerConnectionBase _serverConnection;
+    public ServerConnectionBase ServerConnection;
 
     public ConcurrentQueue<Action> TickActions = [];
     public ConcurrentQueue<Action> RenderActions = [];
@@ -71,7 +71,7 @@ public class GameClient {
         _server = new LocalGameServer();
         LocalServerConnection localServerConnection = new LocalServerConnection(_server);
         localServerConnection.Connect();
-        _serverConnection = localServerConnection;
+        ServerConnection = localServerConnection;
 
         RenderEngine = VkRenderEngine.Instance;
         RenderEngine.Init(GameWindow, _camera, _lightData);
@@ -116,8 +116,8 @@ public class GameClient {
     private void DoRender(double delta){
         RenderEngine.PreRender(delta);
 
-        if (_serverConnection.PlayerEntity != null) {
-            UpdateSun(_serverConnection.PlayerEntity, World!);
+        if (ServerConnection.PlayerEntity != null) {
+            UpdateSun(ServerConnection.PlayerEntity, World!);
         }
         
         Skybox.Render(RenderEngine, _lightData);
@@ -133,7 +133,7 @@ public class GameClient {
 
         if (_playerController != null) {
             _playerController.Update(delta);
-            _camera.Position = _serverConnection.PlayerEntity!.Position + new Vector3D<float>(0, 1.4f, 0);
+            _camera.Position = ServerConnection.PlayerEntity!.Position + new Vector3D<float>(0, 1.4f, 0);
             _camera.Target = _camera.Position + _playerController.LookDirection;
 
             WorldRay ray = new WorldRay(_camera.Position, _playerController.LookDirection, 5);
@@ -172,7 +172,7 @@ public class GameClient {
         }
         
         World?.Tick(delta);
-        _serverConnection.Tick(delta);
+        ServerConnection.Tick(delta);
         _server.Tick(delta);
     }
 

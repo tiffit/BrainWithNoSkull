@@ -1,7 +1,7 @@
 ﻿using BrainWithNoSkull.Client.Render;
 using BrainWithNoSkull.Client.Render.Data;
 using BrainWithNoSkull.Client.Render.RenderEngine;
-using BrainWithNoSkull.Registries;
+using BrainWithNoSkull.World.Entities.Player;
 using BrainWithNoSkull.World.ItemStacks;
 using Silk.NET.Maths;
 
@@ -23,9 +23,6 @@ public class HudGui : Gui {
     public override void Render(VertexBuilder guiVb){
         RenderFps();
         RenderHotbar(guiVb);
-
-        ItemStack stack = new ItemStack(ItemRegistry.BlockItems[BlockRegistry.Grass], 1);
-        GameClient.Instance.ItemRenderer.RenderItemInGui(guiVb, stack, 60, 30, 0.5f, 32, 32);
     }
 
     public void RenderHotbar(VertexBuilder vb){
@@ -35,10 +32,22 @@ public class HudGui : Gui {
         int hotbarY = ScaledHeight - hotbarHeight - 2;
         DrawTexture(vb, hotbarX, hotbarY, 0.99f, 0, 18, hotbarWidth, hotbarHeight, 256, _invIconsTexture);
 
+        PlayerInventory? inv = GameClient.Instance.ServerConnection.PlayerEntity?.Inventory;
+        
         const int hotbarSlots = 9;
         for (int i = 0; i < hotbarSlots; i++) {
             int slotX = ScaledWidth / 2 - hotbarSlots * 19 / 2 + i*19;
-            DrawTexture(vb, slotX, hotbarY + 3, 0.98f, 18, 0, 18, 18, 256, _invIconsTexture);
+            int slotY = hotbarY + 3;
+            ItemStack? stack = inv?.Items[i];
+            bool hasStack = false;
+            if (stack != null) {
+                GameClient.Instance.ItemRenderer.RenderItemInGui(vb, stack, slotX + 9, slotY + 9, 0.96f, 32, 32);
+                hasStack = true;
+            }
+            DrawTexture(vb, slotX, slotY, 0.98f, hasStack ? 0 : 18, 0, 18, 18, 256, _invIconsTexture);
+            if ((inv?.HotbarSlot ?? -1) == i) {
+                DrawTexture(vb, slotX, slotY, 0.94f, 36, 0, 18, 18, 256, _invIconsTexture);
+            }
         }
     }
     

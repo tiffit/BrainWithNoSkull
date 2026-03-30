@@ -113,6 +113,12 @@ public class PlayerController {
             }
         }
 
+        for (Key i = Key.Number1; i <= Key.Number9; i++) {
+            if (_inputHandler.IsKeyDown(i)) {
+                _player.Inventory.HotbarSlot = i - Key.Number1;
+            }
+        }
+
         _player.SetPosition(newPlayerPos);
         _inputHandler.Reset();
     }
