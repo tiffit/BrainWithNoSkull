@@ -7,5 +7,6 @@ public interface IClientPacketHandler {
     public void HandeWorldInfo(CbWorldInfoPacket packet);
     public void HandeChunk(CbChunkPacket packet);
     public void HandlePlayerInfo(CbPlayerInfoPacket packet);
+    public void HandlePlayerInventory(CbPlayerInventoryPacket packet);
 
 }

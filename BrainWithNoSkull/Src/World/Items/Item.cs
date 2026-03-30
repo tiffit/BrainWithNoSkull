@@ -20,4 +20,8 @@ public class Item : IRegistryEntry{
     public ushort GetIndex(){
         return _index;
     }
+
+    public override string ToString(){
+        return _id;
+    }
 }

@@ -1,5 +1,7 @@
 ﻿using BrainWithNoSkull.Registries;
+using BrainWithNoSkull.World.Blocks;
 using BrainWithNoSkull.World.Entities.Player;
+using BrainWithNoSkull.World.ItemStacks;
 using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.Net.Pckt.Sb;
@@ -29,6 +31,10 @@ public class SbPlayerBreakBlockPacket : IPacket {
     public void Handle(PacketContext ctx){
         ServerPlayerEntity? player = ctx.Client!.Entity;
 
-        player?.World?.SetBlock(BlockPos, BlockRegistry.Air);
+        if (player?.World != null) {
+            Block currentBlock = player.World.GetBlock(BlockPos);
+            player.Inventory.AddItem(new ItemStack(ItemRegistry.BlockItems[currentBlock], 1));
+            player.World.SetBlock(BlockPos, BlockRegistry.Air);
+        }
     }
 }

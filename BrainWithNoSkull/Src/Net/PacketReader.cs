@@ -1,4 +1,5 @@
-﻿using Silk.NET.Maths;
+﻿using BrainWithNoSkull.World.ItemStacks;
+using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.Net;
 
@@ -17,6 +18,10 @@ public class PacketReader : BinaryReader{
     
     public Vector3D<int> Read3DIntVec(){
         return new Vector3D<int>(ReadInt32(), ReadInt32(), ReadInt32());
+    }
+
+    public ItemStack? ReadItemStack(){
+        return ReadBoolean() ? ItemStack.Read(this) : null;
     }
     
 }

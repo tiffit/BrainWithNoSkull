@@ -2,6 +2,7 @@
 using BrainWithNoSkull.Net;
 using BrainWithNoSkull.Net.Pckt.Cb;
 using BrainWithNoSkull.World;
+using BrainWithNoSkull.World.ItemStacks;
 
 namespace BrainWithNoSkull.Client.Net;
 
@@ -34,6 +35,14 @@ public class ClientPacketHandler : IClientPacketHandler {
             _serverConnection.PlayerEntity = player;
             world.AddPlayer(player, packet);
             _client.CreatePlayerController(player);
+        }
+    }
+
+    public void HandlePlayerInventory(CbPlayerInventoryPacket packet){
+        if (_serverConnection.PlayerEntity != null) {
+            foreach ((short slot, ItemStack? stack) in packet.Slots) {
+                _serverConnection.PlayerEntity.Inventory.SetItemInSlot(stack, slot);
+            }
         }
     }
 }

@@ -38,6 +38,11 @@ public abstract class ConnectedClientBase {
                 _playerInfoSent = true;
                 SendPacket(new CbPlayerInfoPacket(Entity.Position));
             }
+
+            if (Entity.Inventory.DirtySlots.Count > 0) {
+                SendPacket(new CbPlayerInventoryPacket(Entity.Inventory));
+                Entity.Inventory.DirtySlots.Clear();
+            }
         }
     }
 }

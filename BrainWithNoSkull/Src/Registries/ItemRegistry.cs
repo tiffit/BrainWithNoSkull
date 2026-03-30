@@ -15,7 +15,7 @@ public static class ItemRegistry {
     
     public static void Init(){
         foreach (Block block in BlockRegistry.Registry.GetEntries()) {
-            BlockItems[block] = new BlockItem(block);
+            BlockItems[block] = Registry.Register(new BlockItem(block));
         }
     }
 

@@ -41,7 +41,10 @@ public class HudGui : Gui {
             ItemStack? stack = inv?.Items[i];
             bool hasStack = false;
             if (stack != null) {
-                GameClient.Instance.ItemRenderer.RenderItemInGui(vb, stack, slotX + 9, slotY + 9, 0.96f, 32, 32);
+                GameClient.Instance.ItemRenderer.RenderItemInGui(vb, stack, slotX + 9, slotY + 9, 0.96f, 40, 40);
+                if (stack.Count > 1) {
+                    Font.RenderString(slotX, slotY, 0.93f, "" + stack.Count, new Vector3D<float>(1f, 0.65f, 0f));
+                }
                 hasStack = true;
             }
             DrawTexture(vb, slotX, slotY, 0.98f, hasStack ? 0 : 18, 0, 18, 18, 256, _invIconsTexture);
