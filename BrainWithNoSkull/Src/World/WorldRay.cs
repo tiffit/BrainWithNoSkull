@@ -13,7 +13,7 @@ public class WorldRay {
     public WorldRay(Vector3D<float> pos, Vector3D<float> look, float distance){
         _start = pos;
         _end = _start + Vector3D.Normalize(look) * distance;
-        _steps = (int)(distance * 4);
+        _steps = (int)(distance * 50);
     }
 
     public WorldRayResult? RunBlockTest(WorldBase world){
@@ -22,7 +22,7 @@ public class WorldRay {
             Vector3D<int> blockPos = new Vector3D<int>((int)MathF.Floor(testPos.X), (int)MathF.Floor(testPos.Y), (int)MathF.Floor(testPos.Z));
             Block block = world.GetBlock(blockPos);
             if (!block.IsAir()) {
-                Vector3D<float> angle = Vector3D.Normalize(testPos - _start);
+                Vector3D<float> angle = Vector3D.Normalize(testPos - new Vector3D<float>(blockPos.X + 0.5f, blockPos.Y + 0.5f, blockPos.Z + 0.5f));
                 Direction best = Direction.Up;
                 float bestDot = -2;
                 foreach (Direction dir in Direction.All) {

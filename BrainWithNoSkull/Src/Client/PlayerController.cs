@@ -2,6 +2,7 @@
 using BrainWithNoSkull.Net.Pckt.Sb;
 using BrainWithNoSkull.Registries;
 using BrainWithNoSkull.World;
+using BrainWithNoSkull.World.ItemStacks;
 using Silk.NET.Input;
 using Silk.NET.Maths;
 
@@ -110,6 +111,20 @@ public class PlayerController {
                     }
                 });
                 _player.ServerConnection.SendPacket(new SbPlayerBreakBlockPacket(blockPos));
+            }
+        }else if (_inputHandler.IsButtonPressedThisFrame(MouseButton.Right)) {
+            WorldRayResult? result = _client.BlockRayResult;
+            if (result != null) {
+                ItemStack? stack = _player.Inventory.GetHeldStack();
+                if (!ItemStack.IsNull(stack)) {
+                    Vector3D<int> blockPos = result.Value.Pos + result.Value.Direction.Offset;
+                    _client.TickActions.Enqueue(() => {
+                        if (world != null) {
+                            world.SetBlock(blockPos, BlockRegistry.Grass);
+                        }
+                    });
+                    // _player.ServerConnection.SendPacket(new SbPlayerBreakBlockPacket(blockPos));
+                }
             }
         }
 

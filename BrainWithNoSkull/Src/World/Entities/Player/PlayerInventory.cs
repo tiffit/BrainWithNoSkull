@@ -42,6 +42,10 @@ public class PlayerInventory {
         }
     }
 
+    public ItemStack? GetHeldStack(){
+        return GetItem(HotbarSlot);
+    }
+
     public void SetItemInSlot(ItemStack? stack, int slot){
         Items[slot] = stack;
         DirtySlots.Add(slot);

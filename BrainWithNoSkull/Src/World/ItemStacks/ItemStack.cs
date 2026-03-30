@@ -1,4 +1,5 @@
-﻿using BrainWithNoSkull.Net;
+﻿using System.Diagnostics.CodeAnalysis;
+using BrainWithNoSkull.Net;
 using BrainWithNoSkull.Registries;
 using BrainWithNoSkull.World.Items;
 
@@ -30,7 +31,7 @@ public class ItemStack {
         return new ItemStack(item, count);
     }
 
-    public static bool IsNull(ItemStack? stack){
+    public static bool IsNull([NotNullWhen(false)] ItemStack? stack){
         return stack == null || stack.Count == 0 || stack.Item == ItemRegistry.BlockItems[BlockRegistry.Air];
     }
 
