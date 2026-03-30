@@ -14,4 +14,16 @@ public record Direction(Vector3D<int> Offset) {
     public static readonly Direction West = new Direction(-Vector3D<int>.UnitZ);
 
     public static readonly Direction[] All = [Up, Down, North, South, East, West];
+
+    public static void RotateAroundY(Direction dir, ref int x, ref int z){
+        if (dir == South) {
+            x = -x;
+        }
+        if (dir == East) {
+            (x, z) = (z, x);
+        }
+        if (dir == West) {
+            (x, z) = (z, -x);
+        }
+    }
 }
