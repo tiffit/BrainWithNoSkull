@@ -20,11 +20,11 @@ public abstract class Gui {
 
     public abstract void Render(VertexBuilder guiVb);
 
-    protected void DrawTexture(VertexBuilder vb, int x, int y, int u, int v, int width, int height, int textureSize, uint textureIndex){
+    protected void DrawTexture(VertexBuilder vb, float x, float y, int u, int v, int width, int height, int textureSize, uint textureIndex){
         DrawTexture(vb, x, y, 0, u, v, width, height, textureSize, textureIndex);
     }
     
-    protected void DrawTexture(VertexBuilder vb, int x, int y, float z, int u, int v, int width, int height, int textureSize, uint textureIndex){
+    protected void DrawTexture(VertexBuilder vb, float x, float y, float z, int u, int v, int width, int height, int textureSize, uint textureIndex){
         float u0 = u / (float)textureSize;
         float v0 = v / (float)textureSize;
         float u1 = (u + width) / (float)textureSize;

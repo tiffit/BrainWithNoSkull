@@ -23,9 +23,16 @@ public class HudGui : Gui {
     public override void Render(VertexBuilder guiVb){
         RenderFps();
         RenderHotbar(guiVb);
+        RenderCrosshair(guiVb);
     }
 
-    public void RenderHotbar(VertexBuilder vb){
+    private void RenderCrosshair(VertexBuilder vb){
+        float crosshairX = (ScaledWidth / 2) - 1f;
+        float crosshairY = (ScaledHeight / 2) - 1f;
+        DrawTexture(vb, crosshairX, crosshairY, 0.99f, 54, 0, 3, 3, 256, _invIconsTexture);
+    }
+
+    private void RenderHotbar(VertexBuilder vb){
         const int hotbarWidth = 176;
         const int hotbarHeight = 24;
         int hotbarX = ScaledWidth / 2 - hotbarWidth/2;
