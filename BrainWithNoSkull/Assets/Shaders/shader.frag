@@ -83,17 +83,22 @@ void main() {
     }
 
     UniformBufferObject ubo = ubos.cascadeUbos[cascadeIndex];
-    vec4 shadowCoord = (biasMat * ubo.proj * ubo.view) * inPos;
 
-    float shadow = filterPCF(shadowCoord / shadowCoord.w, cascadeIndex);
-
-    vec3 normal = inNormal;
+    vec3 normal = normalize(inNormal);
     vec3 lightDir = normalize(shadowMapData.lightDir);
+    float normalLightDot = dot(normal, lightDir);
+    
+    float biasSlopeScale = 1.0 - max(0.0, normalLightDot);
+    vec4 shadowWorldPos = inPos + vec4(normal*-0.1f*biasSlopeScale, 0.0);
+    
+    vec4 shadowCoord = (biasMat * ubo.proj * ubo.view) * shadowWorldPos;
+    
+    float shadow = filterPCF(shadowCoord / shadowCoord.w, cascadeIndex);
 
     float darken = (clamp(dot(lightDir, vec3(0, -1, 0)), -0.1, 0.1) + 0.1)*5;
     shadow = mix(shadow, 0.1, 1 - darken);
     
-    float diffuse = max(dot(normal, lightDir), 0.3);
+    float diffuse = max(normalLightDot, 0.3);
     
     vec3 lightColor = vec3(1);
     outColor.rgb = max(lightColor * (diffuse * color.rgb), vec3(0));
