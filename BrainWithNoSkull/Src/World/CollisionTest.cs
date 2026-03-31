@@ -72,6 +72,32 @@ public class CollisionTest {
             }
         }
 
+        if (resultMovement.X != 0 && resultMovement.Z != 0) {
+            AABB resultBox = AABB.ContainsBoth(_aabb, _aabb + new Vector3D<float>(resultMovement.X, 0, resultMovement.Z));
+            foreach (Vector3D<int> pos in _world.GetBlocksInBox(resultBox)) {
+                AABB? blockBox = _world.GetBlock(pos).GetCollisionBox();
+                if (blockBox != null) {
+                    blockBox += pos;
+                    if (resultBox.Intersects(blockBox)) {
+                        resultMovement = new Vector3D<float>(0, resultMovement.Y, 0);
+                    }
+                }
+            }
+        }
+        
+        if (resultMovement.LengthSquared > 0) {
+            AABB resultBox = AABB.ContainsBoth(_aabb, _aabb + resultMovement);
+            foreach (Vector3D<int> pos in _world.GetBlocksInBox(resultBox)) {
+                AABB? blockBox = _world.GetBlock(pos).GetCollisionBox();
+                if (blockBox != null) {
+                    blockBox += pos;
+                    if (resultBox.Intersects(blockBox)) {
+                        resultMovement = Vector3D<float>.Zero;
+                    }
+                }
+            }
+        }
+
         return resultMovement;
     }
 }
