@@ -15,6 +15,7 @@ public class PlayerInventory {
         for (int i = 0; i < InventorySize; i++) {
             Items.Add(null);
         }
+        SetItemInSlot(new ItemStack(ItemRegistry.BlockItems[BlockRegistry.Pebbles], 1), 1);
     }
 
     public void AddItem(ItemStack stack){

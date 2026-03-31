@@ -17,6 +17,7 @@ public class BlockModels {
         UnbakedModels[BlockRegistry.Stone] = new CubeBlockModel("Block/Stone");
         UnbakedModels[BlockRegistry.OakLog] = new CubeBlockModel("Block/Oak_Log");
         UnbakedModels[BlockRegistry.OakLeaves] = new CubeBlockModel("Block/Oak_Leaves");
+        UnbakedModels[BlockRegistry.Pebbles] = new JsonBlockModel("Rocks", "Block/Rocks");
 
         HashSet<string> deps = [];
         foreach (UnbakedBlockModel model in UnbakedModels.Values) {

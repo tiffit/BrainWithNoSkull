@@ -53,8 +53,14 @@ public class CubeBlockModel : UnbakedBlockModel {
     
     private static List<Vertex> CreateQuad(in Vector3D<float> p1, in Vector3D<float> p2, in Vector3D<float> p3, in Vector3D<float> p4,
         in Vector2D<float> uv1, in Vector2D<float> uv2, in Vector2D<float> uv3, in Vector2D<float> uv4, uint texIndex){
-
+        
         Vector3D<float> normal = Vector3D.Normalize(Vector3D.Cross(p3 - p1, p4 - p1));
+        return CreateQuad(in p1, in p2, in p3, in p4, in uv1, in uv2, in uv3, in uv4, normal, texIndex);
+    }
+    
+    public static List<Vertex> CreateQuad(in Vector3D<float> p1, in Vector3D<float> p2, in Vector3D<float> p3, in Vector3D<float> p4,
+        in Vector2D<float> uv1, in Vector2D<float> uv2, in Vector2D<float> uv3, in Vector2D<float> uv4, in Vector3D<float> normal, uint texIndex){
+        
         List<Vertex> list =[
             new Vertex{ Pos = p1, Color = Vector3D<float>.One, Normal = normal, Uv = uv1, TextureIndex = texIndex },
             new Vertex{ Pos = p3, Color = Vector3D<float>.One, Normal = normal, Uv = uv3, TextureIndex = texIndex },
