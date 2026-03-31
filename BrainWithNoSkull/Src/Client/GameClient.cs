@@ -194,8 +194,13 @@ public class GameClient {
 
     private void DrawBlockOutline(WorldRayResult result){
         Vector3D<int> blockPos = result.Pos;
-        Vector3D<float> p000 = new Vector3D<float>(blockPos.X - 0.001f, blockPos.Y - 0.001f, blockPos.Z - 0.001f);
-        Vector3D<float> p111 = new Vector3D<float>(blockPos.X + 1.001f, blockPos.Y + 1.001f, blockPos.Z + 1.001f);
+        AABB? aabb = World?.GetBlock(blockPos).GetCollisionBox();
+        if(aabb == null)
+            return;
+        aabb += blockPos;
+        const float padding = 0.001f;
+        Vector3D<float> p000 = new Vector3D<float>(aabb.MinX - padding, aabb.MinY - padding, aabb.MinZ - padding);
+        Vector3D<float> p111 = new Vector3D<float>(aabb.MaxX + padding, aabb.MaxY + padding, aabb.MaxZ + padding);
         
         Vector3D<float> p100 = new Vector3D<float>(p111.X, p000.Y, p000.Z);
         Vector3D<float> p010 = new Vector3D<float>(p000.X, p111.Y, p000.Z);
