@@ -15,6 +15,9 @@ public record Direction(Vector3D<int> Offset) {
 
     public static readonly Direction[] All = [Up, Down, North, South, East, West];
 
+    private static int _nextIndex;
+    public readonly int Index = _nextIndex++;
+    
     public static void RotateAroundY(Direction dir, ref int x, ref int z){
         if (dir == South) {
             x = -x;

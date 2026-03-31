@@ -28,7 +28,7 @@ public class PlayerInventory {
 
     public void AddItemToSlot(ItemStack stack, int slot){
         ItemStack? current = Items[slot];
-        if (current == null) {
+        if (ItemStack.IsNull(current)) {
             Items[slot] = stack.Clone();
             stack.Count = 0;
             DirtySlots.Add(slot);
@@ -49,6 +49,10 @@ public class PlayerInventory {
     public void SetItemInSlot(ItemStack? stack, int slot){
         Items[slot] = stack;
         DirtySlots.Add(slot);
+    }
+
+    public void MarkHeldStackDirty(){
+        DirtySlots.Add(HotbarSlot);
     }
 
     public ItemStack? GetItem(int slot){

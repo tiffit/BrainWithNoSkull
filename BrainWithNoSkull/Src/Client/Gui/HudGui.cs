@@ -47,7 +47,7 @@ public class HudGui : Gui {
             int slotY = hotbarY + 3;
             ItemStack? stack = inv?.Items[i];
             bool hasStack = false;
-            if (stack != null) {
+            if (!ItemStack.IsNull(stack)) {
                 GameClient.Instance.ItemRenderer.RenderItemInGui(vb, stack, slotX + 9, slotY + 9, 0.96f, 40, 40);
                 if (stack.Count > 1) {
                     Font.RenderString(slotX, slotY, 0.93f, "" + stack.Count, new Vector3D<float>(1f, 0.65f, 0f));
@@ -63,11 +63,12 @@ public class HudGui : Gui {
     
     private void RenderFps(){
         const int fpsPos = 6;
-        Font.RenderString(fpsPos - 1, fpsPos, 0.99f, "FPS " + _fps, new Vector3D<float>(0, 0, 0));
-        Font.RenderString(fpsPos + 1, fpsPos, 0.99f, "FPS " + _fps, new Vector3D<float>(0, 0, 0));
-        Font.RenderString(fpsPos, fpsPos - 1, 0.99f, "FPS " + _fps, new Vector3D<float>(0, 0, 0));
-        Font.RenderString(fpsPos, fpsPos + 1, 0.99f, "FPS " + _fps, new Vector3D<float>(0, 0, 0));
-        Font.RenderString(fpsPos, fpsPos, 0, "FPS " + _fps, new Vector3D<float>(1, 1, 1));
+        string fps = "FPS " + _fps;
+        Font.RenderString(fpsPos - 1, fpsPos, 0.99f, fps, new Vector3D<float>(0, 0, 0));
+        Font.RenderString(fpsPos + 1, fpsPos, 0.99f, fps, new Vector3D<float>(0, 0, 0));
+        Font.RenderString(fpsPos, fpsPos - 1, 0.99f, fps, new Vector3D<float>(0, 0, 0));
+        Font.RenderString(fpsPos, fpsPos + 1, 0.99f, fps, new Vector3D<float>(0, 0, 0));
+        Font.RenderString(fpsPos, fpsPos, 0, fps, new Vector3D<float>(1, 1, 1));
         
         _frameCount++;
         long nowTime = DateTimeOffset.Now.ToUnixTimeMilliseconds() / 1000;

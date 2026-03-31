@@ -1,4 +1,6 @@
 ﻿using BrainWithNoSkull.Registries;
+using BrainWithNoSkull.World.Entities.Player;
+using BrainWithNoSkull.World.ItemStacks;
 
 namespace BrainWithNoSkull.World.Items;
 
@@ -23,5 +25,9 @@ public class Item : IRegistryEntry{
 
     public override string ToString(){
         return _id;
+    }
+
+    public virtual void Interact(WorldRayResult result, WorldBase world, PlayerEntity player, ItemStack stack){
+        
     }
 }

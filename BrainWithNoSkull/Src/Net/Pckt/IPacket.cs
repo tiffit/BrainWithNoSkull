@@ -27,7 +27,9 @@ public enum PacketType: ushort{
     
     //Server-bound
     PlayerMove,
-    BreakBlock
+    BreakBlock,
+    ItemInteract,
+    ChangeHotbarSlot
 }
 
 public delegate IPacket PacketFactory();
@@ -44,6 +46,8 @@ public static class PacketRegistry {
         
         Registry[PacketType.PlayerMove] = () => new SbPlayerMovePacket();
         Registry[PacketType.BreakBlock] = () => new SbPlayerBreakBlockPacket();
+        Registry[PacketType.ItemInteract] = () => new SbItemInteractPacket();
+        Registry[PacketType.ChangeHotbarSlot] = () => new SbChangeHotbarSlotPacket();
     }
 
     public static IPacket GetPacket(PacketType type) => Registry[type]();

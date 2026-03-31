@@ -1,4 +1,5 @@
-﻿using BrainWithNoSkull.World.ItemStacks;
+﻿using BrainWithNoSkull.World;
+using BrainWithNoSkull.World.ItemStacks;
 using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.Net;
@@ -31,6 +32,12 @@ public class PacketWriter : BinaryWriter{
             Write(true);
             stack!.Write(this);
         }
+    }
+
+    public void Write(WorldRayResult ray){
+        Write(ray.Pos);
+        Write((byte)ray.Direction.Index);
+        Write(ray.Block.GetIndex());
     }
     
 }

@@ -117,21 +117,28 @@ public class PlayerController {
             if (result != null) {
                 ItemStack? stack = _player.Inventory.GetHeldStack();
                 if (!ItemStack.IsNull(stack)) {
-                    Vector3D<int> blockPos = result.Value.Pos + result.Value.Direction.Offset;
                     _client.TickActions.Enqueue(() => {
                         if (world != null) {
-                            world.SetBlock(blockPos, BlockRegistry.Grass);
+                            ItemStack? updatedStack = _player.Inventory.GetHeldStack();
+                            if (!ItemStack.IsNull(updatedStack)) {
+                                stack.Item.Interact(result.Value, world, _player, updatedStack);
+                            }
                         }
                     });
-                    // _player.ServerConnection.SendPacket(new SbPlayerBreakBlockPacket(blockPos));
+                    _player.ServerConnection.SendPacket(new SbItemInteractPacket(result.Value));
                 }
             }
         }
 
+        int oldHotbarSlot = _player.Inventory.HotbarSlot;
         for (Key i = Key.Number1; i <= Key.Number9; i++) {
             if (_inputHandler.IsKeyDown(i)) {
                 _player.Inventory.HotbarSlot = i - Key.Number1;
             }
+        }
+
+        if (_player.Inventory.HotbarSlot != oldHotbarSlot) {
+            _player.ServerConnection.SendPacket(new SbChangeHotbarSlotPacket(_player.Inventory.HotbarSlot));
         }
 
         _player.SetPosition(newPlayerPos);
