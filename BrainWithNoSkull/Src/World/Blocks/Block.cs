@@ -28,11 +28,15 @@ public class Block : IRegistryEntry {
         return this == BlockRegistry.Air;
     }
 
-    public AABB? GetCollisionBox(){
+    public virtual AABB? GetCollisionBox(){
         return IsAir() ? null : CollisionBox;
     }
 
     public override string ToString(){
         return _id;
+    }
+
+    public virtual bool ShouldCullFace(Direction direction){
+        return !IsAir();
     }
 }

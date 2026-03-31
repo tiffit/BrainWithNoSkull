@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using BrainWithNoSkull.World.Blocks;
+using BrainWithNoSkull.World.Blocks.Specific;
 
 #pragma warning disable CS8618
 
@@ -26,7 +27,7 @@ public static class BlockRegistry {
         Stone = Registry.Register(new Block("Stone"));
         OakLog = Registry.Register(new Block("OakLog"));
         OakLeaves = Registry.Register(new Block("OakLeaves"));
-        Pebbles = Registry.Register(new Block("Pebbles"));
+        Pebbles = Registry.Register(new PebblesBlock("Pebbles"));
     }
 
 }

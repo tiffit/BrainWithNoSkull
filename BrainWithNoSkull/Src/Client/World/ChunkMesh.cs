@@ -81,12 +81,12 @@ public class ChunkMesh {
                     if (!block.IsAir() && BlockModels.BakedModels.TryGetValue(block, out BakedBlockModel? model)) {
                         List<Direction> visible = new List<Direction>(6);
                         
-                        if(GetBlock(chunk, storage, blockX, blockY, blockZ + 1).IsAir()) visible.Add(Direction.East);
-                        if(GetBlock(chunk, storage, blockX, blockY, blockZ - 1).IsAir()) visible.Add(Direction.West);
-                        if(GetBlock(chunk, storage, blockX, blockY + 1, blockZ).IsAir()) visible.Add(Direction.Up);
-                        if(GetBlock(chunk, storage, blockX, blockY - 1, blockZ).IsAir()) visible.Add(Direction.Down);
-                        if(GetBlock(chunk, storage, blockX + 1, blockY, blockZ).IsAir()) visible.Add(Direction.North);
-                        if(GetBlock(chunk, storage, blockX - 1, blockY, blockZ).IsAir()) visible.Add(Direction.South);
+                        if(!GetBlock(chunk, storage, blockX, blockY, blockZ + 1).ShouldCullFace(Direction.West))  visible.Add(Direction.East);
+                        if(!GetBlock(chunk, storage, blockX, blockY, blockZ - 1).ShouldCullFace(Direction.East))  visible.Add(Direction.West);
+                        if(!GetBlock(chunk, storage, blockX, blockY + 1, blockZ).ShouldCullFace(Direction.Down))  visible.Add(Direction.Up);
+                        if(!GetBlock(chunk, storage, blockX, blockY - 1, blockZ).ShouldCullFace(Direction.Up))    visible.Add(Direction.Down);
+                        if(!GetBlock(chunk, storage, blockX + 1, blockY, blockZ).ShouldCullFace(Direction.South)) visible.Add(Direction.North);
+                        if(!GetBlock(chunk, storage, blockX - 1, blockY, blockZ).ShouldCullFace(Direction.North)) visible.Add(Direction.South);
                         
                         builder.AddAll(model.GetVertices(blockPos, visible));
                     }

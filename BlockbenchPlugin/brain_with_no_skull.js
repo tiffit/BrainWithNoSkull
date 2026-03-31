@@ -1,5 +1,10 @@
+
+let codec = null;
+let export_action = null;
+let format = null;
+
 function setup_codec() {
-    let codec = new Codec("blockymodel", {
+    codec = new Codec("blockymodel", {
         name: "Brain With No Skull",
         extension: "json",
         remember: true,
@@ -41,23 +46,155 @@ function setup_codec() {
                             vertices: [
                                 {
                                     pos: [from[0], from[1], from[2]],
-                                    uv: transform_uv([face.uv[0], face.uv[1]])
-                                },
-                                {
-                                    pos: [to[0], from[1], from[2]],
-                                    uv: transform_uv([face.uv[2], face.uv[1]])
-                                },
-                                {
-                                    pos: [to[0], to[1], from[2]],
                                     uv: transform_uv([face.uv[2], face.uv[3]])
                                 },
                                 {
-                                    pos: [from[0], to[1], from[2]],
+                                    pos: [to[0], from[1], from[2]],
                                     uv: transform_uv([face.uv[0], face.uv[3]])
+                                },
+                                {
+                                    pos: [to[0], to[1], from[2]],
+                                    uv: transform_uv([face.uv[0], face.uv[1]])
+                                },
+                                {
+                                    pos: [from[0], to[1], from[2]],
+                                    uv: transform_uv([face.uv[2], face.uv[1]])
+                                }
+                            ],
+                            texture: 0,
+                            normal: [0, 0, 1]
+                        })
+                }
+                if ("south" in faces) {
+                    let face = faces.south;
+                    element.quads.push(
+                        {
+                            vertices: [
+                                {
+                                    pos: [from[0], from[1], to[2]],
+                                    uv: transform_uv([face.uv[0], face.uv[3]])
+                                },
+                                {
+                                    pos: [from[0], to[1], to[2]],
+                                    uv: transform_uv([face.uv[0], face.uv[1]])
+                                },
+                                {
+                                    pos: [to[0], to[1], to[2]],
+                                    uv: transform_uv([face.uv[2], face.uv[1]])
+                                },
+                                {
+                                    pos: [to[0], from[1], to[2]],
+                                    uv: transform_uv([face.uv[2], face.uv[3]])
                                 }
                             ],
                             texture: 0,
                             normal: [0, 0, -1]
+                        })
+                }
+                if ("east" in faces) {
+                    let face = faces.east;
+                    element.quads.push(
+                        {
+                            vertices: [
+                                {
+                                    pos: [to[0], from[1], from[2]],
+                                    uv: transform_uv([face.uv[2], face.uv[3]])
+                                },
+                                {
+                                    pos: [to[0], from[1], to[2]],
+                                    uv: transform_uv([face.uv[0], face.uv[3]])
+                                },
+                                {
+                                    pos: [to[0], to[1], to[2]],
+                                    uv: transform_uv([face.uv[0], face.uv[1]])
+                                },
+                                {
+                                    pos: [to[0], to[1], from[2]],
+                                    uv: transform_uv([face.uv[2], face.uv[1]])
+                                }
+
+                            ],
+                            texture: 0,
+                            normal: [-1, 0, 0]
+                        })
+                }
+                if ("west" in faces) {
+                    let face = faces.west;
+                    element.quads.push(
+                        {
+                            vertices: [
+                                {
+                                    pos: [from[0], from[1], from[2]],
+                                    uv: transform_uv([face.uv[0], face.uv[3]])
+                                },
+                                {
+                                    pos: [from[0], to[1], from[2]],
+                                    uv: transform_uv([face.uv[0], face.uv[1]])
+                                },
+                                {
+                                    pos: [from[0], to[1], to[2]],
+                                    uv: transform_uv([face.uv[2], face.uv[1]])
+                                },
+                                {
+                                    pos: [from[0], from[1], to[2]],
+                                    uv: transform_uv([face.uv[2], face.uv[3]])
+                                }
+                            ],
+                            texture: 0,
+                            normal: [1, 0, 0]
+                        })
+                }
+                if ("up" in faces) {
+                    let face = faces.up;
+                    element.quads.push(
+                        {
+                            vertices: [
+                                {
+                                    pos: [from[0], to[1], from[2]],
+                                    uv: transform_uv([face.uv[0], face.uv[1]])
+                                },
+                                {
+                                    pos: [to[0], to[1], from[2]],
+                                    uv: transform_uv([face.uv[2], face.uv[1]])
+                                },
+                                {
+                                    pos: [to[0], to[1], to[2]],
+                                    uv: transform_uv([face.uv[2], face.uv[3]])
+                                },
+                                {
+                                    pos: [from[0], to[1], to[2]],
+                                    uv: transform_uv([face.uv[0], face.uv[3]])
+                                }
+                            ],
+                            texture: 0,
+                            normal: [0, -1, 0]
+                        })
+                }
+
+                if ("down" in faces) {
+                    let face = faces.down;
+                    element.quads.push(
+                        {
+                            vertices: [
+                                {
+                                    pos: [from[0], from[1], from[2]],
+                                    uv: transform_uv([face.uv[0], face.uv[3]])
+                                },
+                                {
+                                    pos: [from[0], from[1], to[2]],
+                                    uv: transform_uv([face.uv[0], face.uv[1]])
+                                },
+                                {
+                                    pos: [to[0], from[1], to[2]],
+                                    uv: transform_uv([face.uv[2], face.uv[1]])
+                                },
+                                {
+                                    pos: [to[0], from[1], from[2]],
+                                    uv: transform_uv([face.uv[2], face.uv[3]])
+                                }
+                            ],
+                            texture: 0,
+                            normal: [0, 1, 0]
                         })
                 }
 
@@ -74,7 +211,7 @@ function setup_codec() {
             }
         }
     });
-    let export_action = new Action("export_bwns", {
+    export_action = new Action("export_bwns", {
         name: "Export Brain With No Skull Format",
         description: "",
         icon: "fa-brain",
@@ -90,7 +227,7 @@ function setup_codec() {
 }
 
 function setup_format() {
-    let format = new ModelFormat("brain_with_no_skull", {
+    format = new ModelFormat("brain_with_no_skull", {
         category: "brain_with_no_skull",
         target: "Brain With No Skull",
         forward_direction: "+x",
@@ -125,5 +262,10 @@ Plugin.register('brain_with_no_skull', {
     variant: 'both',
     onload() {
         setup_format();
+    },
+    onunload(){
+        codec.delete();
+        export_action.delete();
+        format.delete();
     }
 });
