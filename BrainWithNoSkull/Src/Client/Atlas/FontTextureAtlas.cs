@@ -41,6 +41,20 @@ public class FontTextureAtlas: TextureAtlas {
         CreateBatchedGlyphData(['u'], 4);
         CreateBatchedGlyphData(['v','w','x'], 5);
         CreateBatchedGlyphData(['y','z'], 4);
+        CreateBatchedGlyphData(['!'], 1);
+        CreateBatchedGlyphData(['@','#','$','%','^','&'], 5);
+        CreateBatchedGlyphData(['*','(',')','-'], 3);
+        CreateBatchedGlyphData(['_'], 5);
+        CreateBatchedGlyphData(['='], 4);
+        CreateBatchedGlyphData(['+','[',']','{','}'], 3);
+        CreateBatchedGlyphData(['\\'], 5);
+        CreateBatchedGlyphData(['|',':',';','\''], 1);
+        CreateBatchedGlyphData(['"'], 3);
+        CreateBatchedGlyphData([','], 1);
+        CreateBatchedGlyphData(['<','>'], 3);
+        CreateBatchedGlyphData(['.'], 1);
+        CreateBatchedGlyphData(['/'], 5);
+        CreateBatchedGlyphData(['?'], 4);
         
         CreateInvisibleGlyph(' ', 5);
     }

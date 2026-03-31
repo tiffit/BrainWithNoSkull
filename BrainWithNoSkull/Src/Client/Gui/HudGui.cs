@@ -1,6 +1,7 @@
 ﻿using BrainWithNoSkull.Client.Render;
 using BrainWithNoSkull.Client.Render.Data;
 using BrainWithNoSkull.Client.Render.RenderEngine;
+using BrainWithNoSkull.Client.World;
 using BrainWithNoSkull.World.Entities.Player;
 using BrainWithNoSkull.World.ItemStacks;
 using Silk.NET.Maths;
@@ -63,7 +64,14 @@ public class HudGui : Gui {
     
     private void RenderFps(){
         const int fpsPos = 6;
-        string fps = "FPS " + _fps;
+        ClientPlayerEntity? player = GameClient.Instance.ServerConnection.PlayerEntity;
+        string fps = $"FPS {_fps}";
+        if (player != null) {
+            int x = (int)player.Position.X;
+            int y = (int)player.Position.Y;
+            int z = (int)player.Position.Z;
+            fps = $"{fps} ({x}, {y}, {z})";
+        }
         Font.RenderString(fpsPos - 1, fpsPos, 0.99f, fps, new Vector3D<float>(0, 0, 0));
         Font.RenderString(fpsPos + 1, fpsPos, 0.99f, fps, new Vector3D<float>(0, 0, 0));
         Font.RenderString(fpsPos, fpsPos - 1, 0.99f, fps, new Vector3D<float>(0, 0, 0));
