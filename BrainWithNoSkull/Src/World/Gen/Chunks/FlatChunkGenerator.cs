@@ -2,6 +2,7 @@
 using BrainWithNoSkull.Registries;
 using BrainWithNoSkull.Util;
 using BrainWithNoSkull.World.Blocks;
+using BrainWithNoSkull.World.Gen.Noise;
 using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.World.Gen.Chunks;
@@ -9,9 +10,15 @@ namespace BrainWithNoSkull.World.Gen.Chunks;
 public class FlatChunkGenerator : IChunkGenerator {
 
     private readonly WorldSettings _settings;
+    private readonly Octaves _octaves;
     
     public FlatChunkGenerator(WorldSettings settings){
         _settings = settings;
+        _octaves = [
+            new Octave(_settings.Seed, 1, 3),
+            new Octave(_settings.Seed, 3, 5),
+            new Octave(_settings.Seed, 10, 10),
+        ];
     }
     
     public void Generate(Vector2D<int> chunkCoords, GenChunk chunk){
@@ -30,16 +37,8 @@ public class FlatChunkGenerator : IChunkGenerator {
     }
 
     public int GetHeight(Vector2D<int> chunkCoords, int x, int z){
-        double worldX = chunkCoords.X * Constants.ChunkSize + x;
-        double worldZ = chunkCoords.Y * Constants.ChunkSize + z;
-        double angleX = MathF.PI * 2 * worldX / (_settings.WorldSize * Constants.ChunkSize);
-        double angleZ = MathF.PI * 2 * worldZ / (_settings.WorldSize * Constants.ChunkSize);
-        double scale = _settings.WorldSize / 8;
-        double noiseX = Math.Cos(angleX) * scale;
-        double noiseY = Math.Sin(angleX) * scale;
-        double noiseZ = Math.Cos(angleZ) * scale;
-        double noiseW = Math.Sin(angleZ) * scale;
-        float noiseHeight = OpenSimplex2.Noise4_ImproveXYZ(_settings.Seed, noiseX, noiseY, noiseZ, noiseW);
-        return Constants.SeaLevel + (int)(noiseHeight * 3);
+        float worldX = chunkCoords.X * Constants.ChunkSize + x;
+        float worldZ = chunkCoords.Y * Constants.ChunkSize + z;
+        return _octaves.GetHeight(worldX, worldZ, _settings.WorldSize, Constants.SeaLevel);
     }
 }
