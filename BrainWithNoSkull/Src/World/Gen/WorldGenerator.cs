@@ -15,6 +15,7 @@ public class WorldGenerator {
         _chunkGen = chunkGen;
         _featureGenerators.AddLast(new TreeFeatureGenerator(world.Settings));
         _featureGenerators.AddLast(new PebbleFeatureGenerator(world.Settings));
+        _featureGenerators.AddLast(new StickFeatureGenerator(world.Settings));
     }
 
     public Chunk Generate(Vector2D<int> chunkCoords){

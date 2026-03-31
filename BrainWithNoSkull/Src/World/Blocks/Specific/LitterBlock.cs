@@ -2,10 +2,10 @@
 
 namespace BrainWithNoSkull.World.Blocks.Specific;
 
-public class PebblesBlock: NonFullBlock {
+public class LitterBlock: NonFullBlock {
     private static readonly AABB CollisionBox = new AABB(0, 0, 0, 1, 2/8f, 1);
     
-    public PebblesBlock(string id) : base(id){
+    public LitterBlock(string id) : base(id){
     }
 
     public override AABB GetCollisionBox(){
