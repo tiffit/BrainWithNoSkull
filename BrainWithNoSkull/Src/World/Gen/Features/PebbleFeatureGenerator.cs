@@ -1,6 +1,7 @@
 ﻿using BrainWithNoSkull.Client.World;
 using BrainWithNoSkull.Registries;
 using BrainWithNoSkull.Util;
+using BrainWithNoSkull.World.Blocks.BlockConfigs;
 using BrainWithNoSkull.World.Gen.Chunks;
 using Silk.NET.Maths;
 
@@ -22,6 +23,7 @@ public class PebbleFeatureGenerator: IFeatureGenerator {
                     int height = chunkGen.GetHeight(coords, x, z);
                     if (genChunk.Blocks[x, height, z].IsAir()) {
                         genChunk.Blocks[x, height, z] = BlockRegistry.Pebbles;
+                        genChunk.BlockConfigs[x, height, z] = BlockRegistry.Pebbles.ConfigContainer.SetValue(0, HorizontalFacingBlockConfigType.Instance, Direction.East);
                     }
                 }
             }

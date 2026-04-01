@@ -6,6 +6,7 @@ namespace BrainWithNoSkull.World.Gen;
 
 public class GenChunk {
     public readonly Block[,,] Blocks;
+    public readonly uint[,,] BlockConfigs;
     private readonly int _size;
     private readonly Vector2D<int> _chunkCoords;
     
@@ -13,6 +14,7 @@ public class GenChunk {
         _chunkCoords = chunkCoords;
         _size = size;
         Blocks = new Block[size, Constants.MaxWorldHeight, size];
+        BlockConfigs = new uint[size, Constants.MaxWorldHeight, size];
         for (int x = 0; x < size; x++) {
             for (int y = 0; y < Constants.MaxWorldHeight; y++) {
                 for (int z = 0; z < size; z++) {
@@ -31,7 +33,7 @@ public class GenChunk {
     }
 
     public Chunk ToChunk(WorldBase world){
-        Chunk chunk = new Chunk(world, _chunkCoords, Blocks);
+        Chunk chunk = new Chunk(world, _chunkCoords, Blocks, BlockConfigs);
         return chunk;
     }
 }

@@ -1,5 +1,6 @@
 ﻿using BrainWithNoSkull.Registries;
 using BrainWithNoSkull.Util;
+using BrainWithNoSkull.World.Blocks.BlockConfigs;
 
 namespace BrainWithNoSkull.World.Blocks;
 
@@ -10,6 +11,7 @@ public class Block : IRegistryEntry {
     public static ushort NextIndex;
     private readonly ushort _index;
     private readonly string _id;
+    public readonly BlockConfigContainer ConfigContainer = new BlockConfigContainer();
     
     public Block(string id){
         _id = id;

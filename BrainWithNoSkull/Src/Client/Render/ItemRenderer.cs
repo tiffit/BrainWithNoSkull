@@ -22,7 +22,7 @@ public class ItemRenderer {
         Vector2D<float> screenPos = _client.GetScreenPos(x, y);
         Vector2D<float> size = _client.GetScreenSize(width, height);
         
-        BakedBlockModel model = BlockModels.BakedModels[(stack.Item as BlockItem)!.Block];
+        SimpleBakedBlockModel model = BlockModels.BakedModels[(stack.Item as BlockItem)!.Block];
         Quaternion<float> quat = Quaternion<float>.CreateFromAxisAngle(new Vector3D<float>(1, 0, 0), float.DegreesToRadians(180+30));
         quat *= Quaternion<float>.CreateFromAxisAngle(new Vector3D<float>(0, 1, 0), float.DegreesToRadians(45));
         

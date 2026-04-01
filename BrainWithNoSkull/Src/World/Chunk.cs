@@ -15,12 +15,14 @@ public class Chunk {
     private readonly WorldBase _world;
     public readonly Vector2D<int> Coords;
     private readonly Block[,,] _blocks;
+    private readonly uint[,,] _blockConfigs;
     private readonly Dictionary<uint, Entity> _entities = [];
     
-    public Chunk(WorldBase world, Vector2D<int> chunkCoords, Block[,,] blocks){
+    public Chunk(WorldBase world, Vector2D<int> chunkCoords, Block[,,] blocks, uint[,,] blockConfigs){
         _world = world;
         Coords = chunkCoords;
         _blocks = blocks;
+        _blockConfigs = blockConfigs;
     }
 
     public void AddEntity(Entity entity){
@@ -40,6 +42,15 @@ public class Chunk {
         return _entities.Values;
     }
 
+    public uint GetBlockConfig(int x, int y, int z){
+        if (OutsideChunkBounds(x, y, z)) {
+            Console.WriteLine("Accessing block outside of chunk, returning air");
+            return 0;
+        }
+
+        return _blockConfigs[x, y, z];
+    }
+    
     public Block GetBlock(int x, int y, int z){
         if (OutsideChunkBounds(x, y, z)) {
             Console.WriteLine("Accessing block outside of chunk, returning air");
@@ -61,7 +72,7 @@ public class Chunk {
     }
 
     public CbChunkPacket ToChunkPacket(){
-        return new CbChunkPacket(_blocks, Coords);
+        return new CbChunkPacket(_blocks, _blockConfigs, Coords);
     }
 
     public void Tick(){

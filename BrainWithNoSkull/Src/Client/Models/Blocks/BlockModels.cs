@@ -7,7 +7,7 @@ namespace BrainWithNoSkull.Client.Models.Blocks;
 public class BlockModels {
 
     private static readonly Dictionary<Block, UnbakedBlockModel> UnbakedModels = new Dictionary<Block, UnbakedBlockModel>();
-    public static readonly Dictionary<Block, BakedBlockModel> BakedModels = new Dictionary<Block, BakedBlockModel>();
+    public static readonly Dictionary<Block, SimpleBakedBlockModel> BakedModels = new Dictionary<Block, SimpleBakedBlockModel>();
     
     public static ICollection<string> CreateUnbaked(){
         UnbakedModels.Clear();

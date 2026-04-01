@@ -4,12 +4,16 @@ using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.Client.Models.Blocks;
 
-public class BakedBlockModel {
+public interface IBakedBlockModel {
+    IEnumerable<Vertex> GetVertices(Vector3D<float> posOffset, List<Direction> visible);
+}
+
+public class SimpleBakedBlockModel: IBakedBlockModel {
 
     private readonly List<Vertex> _vertices;
     private readonly Dictionary<Direction, List<Vertex>> _directionalVertices;
     
-    public BakedBlockModel(List<Vertex> vertices, Dictionary<Direction, List<Vertex>> directionalVertices){
+    public SimpleBakedBlockModel(List<Vertex> vertices, Dictionary<Direction, List<Vertex>> directionalVertices){
         _vertices = vertices;
         _directionalVertices = directionalVertices;
     }

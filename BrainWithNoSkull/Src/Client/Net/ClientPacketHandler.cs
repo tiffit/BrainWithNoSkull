@@ -23,7 +23,7 @@ public class ClientPacketHandler : IClientPacketHandler {
     public void HandeChunk(CbChunkPacket packet){
         ClientWorld? world = _client.World;
         if (world != null) {
-            Chunk chunk = new Chunk(world, packet.ChunkCoords, packet.Blocks);
+            Chunk chunk = new Chunk(world, packet.ChunkCoords, packet.Blocks, packet.BlockConfigs);
             world.OnChunkLoaded(chunk);
         }
     }

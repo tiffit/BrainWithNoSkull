@@ -35,14 +35,21 @@ public class WorldBase {
     }
 
     public Block GetBlock(Vector3D<int> blockPos){
+        return GetBlock(blockPos, out uint _);
+    }
+    
+    public Block GetBlock(Vector3D<int> blockPos, out uint config){
+        config = 0;
         Vector2D<int> chunkCoords = ChunkUtils.ToChunkCoords(blockPos);
         if (!Chunks.IsChunkLoaded(chunkCoords))
             return BlockRegistry.Air;
         Chunk? chunk = Chunks.GetChunk(chunkCoords);
         blockPos = ChunkUtils.ToBlockInChunk(blockPos);
-        if (blockPos.Y is < 0 or > Constants.MaxWorldHeight)
+        if (blockPos.Y is < 0 or > Constants.MaxWorldHeight || chunk == null)
             return BlockRegistry.Air;
-        return chunk == null ? BlockRegistry.Air : chunk.GetBlock(blockPos.X, blockPos.Y, blockPos.Z);
+        
+        config = chunk.GetBlockConfig(blockPos.X, blockPos.Y, blockPos.Z);
+        return chunk.GetBlock(blockPos.X, blockPos.Y, blockPos.Z);
     }
 
     public virtual void SetBlock(Vector3D<int> blockPos, Block block){

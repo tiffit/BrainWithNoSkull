@@ -20,7 +20,7 @@ public class JsonBlockModel : UnbakedBlockModel {
         TextureDependencies = new List<string>(_textures);
     }
 
-    public override BakedBlockModel Bake(TextureResolver resolver){
+    public override SimpleBakedBlockModel Bake(TextureResolver resolver){
         List<Vertex> vertices = [];
         foreach (JsonModelNode node in _model.Nodes) {
             foreach (ModelQuad quad in node.Quads) {
@@ -37,6 +37,6 @@ public class JsonBlockModel : UnbakedBlockModel {
             }
         }
 
-        return new BakedBlockModel(vertices, new Dictionary<Direction, List<Vertex>>());
+        return new SimpleBakedBlockModel(vertices, new Dictionary<Direction, List<Vertex>>());
     }
 }
