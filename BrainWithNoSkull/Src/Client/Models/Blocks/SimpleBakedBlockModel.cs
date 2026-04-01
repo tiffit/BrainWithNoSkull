@@ -1,11 +1,23 @@
 ﻿using BrainWithNoSkull.Client.Render.Data;
 using BrainWithNoSkull.Util;
+using BrainWithNoSkull.World.Blocks;
 using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.Client.Models.Blocks;
 
 public interface IBakedBlockModel {
-    IEnumerable<Vertex> GetVertices(Vector3D<float> posOffset, List<Direction> visible);
+    IEnumerable<Vertex> GetVertices(Vector3D<float> posOffset, Block block, uint packedConfig, List<Direction> visible);
+    IEnumerable<Vertex> GetVerticesForDirection(Direction? direction, Block block, uint packedConfig);
+    
+    public void GetAllVertices(List<Vertex> vertices, Dictionary<Direction, List<Vertex>> directional, Block block, uint packedConfig){
+        vertices.AddRange(GetVerticesForDirection(null, block, packedConfig));
+        foreach (Direction direction in Direction.All) {
+            List<Vertex> list = new List<Vertex>(GetVerticesForDirection(direction, block, packedConfig));
+            if (list.Count > 0) {
+                directional[direction] = list;
+            }
+        }
+    }
 }
 
 public class SimpleBakedBlockModel: IBakedBlockModel {
@@ -18,7 +30,7 @@ public class SimpleBakedBlockModel: IBakedBlockModel {
         _directionalVertices = directionalVertices;
     }
 
-    public IEnumerable<Vertex> GetVertices(Vector3D<float> posOffset, List<Direction> visible){
+    public IEnumerable<Vertex> GetVertices(Vector3D<float> posOffset, Block block, uint packedConfig, List<Direction> visible){
         foreach (Vertex v in _vertices) {
             yield return v with{
                 Pos = v.Pos + posOffset
@@ -34,6 +46,12 @@ public class SimpleBakedBlockModel: IBakedBlockModel {
                 }
             }
         }
+    }
+
+    public IEnumerable<Vertex> GetVerticesForDirection(Direction? direction, Block block, uint packedConfig){
+        if (direction == null)
+            return _vertices;
+        return _directionalVertices.TryGetValue(direction, out List<Vertex>? value) ? value : [];
     }
     
 }

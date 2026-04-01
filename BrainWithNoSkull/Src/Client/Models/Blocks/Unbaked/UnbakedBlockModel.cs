@@ -7,7 +7,7 @@ public abstract class UnbakedBlockModel {
     public List<string> TextureDependencies = [];
     public abstract void GatherDependencies();
 
-    public abstract SimpleBakedBlockModel Bake(TextureResolver resolver);
+    public abstract IBakedBlockModel Bake(TextureResolver resolver, uint packedConfig);
 }
 
 public delegate uint TextureResolver(string location);

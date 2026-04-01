@@ -78,7 +78,7 @@ public class ChunkMesh {
                     int blockZ = z;
                     Vector3D<float> blockPos = new Vector3D<float>(blockX, blockY, blockZ);
                     Block block = chunk.GetBlock(blockX, blockY, blockZ);
-                    if (!block.IsAir() && BlockModels.BakedModels.TryGetValue(block, out SimpleBakedBlockModel? model)) {
+                    if (!block.IsAir() && BlockModels.BakedModels.TryGetValue(block, out IBakedBlockModel? model)) {
                         List<Direction> visible = new List<Direction>(6);
                         
                         if(!GetBlock(chunk, storage, blockX, blockY, blockZ + 1).ShouldCullFace(Direction.West))  visible.Add(Direction.East);
@@ -88,7 +88,7 @@ public class ChunkMesh {
                         if(!GetBlock(chunk, storage, blockX + 1, blockY, blockZ).ShouldCullFace(Direction.South)) visible.Add(Direction.North);
                         if(!GetBlock(chunk, storage, blockX - 1, blockY, blockZ).ShouldCullFace(Direction.North)) visible.Add(Direction.South);
                         
-                        builder.AddAll(model.GetVertices(blockPos, visible));
+                        builder.AddAll(model.GetVertices(blockPos, block, chunk.GetBlockConfig(blockX, blockY, blockZ), visible));
                     }
                 }
             }

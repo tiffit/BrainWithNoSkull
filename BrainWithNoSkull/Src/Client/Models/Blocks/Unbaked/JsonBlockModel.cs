@@ -20,7 +20,7 @@ public class JsonBlockModel : UnbakedBlockModel {
         TextureDependencies = new List<string>(_textures);
     }
 
-    public override SimpleBakedBlockModel Bake(TextureResolver resolver){
+    public override SimpleBakedBlockModel Bake(TextureResolver resolver, uint packedConfig){
         List<Vertex> vertices = [];
         foreach (JsonModelNode node in _model.Nodes) {
             foreach (ModelQuad quad in node.Quads) {

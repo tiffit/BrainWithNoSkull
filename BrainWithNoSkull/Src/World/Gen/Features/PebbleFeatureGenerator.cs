@@ -22,8 +22,9 @@ public class PebbleFeatureGenerator: IFeatureGenerator {
                 if (CanGenerate(x + coords.X*Constants.ChunkSize, z+coords.Y*Constants.ChunkSize)) {
                     int height = chunkGen.GetHeight(coords, x, z);
                     if (genChunk.Blocks[x, height, z].IsAir()) {
+                        Direction direction = Direction.Horizontal[_random.NextInt(4)];
                         genChunk.Blocks[x, height, z] = BlockRegistry.Pebbles;
-                        genChunk.BlockConfigs[x, height, z] = BlockRegistry.Pebbles.ConfigContainer.SetValue(0, HorizontalFacingBlockConfigType.Instance, Direction.East);
+                        genChunk.BlockConfigs[x, height, z] = BlockRegistry.Pebbles.ConfigContainer.SetValue(0, HorizontalFacingBlockConfigType.Instance, direction);
                     }
                 }
             }

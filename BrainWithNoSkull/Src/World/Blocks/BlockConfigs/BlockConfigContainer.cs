@@ -8,6 +8,10 @@ public class BlockConfigContainer {
     
     public BlockConfigContainer(){}
 
+    public uint GetDefault(){
+        return _initialValue;
+    }
+    
     public BlockConfigContainer With<T>(BlockConfigType<T> type){
         return With(type, type.GetDefault());
     }

@@ -45,26 +45,26 @@ public class TreeFeatureGenerator : IFeatureGenerator {
         }
 
 
-        List<Direction> branchDirs = [Direction.North, Direction.South, Direction.East, Direction.West];
+        List<Rotation> rotations = [Rotation.R0, Rotation.R90, Rotation.R180, Rotation.R270];
         int branchesStartHeight = _random.NextBool() ? y + 2 : y + 3;
         for (int h = branchesStartHeight; h < y + height - 2; h++) {
             if (_random.NextDouble() < 0.75) {
-                Direction dir = branchDirs[_random.NextInt(branchDirs.Count)];
-                branchDirs.Remove(dir);
+                Rotation rotation = rotations[_random.NextInt(rotations.Count)];
+                rotations.Remove(rotation);
                 
-                SetRotatedBlock(genChunk, x, h, z, 1, 0, dir, BlockRegistry.OakLeaves);
-                SetRotatedBlock(genChunk, x, h, z, 1, 1, dir, BlockRegistry.OakLeaves);
-                SetRotatedBlock(genChunk, x, h, z, 1, -1, dir, BlockRegistry.OakLeaves);
-                SetRotatedBlock(genChunk, x, h, z, 2, 0, dir, BlockRegistry.OakLeaves);
+                SetRotatedBlock(genChunk, x, h, z, 1, 0, rotation, BlockRegistry.OakLeaves);
+                SetRotatedBlock(genChunk, x, h, z, 1, 1, rotation, BlockRegistry.OakLeaves);
+                SetRotatedBlock(genChunk, x, h, z, 1, -1, rotation, BlockRegistry.OakLeaves);
+                SetRotatedBlock(genChunk, x, h, z, 2, 0, rotation, BlockRegistry.OakLeaves);
                 
                 if (_random.NextDouble() < .50) {
-                    SetRotatedBlock(genChunk, x, h, z, 1, 0, dir, BlockRegistry.OakLeaves);
+                    SetRotatedBlock(genChunk, x, h, z, 1, 0, rotation, BlockRegistry.OakLeaves);
                 }
                 else {
-                    SetRotatedBlock(genChunk, x, h, z, 1, 0, dir, BlockRegistry.OakLog);
-                    SetRotatedBlock(genChunk, x, h, z, 2, 1, dir, BlockRegistry.OakLeaves);
-                    SetRotatedBlock(genChunk, x, h, z, 2, -1, dir, BlockRegistry.OakLeaves);
-                    SetRotatedBlock(genChunk, x, h, z, 3, 0, dir, BlockRegistry.OakLeaves);
+                    SetRotatedBlock(genChunk, x, h, z, 1, 0, rotation, BlockRegistry.OakLog);
+                    SetRotatedBlock(genChunk, x, h, z, 2, 1, rotation, BlockRegistry.OakLeaves);
+                    SetRotatedBlock(genChunk, x, h, z, 2, -1, rotation, BlockRegistry.OakLeaves);
+                    SetRotatedBlock(genChunk, x, h, z, 3, 0, rotation, BlockRegistry.OakLeaves);
                 }
                 h++;
             }
@@ -73,8 +73,8 @@ public class TreeFeatureGenerator : IFeatureGenerator {
         genChunk.SetBlock(x, y + height + 2, z, BlockRegistry.OakLeaves);
     }
 
-    private void SetRotatedBlock(GenChunk genChunk, int x, int y, int z, int offsetX, int offsetZ, Direction dir, Block block){
-        Direction.RotateAroundY(dir, ref offsetX, ref offsetZ);
+    private void SetRotatedBlock(GenChunk genChunk, int x, int y, int z, int offsetX, int offsetZ, Rotation rot, Block block){
+        Direction.RotateAround(rot, ref offsetX, ref offsetZ);
         genChunk.SetBlock(x + offsetX, y, z + offsetZ, block);
     }
 

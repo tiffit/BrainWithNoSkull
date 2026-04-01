@@ -1,6 +1,7 @@
 ﻿using BrainWithNoSkull.Client.World;
 using BrainWithNoSkull.Registries;
 using BrainWithNoSkull.Util;
+using BrainWithNoSkull.World.Blocks.BlockConfigs;
 using BrainWithNoSkull.World.Gen.Chunks;
 using Silk.NET.Maths;
 
@@ -21,7 +22,9 @@ public class StickFeatureGenerator: IFeatureGenerator {
                 if (CanGenerate(x + coords.X*Constants.ChunkSize, z+coords.Y*Constants.ChunkSize)) {
                     int height = chunkGen.GetHeight(coords, x, z);
                     if (genChunk.Blocks[x, height, z].IsAir()) {
+                        Direction direction = Direction.Horizontal[_random.NextInt(4)];
                         genChunk.Blocks[x, height, z] = BlockRegistry.Stick;
+                        genChunk.BlockConfigs[x, height, z] = BlockRegistry.Stick.ConfigContainer.SetValue(0, HorizontalFacingBlockConfigType.Instance, direction);
                     }
                 }
             }

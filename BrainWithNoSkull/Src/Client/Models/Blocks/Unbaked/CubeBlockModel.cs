@@ -37,7 +37,7 @@ public class CubeBlockModel : UnbakedBlockModel {
         TextureDependencies = new HashSet<string>([_top, _bottom, _north, _east, _south, _west]).ToList();
     }
 
-    public override SimpleBakedBlockModel Bake(TextureResolver resolver){
+    public override SimpleBakedBlockModel Bake(TextureResolver resolver, uint packedConfig){
         
         Dictionary<Direction, List<Vertex>> dict = new Dictionary<Direction, List<Vertex>>{
             [Direction.East ] = CreateQuad(in P001, in P011, in P111, in P101, in Uv01, in Uv00, in Uv10, in Uv11, resolver(_east)),

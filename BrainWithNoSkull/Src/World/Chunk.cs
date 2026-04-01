@@ -65,6 +65,7 @@ public class Chunk {
         }
 
         _blocks[x, y, z] = block;
+        _blockConfigs[x, y, z] = block.ConfigContainer.GetDefault();
     }
 
     public bool OutsideChunkBounds(int x, int y, int z){

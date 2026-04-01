@@ -1,13 +1,15 @@
 ﻿using BrainWithNoSkull.Client.Models.Blocks.Unbaked;
 using BrainWithNoSkull.Registries;
+using BrainWithNoSkull.Util;
 using BrainWithNoSkull.World.Blocks;
+using BrainWithNoSkull.World.Blocks.BlockConfigs;
 
 namespace BrainWithNoSkull.Client.Models.Blocks;
 
 public class BlockModels {
 
     private static readonly Dictionary<Block, UnbakedBlockModel> UnbakedModels = new Dictionary<Block, UnbakedBlockModel>();
-    public static readonly Dictionary<Block, SimpleBakedBlockModel> BakedModels = new Dictionary<Block, SimpleBakedBlockModel>();
+    public static readonly Dictionary<Block, IBakedBlockModel> BakedModels = new Dictionary<Block, IBakedBlockModel>();
     
     public static ICollection<string> CreateUnbaked(){
         UnbakedModels.Clear();
@@ -17,8 +19,10 @@ public class BlockModels {
         UnbakedModels[BlockRegistry.Stone] = new CubeBlockModel("Block/Stone");
         UnbakedModels[BlockRegistry.OakLog] = new CubeBlockModel("Block/Oak_Log");
         UnbakedModels[BlockRegistry.OakLeaves] = new CubeBlockModel("Block/Oak_Leaves");
-        UnbakedModels[BlockRegistry.Pebbles] = new JsonBlockModel("Rocks", "Block/Rocks");
-        UnbakedModels[BlockRegistry.Stick] = new JsonBlockModel("Stick", "Block/Stick");
+        UnbakedModels[BlockRegistry.Pebbles] = new RotatingBlockModel(new JsonBlockModel("Rocks", "Block/Rocks"), 
+            BlockRegistry.Pebbles, HorizontalFacingBlockConfigType.Instance, Direction.Horizontal);
+        UnbakedModels[BlockRegistry.Stick] = new RotatingBlockModel(new JsonBlockModel("Stick", "Block/Stick"),
+            BlockRegistry.Stick, HorizontalFacingBlockConfigType.Instance, Direction.Horizontal);
 
         HashSet<string> deps = [];
         foreach (UnbakedBlockModel model in UnbakedModels.Values) {
@@ -32,7 +36,7 @@ public class BlockModels {
     public static void Bake(TextureResolver resolver){
         BakedModels.Clear();
         foreach ((Block block, UnbakedBlockModel unbaked) in UnbakedModels) {
-            BakedModels[block] = unbaked.Bake(resolver);
+            BakedModels[block] = unbaked.Bake(resolver, 0);
         }
 
         UnbakedModels.Clear();
