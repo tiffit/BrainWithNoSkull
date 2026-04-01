@@ -41,7 +41,7 @@ public unsafe class VkBuffers {
     public static void CopyBuffer(Vk vk, Queue graphicsQueue, QueueFamilies families, Device device, Buffer src, Buffer dst, ulong offset, ulong size){
         CommandBuffer cmdBuffer = BeginTransientCommandBuffer(vk, families, device, out CommandPool pool);
         
-        BufferCopy copyCmd = new(offset, offset, size);
+        BufferCopy copyCmd = new(0, offset, size);
         vk.CmdCopyBuffer(cmdBuffer, src, dst, 1, &copyCmd);
 
         EndTransientCommandBuffer(vk, graphicsQueue, device, cmdBuffer, pool);

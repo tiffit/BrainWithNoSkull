@@ -1049,10 +1049,6 @@ public unsafe class VkRenderEngine : IRenderEngine {
         ulong bufferSize = pipeline.ShaderProgram.ShType.BufferSize;
         if (pipeline.ShaderProgram.ShType.HasFlag(ShaderFlag.Mesh)) {
             VkBuffers.CreateBuffer(_vk, _logicalDevice, _physicalDevice, bufferSize,
-                BufferUsageFlags.TransferSrcBit | BufferUsageFlags.VertexBufferBit, MemoryPropertyFlags.HostVisibleBit | MemoryPropertyFlags.HostCoherentBit,
-                out pipeline.StagingVertexBuffer, out pipeline.StagingVertexBufferMemory);
-            
-            VkBuffers.CreateBuffer(_vk, _logicalDevice, _physicalDevice, bufferSize,
                 BufferUsageFlags.TransferDstBit | BufferUsageFlags.VertexBufferBit, MemoryPropertyFlags.DeviceLocalBit,
                 out pipeline.VertexBuffer, out pipeline.VertexBufferMemory);
         } else {
@@ -1564,11 +1560,17 @@ public unsafe class VkRenderEngine : IRenderEngine {
         float[] vertices = builder.Pack();
         void* data;
         ulong dataSize = (ulong)vertices.Length * 4;
-        _vk.MapMemory(_logicalDevice, pipeline.StagingVertexBufferMemory, mesh.Memory.Offset, dataSize, 0, &data);
+        VkBuffers.CreateBuffer(_vk, _logicalDevice, _physicalDevice, dataSize,
+            BufferUsageFlags.TransferSrcBit | BufferUsageFlags.VertexBufferBit, MemoryPropertyFlags.HostVisibleBit | MemoryPropertyFlags.HostCoherentBit,
+            out Buffer stagingBuffer, out DeviceMemory stagingVertexBufferMemory);
+        _vk.MapMemory(_logicalDevice, stagingVertexBufferMemory, 0, dataSize, 0, &data);
         vertices.AsSpan().CopyTo(new Span<float>(data, vertices.Length));
-        _vk.UnmapMemory(_logicalDevice, pipeline.StagingVertexBufferMemory);
-        VkBuffers.CopyBuffer(_vk, _graphicsQueue, _queueFamilies, _logicalDevice, pipeline.StagingVertexBuffer, pipeline.VertexBuffer, mesh.Memory.Offset, dataSize);
+        _vk.UnmapMemory(_logicalDevice, stagingVertexBufferMemory);
+        VkBuffers.CopyBuffer(_vk, _graphicsQueue, _queueFamilies, _logicalDevice, stagingBuffer, pipeline.VertexBuffer, mesh.Memory.Offset, dataSize);
         pipeline.Meshes[mesh] = new CompiledMeshData(builder.VerticesCount, aabb, pushConstant);
+        
+        _vk.DestroyBuffer(_logicalDevice, stagingBuffer, null);
+        _vk.FreeMemory(_logicalDevice, stagingVertexBufferMemory, null);
     }
 
     public void DestroyMesh(Mesh mesh){

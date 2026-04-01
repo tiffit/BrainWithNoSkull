@@ -14,9 +14,6 @@ public unsafe class VkShaderPipeline {
     public Pipeline GraphicsPipeline;
     public uint SubpassIndex = 0;
     
-    public Buffer StagingVertexBuffer;
-    public DeviceMemory StagingVertexBufferMemory;
-    
     public Buffer VertexBuffer;
     public DeviceMemory VertexBufferMemory;
     
@@ -72,10 +69,6 @@ public unsafe class VkShaderPipeline {
         vk.DestroyDescriptorSetLayout(device, DescriptorSetLayout, null);
         vk.DestroyPipeline(device, GraphicsPipeline, null);
         vk.DestroyPipelineLayout(device, PipelineLayout, null);
-        if (ShaderProgram.ShType.HasFlag(ShaderFlag.Mesh)) {
-            vk.DestroyBuffer(device, StagingVertexBuffer, null);
-            vk.FreeMemory(device, StagingVertexBufferMemory, null);
-        }
 
         vk.DestroyBuffer(device, VertexBuffer, null);
         vk.FreeMemory(device, VertexBufferMemory, null);
