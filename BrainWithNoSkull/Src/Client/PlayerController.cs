@@ -1,6 +1,7 @@
 ﻿using BrainWithNoSkull.Client.World;
 using BrainWithNoSkull.Net.Pckt.Sb;
 using BrainWithNoSkull.Registries;
+using BrainWithNoSkull.Util;
 using BrainWithNoSkull.World;
 using BrainWithNoSkull.World.ItemStacks;
 using Silk.NET.Input;
@@ -83,8 +84,20 @@ public class PlayerController {
 
         moveDelta += _velocity * (float)delta;
 
-        CollisionTest test = new CollisionTest(_player.World!, _player.GetBoundingBox(), moveDelta);
-        Vector3D<float> newMove = moveDelta.LengthSquared > 0 ? test.RunTest() : moveDelta;
+        AABB playerBox = _player.GetBoundingBox();
+        CollisionTest test = new CollisionTest(_player.World!, playerBox, moveDelta);
+        Vector3D<float> newMove = moveDelta;
+        if (moveDelta.LengthSquared > 0) {
+            newMove = test.RunTest(out List<AABB> collided);
+            if (collided.Count > 0 && moveDelta.Y == 0) {
+                float maxY = collided.Max(aabb => aabb.MaxY);
+                float stepAmount = maxY - playerBox.MinY;
+                if (stepAmount < 0.6f) {
+                    test = new CollisionTest(_player.World!, playerBox + new Vector3D<float>(0, stepAmount, 0), moveDelta);
+                    newMove = test.RunTest(out collided) + new Vector3D<float>(0, stepAmount, 0);
+                }
+            }
+        }
         Vector3D<float> newPlayerPos = _player.Position + newMove;
 
         if (newMove.Y == 0) _velocity.Y = 0;

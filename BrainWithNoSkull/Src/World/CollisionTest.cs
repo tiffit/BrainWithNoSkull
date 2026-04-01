@@ -15,8 +15,9 @@ public class CollisionTest {
         _movement = movement;
     }
 
-    public Vector3D<float> RunTest(){
+    public Vector3D<float> RunTest(out List<AABB> collidedBlocks){
         Vector3D<float> resultMovement = new Vector3D<float>(_movement.X, _movement.Y, _movement.Z);
+        collidedBlocks = [];
 
         if (resultMovement.X != 0) {
             AABB resultBox = AABB.ContainsBoth(_aabb, _aabb + new Vector3D<float>(_movement.X, 0, 0));
@@ -30,7 +31,7 @@ public class CollisionTest {
                         }else if (resultMovement.X > 0) {
                             resultMovement.X = MathF.Max(0, blockBox.MinX - 0.001f - resultBox.MaxX);
                         }
-
+                        collidedBlocks.Add(blockBox);
                     }
                 } 
             }
@@ -49,6 +50,7 @@ public class CollisionTest {
                         else if (resultMovement.Y > 0) {
                             resultMovement.Y = MathF.Max(0, blockBox.MinY - 0.001f - resultBox.MaxY);
                         }
+                        collidedBlocks.Add(blockBox);
                     }
                 }
             }
@@ -67,6 +69,7 @@ public class CollisionTest {
                         else if (resultMovement.Z > 0) {
                             resultMovement.Z = MathF.Max(0, blockBox.MinZ - 0.001f - resultBox.MaxZ);
                         }
+                        collidedBlocks.Add(blockBox);
                     }
                 }
             }
@@ -81,6 +84,7 @@ public class CollisionTest {
                     if (resultBox.Intersects(blockBox)) {
                         resultMovement = new Vector3D<float>(0, resultMovement.Y, 0);
                     }
+                    collidedBlocks.Add(blockBox);
                 }
             }
         }
@@ -94,6 +98,7 @@ public class CollisionTest {
                     if (resultBox.Intersects(blockBox)) {
                         resultMovement = Vector3D<float>.Zero;
                     }
+                    collidedBlocks.Add(blockBox);
                 }
             }
         }
