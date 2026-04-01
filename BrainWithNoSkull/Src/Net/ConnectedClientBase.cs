@@ -10,7 +10,7 @@ public abstract class ConnectedClientBase {
 
     public ServerPlayerEntity? Entity;
     private readonly HashSet<Vector2D<int>> _loadedChunks = [];
-    private int ViewDistance = 16;
+    private int ViewDistance = 8;
     private Vector2D<int>? _lastChunk = null;
     private bool _playerInfoSent = false;
     
