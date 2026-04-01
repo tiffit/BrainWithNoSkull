@@ -10,9 +10,8 @@ using Silk.NET.Maths;
 namespace BrainWithNoSkull.World;
 
 public class WorldBase {
-
     public readonly Queue<EntityMoveChunkTicket> EntityMoveChunkTickets = [];
-    
+
     public WorldGenerator WorldGenerator{ get; private set; }
     protected ChunkStorage Chunks;
     public WorldSettings Settings{ get; private set; }
@@ -24,7 +23,7 @@ public class WorldBase {
         WorldGenerator = new WorldGenerator(this, new FlatChunkGenerator(settings));
         Chunks = new ChunkStorage(this);
     }
-    
+
     public void AddEntity(Entity entity, Vector3D<float> position){
         Chunk chunk = GetChunk(ChunkUtils.ToChunkCoords(position))!;
         chunk.AddEntity(entity);
@@ -45,7 +44,7 @@ public class WorldBase {
             return BlockRegistry.Air;
         return chunk == null ? BlockRegistry.Air : chunk.GetBlock(blockPos.X, blockPos.Y, blockPos.Z);
     }
-    
+
     public virtual void SetBlock(Vector3D<int> blockPos, Block block){
         Vector2D<int> chunkCoords = ChunkUtils.ToChunkCoords(blockPos);
         if (!Chunks.IsChunkLoaded(chunkCoords))
@@ -81,9 +80,28 @@ public class WorldBase {
             }
         }
     }
-    
+
+    public IEnumerable<Entity> GetEntitiesInBox(AABB aabb){
+        Vector2D<int> minChunk = ChunkUtils.ToChunkCoords(new Vector3D<float>(aabb.MinX, aabb.MinY, aabb.MinZ));
+        Vector2D<int> maxChunk = ChunkUtils.ToChunkCoords(new Vector3D<float>(aabb.MaxX, aabb.MaxY, aabb.MaxZ));
+
+
+        for (int x = minChunk.X; x <= maxChunk.X; x++) {
+            for (int z = minChunk.Y; z <= maxChunk.Y; z++) {
+                Vector2D<int> chunkCoords = new Vector2D<int>(x, z);
+                Chunk? chunk = GetChunk(chunkCoords);
+                if (chunk != null) {
+                    foreach (Entity entity in chunk.GetEntities()) {
+                        if (entity.GetBoundingBox().Intersects(aabb)) {
+                            yield return entity;   
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     public int WrapChunkCoord(int val){
         return Chunks.WrapChunkCoord(val);
     }
-
 }

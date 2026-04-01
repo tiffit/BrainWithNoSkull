@@ -36,6 +36,10 @@ public class Chunk {
         _entities.Remove(id);
     }
 
+    public IEnumerable<Entity> GetEntities(){
+        return _entities.Values;
+    }
+
     public Block GetBlock(int x, int y, int z){
         if (OutsideChunkBounds(x, y, z)) {
             Console.WriteLine("Accessing block outside of chunk, returning air");
