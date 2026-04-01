@@ -84,7 +84,7 @@ public class PlayerController {
         moveDelta += _velocity * (float)delta;
 
         CollisionTest test = new CollisionTest(_player.World!, _player.GetBoundingBox(), moveDelta);
-        Vector3D<float> newMove = test.RunTest();
+        Vector3D<float> newMove = moveDelta.LengthSquared > 0 ? test.RunTest() : moveDelta;
         Vector3D<float> newPlayerPos = _player.Position + newMove;
 
         if (newMove.Y == 0) _velocity.Y = 0;

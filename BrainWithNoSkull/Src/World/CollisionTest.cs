@@ -26,9 +26,9 @@ public class CollisionTest {
                     blockBox += pos;
                     if (resultBox.Intersects(blockBox)) {
                         if (resultMovement.X < 0) {
-                            resultMovement.X = MathF.Min(0, resultMovement.X + (blockBox.MaxX - resultBox.MinX));
+                            resultMovement.X = MathF.Min(0, resultMovement.X + (blockBox.MaxX + 0.001f - resultBox.MinX));
                         }else if (resultMovement.X > 0) {
-                            resultMovement.X = MathF.Max(0, blockBox.MinX - resultBox.MaxX);
+                            resultMovement.X = MathF.Max(0, blockBox.MinX - 0.001f - resultBox.MaxX);
                         }
 
                     }
@@ -44,10 +44,10 @@ public class CollisionTest {
                     blockBox += pos;
                     if (resultBox.Intersects(blockBox)) {
                         if (resultMovement.Y < 0) {
-                            resultMovement.Y = MathF.Min(0, resultMovement.Y + (blockBox.MaxY - resultBox.MinY));
+                            resultMovement.Y = MathF.Min(0, resultMovement.Y + (blockBox.MaxY + 0.001f - resultBox.MinY));
                         }
                         else if (resultMovement.Y > 0) {
-                            resultMovement.Y = MathF.Max(0, blockBox.MinY - resultBox.MaxY);
+                            resultMovement.Y = MathF.Max(0, blockBox.MinY - 0.001f - resultBox.MaxY);
                         }
                     }
                 }
@@ -62,10 +62,10 @@ public class CollisionTest {
                     blockBox += pos;
                     if (resultBox.Intersects(blockBox)) {
                         if (resultMovement.Z < 0) {
-                            resultMovement.Z = MathF.Min(0, resultMovement.Z + (blockBox.MaxZ - resultBox.MinZ));
+                            resultMovement.Z = MathF.Min(0, resultMovement.Z + (blockBox.MaxZ + 0.001f - resultBox.MinZ));
                         }
                         else if (resultMovement.Z > 0) {
-                            resultMovement.Z = MathF.Max(0, blockBox.MinZ - resultBox.MaxZ);
+                            resultMovement.Z = MathF.Max(0, blockBox.MinZ - 0.001f - resultBox.MaxZ);
                         }
                     }
                 }
