@@ -47,16 +47,7 @@ public class HudGui : Gui {
         for (int i = 0; i < hotbarSlots; i++) {
             int slotX = ScaledWidth / 2 - hotbarSlots * 19 / 2 + i*19;
             int slotY = hotbarY + 3;
-            ItemStack? stack = inv?.Items[i];
-            bool hasStack = false;
-            if (!ItemStack.IsNull(stack)) {
-                GameClient.Instance.ItemRenderer.RenderItemInGui(vb, stack, slotX + 9, slotY + 9, 0.96f, 40, 40);
-                if (stack.Count > 1) {
-                    Font.RenderString(slotX, slotY, 0.93f, "" + stack.Count, ColorUtil.FromFloats(1f, 0.65f, 0f));
-                }
-                hasStack = true;
-            }
-            DrawTexture(vb, slotX, slotY, 0.98f, hasStack ? 0 : 18, 0, 18, 18, 256, _invIconsTexture);
+            DrawSlot(vb, inv, i, slotX, slotY, 0.96f, _invIconsTexture);
             if ((inv?.HotbarSlot ?? -1) == i) {
                 DrawTexture(vb, slotX, slotY, 0.94f, 36, 0, 18, 18, 256, _invIconsTexture);
             }

@@ -2,7 +2,7 @@
 
 namespace BrainWithNoSkull.World.Entities.Player;
 
-public class PlayerInventory {
+public class PlayerInventory: IItemContainer {
 
     public int InventorySize = 27;
     public int HotbarSlot = 0;
@@ -58,4 +58,7 @@ public class PlayerInventory {
         return Items[slot];
     }
 
+    public int GetInventorySize(){
+        return InventorySize;
+    }
 }

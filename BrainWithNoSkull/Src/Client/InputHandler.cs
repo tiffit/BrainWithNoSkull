@@ -23,13 +23,14 @@ public class InputHandler {
         foreach (IMouse mouse in _context.Mice) {
             mouse.MouseMove += OnMouseMove;
             mouse.MouseDown += OnMouseDown;
-            mouse.Cursor.CursorMode = CursorMode.Disabled;
         }
         
         foreach (IKeyboard keyboard in _context.Keyboards) {
             keyboard.KeyDown += OnKeyDown;
             keyboard.KeyUp += OnKeyUp;
         }
+        
+        SetCursorMode(CursorMode.Disabled);
     }
 
     private void OnMouseMove(IMouse mouse, Vector2 amount){

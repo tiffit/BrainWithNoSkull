@@ -1,6 +1,10 @@
-﻿using BrainWithNoSkull.Client.Render;
+﻿using System.ComponentModel;
+using BrainWithNoSkull.Client.Render;
 using BrainWithNoSkull.Client.Render.Data;
 using BrainWithNoSkull.Client.Render.RenderEngine;
+using BrainWithNoSkull.Util;
+using BrainWithNoSkull.World;
+using BrainWithNoSkull.World.ItemStacks;
 using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.Client.Guis;
@@ -74,6 +78,23 @@ public abstract class Gui {
             TextureIndex = textureIndex,
             Uv = new Vector2D<float>(u0, v0)
         });
+    }
+
+    protected void DrawSlot(VertexBuilder vb, IItemContainer? container, int slotIndex, int x, int y, float z, uint invIconsTexture){
+        ItemStack? stack = container?.GetItem(slotIndex);
+        bool hasStack = false;
+        if (!ItemStack.IsNull(stack)) {
+            GameClient.Instance.ItemRenderer.RenderItemInGui(vb, stack, x + 9, y + 9, z - 0.02f, 40, 40);
+            if (stack.Count > 1) {
+                Font.RenderString(x, y, z - 0.03f, "" + stack.Count, ColorUtil.FromFloats(1f, 0.65f, 0f));
+            }
+            hasStack = true;
+        }
+        DrawTexture(vb, x, y, z, hasStack ? 0 : 18, 0, 18, 18, 256, invIconsTexture);
+    }
+
+    public virtual bool PausesGame(){
+        return false;
     }
 
 }

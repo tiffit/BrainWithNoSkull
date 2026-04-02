@@ -30,7 +30,10 @@ public class PlayerController {
 
     public void Update(double delta){
         _inputHandler.Tick(delta, out Vector2D<float> mouseMovement);
-        if (_client.Gui == null) {
+        if (!_client.Gui?.PausesGame() ?? true) {
+            if (_client.Gui != null) {
+                mouseMovement = new Vector2D<float>();
+            }
             if (!_hasMouseMoved && mouseMovement.Equals(Vector2D<float>.Zero)) {
                 _hasMouseMoved = true;
                 mouseMovement = Vector2D<float>.Zero;
@@ -165,8 +168,10 @@ public class PlayerController {
 
             _player.SetPosition(newPlayerPos);
         }
-
-        if (_inputHandler.IsKeyPressedThisFrame(Key.Escape)) {
+        
+        if (_inputHandler.IsKeyPressedThisFrame(Key.Tab)) {
+            _client.SetGui(_client.Gui == null ? new InventoryGui() : null);
+        } else if (_inputHandler.IsKeyPressedThisFrame(Key.Escape)) {
             _client.SetGui(_client.Gui == null ? new PauseGui() : null);
         }
 
