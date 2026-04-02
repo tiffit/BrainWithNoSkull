@@ -1,5 +1,4 @@
 ﻿using BrainWithNoSkull.Client.Render.Data;
-using BrainWithNoSkull.Client.Render.Shader;
 using Silk.NET.Vulkan;
 using Buffer = Silk.NET.Vulkan.Buffer;
 

@@ -1,5 +1,4 @@
-﻿using Silk.NET.Maths;
-using Silk.NET.Vulkan;
+﻿using Silk.NET.Vulkan;
 
 namespace BrainWithNoSkull.Client.Render.RenderEngine.Vulkan;
 

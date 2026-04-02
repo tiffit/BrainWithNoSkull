@@ -35,7 +35,7 @@ public class Frustum {
 
     public bool IsBoxInside(AABB aabb){
         return
-           IsOnOrForwardPlane(aabb, ref _left) && IsOnOrForwardPlane(aabb, ref _right) &&
+            IsOnOrForwardPlane(aabb, ref _left) && IsOnOrForwardPlane(aabb, ref _right) &&
             IsOnOrForwardPlane(aabb, ref _top) && IsOnOrForwardPlane(aabb, ref _bottom) &&
             IsOnOrForwardPlane(aabb, ref _near) && IsOnOrForwardPlane(aabb, ref _far);
     }

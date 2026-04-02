@@ -1,12 +1,10 @@
 ﻿using System.Collections.Concurrent;
-using BrainWithNoSkull.Client.Atlas;
-using BrainWithNoSkull.Client.Gui;
+using BrainWithNoSkull.Client.Guis;
 using BrainWithNoSkull.Client.Net;
 using BrainWithNoSkull.Client.Render;
 using BrainWithNoSkull.Client.Render.Data;
 using BrainWithNoSkull.Client.Render.RenderEngine;
 using BrainWithNoSkull.Client.Render.Shader;
-using BrainWithNoSkull.Client.Render.Shader.PushConstants;
 using BrainWithNoSkull.Client.World;
 using BrainWithNoSkull.Net;
 using BrainWithNoSkull.Net.Pckt;
@@ -16,7 +14,6 @@ using BrainWithNoSkull.World;
 using Silk.NET.Input;
 using Silk.NET.Input.Glfw;
 using Silk.NET.Maths;
-using Silk.NET.Vulkan;
 using Silk.NET.Windowing;
 using Silk.NET.Windowing.Glfw;
 
@@ -47,6 +44,7 @@ public class GameClient {
     public Vector2D<int> ScaledWindowSize;
 
     public HudGui? Hud;
+    public Gui? Gui;
     public FontRenderer FontRenderer;
     public ItemRenderer ItemRenderer;
 
@@ -111,6 +109,7 @@ public class GameClient {
     private void OnWindowResize(Vector2D<int> newSize){
         ScaledWindowSize = newSize / GuiScale;
         Hud?.Init(RenderEngine, FontRenderer, ScaledWindowSize.X, ScaledWindowSize.Y);
+        Gui?.Init(RenderEngine, FontRenderer, ScaledWindowSize.X, ScaledWindowSize.Y);
     }
 
     private void DoRender(double delta){
@@ -124,6 +123,7 @@ public class GameClient {
 
         VertexBuilder guiVb = RenderEngine.GetVertexBuilder(ShaderType.Gui);
         Hud?.Render(guiVb);
+        Gui?.Render(guiVb);
         
         while (RenderActions.TryDequeue(out Action? renderAction)) {
             renderAction.Invoke();
@@ -146,6 +146,11 @@ public class GameClient {
         _camera.Frustum = new Frustum(_camera);
 
         RenderEngine.OnRender(delta);
+    }
+
+    public void SetGui(Gui gui){
+        Gui = gui;
+        Gui.Init(RenderEngine, FontRenderer, ScaledWindowSize.X, ScaledWindowSize.Y);
     }
 
     public void CreatePlayerController(ClientPlayerEntity player){

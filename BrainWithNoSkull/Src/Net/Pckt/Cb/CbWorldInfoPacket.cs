@@ -1,5 +1,4 @@
 ﻿using BrainWithNoSkull.Client.World;
-using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.Net.Pckt.Cb;
 

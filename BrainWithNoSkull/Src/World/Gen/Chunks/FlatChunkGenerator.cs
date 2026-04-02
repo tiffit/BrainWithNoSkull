@@ -1,6 +1,5 @@
 ﻿using BrainWithNoSkull.Client.World;
 using BrainWithNoSkull.Registries;
-using BrainWithNoSkull.Util;
 using BrainWithNoSkull.World.Blocks;
 using BrainWithNoSkull.World.Gen.Noise;
 using Silk.NET.Maths;

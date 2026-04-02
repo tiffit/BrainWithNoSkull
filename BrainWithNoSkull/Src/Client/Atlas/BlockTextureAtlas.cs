@@ -1,6 +1,4 @@
-﻿using BrainWithNoSkull.Registries;
-using BrainWithNoSkull.World.Blocks;
-using SkiaSharp;
+﻿using SkiaSharp;
 
 namespace BrainWithNoSkull.Client.Atlas;
 

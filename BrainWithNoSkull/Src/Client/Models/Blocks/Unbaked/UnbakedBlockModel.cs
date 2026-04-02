@@ -1,6 +1,4 @@
-﻿using BrainWithNoSkull.Client.Atlas;
-
-namespace BrainWithNoSkull.Client.Models.Blocks.Unbaked;
+﻿namespace BrainWithNoSkull.Client.Models.Blocks.Unbaked;
 
 public abstract class UnbakedBlockModel {
 

@@ -1,7 +1,5 @@
-﻿using System.Diagnostics;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using BrainWithNoSkull.Client.Atlas;
 using BrainWithNoSkull.Client.Render.Data;
 using BrainWithNoSkull.Client.Render.RenderEngine.Vulkan;
 using BrainWithNoSkull.Client.Render.Shader;

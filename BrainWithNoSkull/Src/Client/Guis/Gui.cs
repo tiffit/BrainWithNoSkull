@@ -3,7 +3,7 @@ using BrainWithNoSkull.Client.Render.Data;
 using BrainWithNoSkull.Client.Render.RenderEngine;
 using Silk.NET.Maths;
 
-namespace BrainWithNoSkull.Client.Gui;
+namespace BrainWithNoSkull.Client.Guis;
 
 public abstract class Gui {
 

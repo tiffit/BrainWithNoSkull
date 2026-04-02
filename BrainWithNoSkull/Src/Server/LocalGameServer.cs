@@ -1,6 +1,4 @@
 ﻿using BrainWithNoSkull.Client.Net;
-using BrainWithNoSkull.Client.World;
-using BrainWithNoSkull.Net;
 
 namespace BrainWithNoSkull.Server;
 

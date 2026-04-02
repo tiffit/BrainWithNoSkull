@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using Silk.NET.Maths;
+﻿using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.Util;
 

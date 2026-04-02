@@ -6,7 +6,7 @@ using BrainWithNoSkull.World.Entities.Player;
 using BrainWithNoSkull.World.ItemStacks;
 using Silk.NET.Maths;
 
-namespace BrainWithNoSkull.Client.Gui;
+namespace BrainWithNoSkull.Client.Guis;
 
 public class HudGui : Gui {
     

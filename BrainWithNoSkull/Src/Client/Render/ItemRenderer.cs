@@ -1,7 +1,6 @@
 ﻿using BrainWithNoSkull.Client.Models.Blocks;
 using BrainWithNoSkull.Client.Render.Data;
 using BrainWithNoSkull.Client.Render.RenderEngine;
-using BrainWithNoSkull.Registries;
 using BrainWithNoSkull.Util;
 using BrainWithNoSkull.World.Blocks;
 using BrainWithNoSkull.World.Items;

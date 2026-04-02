@@ -1,5 +1,4 @@
-﻿using BrainWithNoSkull.Client.Atlas;
-using BrainWithNoSkull.Client.Render.Data;
+﻿using BrainWithNoSkull.Client.Render.Data;
 using BrainWithNoSkull.Util;
 using Silk.NET.Maths;
 
