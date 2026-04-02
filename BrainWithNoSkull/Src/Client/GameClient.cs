@@ -55,7 +55,7 @@ public class GameClient {
     public void Start(){
         Registries.Registries.RegisterAll();
         PacketRegistry.Register();
-        
+
         ClientAssetLoader.Load();
 
         SetupWindow();
@@ -75,12 +75,12 @@ public class GameClient {
         RenderEngine.Init(GameWindow, _camera, _lightData);
         GameWindow.Render += DoRender;
         GameWindow.Update += Tick;
-        
+
         FontRenderer = new FontRenderer(this, RenderEngine);
         ItemRenderer = new ItemRenderer(this, RenderEngine);
         Hud = new HudGui();
         Hud.Init(RenderEngine, FontRenderer, ScaledWindowSize.X, ScaledWindowSize.Y);
-        
+
         GameWindow.Run();
         RenderEngine.Cleanup();
     }
@@ -118,13 +118,13 @@ public class GameClient {
         if (ServerConnection.PlayerEntity != null) {
             UpdateSun(ServerConnection.PlayerEntity, World!);
         }
-        
+
         Skybox.Render(RenderEngine, _lightData);
 
         VertexBuilder guiVb = RenderEngine.GetVertexBuilder(ShaderType.Gui);
         Hud?.Render(guiVb);
         Gui?.Render(guiVb);
-        
+
         while (RenderActions.TryDequeue(out Action? renderAction)) {
             renderAction.Invoke();
         }
@@ -142,15 +142,20 @@ public class GameClient {
                 DrawBlockOutline(BlockRayResult.Value);
             }
         }
-        
+
         _camera.Frustum = new Frustum(_camera);
 
         RenderEngine.OnRender(delta);
     }
 
-    public void SetGui(Gui gui){
+    public void SetGui(Gui? gui){
         Gui = gui;
-        Gui.Init(RenderEngine, FontRenderer, ScaledWindowSize.X, ScaledWindowSize.Y);
+        if (gui == null) {
+            _inputHandler.SetCursorMode(CursorMode.Disabled);
+        }else {
+            gui.Init(RenderEngine, FontRenderer, ScaledWindowSize.X, ScaledWindowSize.Y);
+            _inputHandler.SetCursorMode(CursorMode.Normal);
+        }
     }
 
     public void CreatePlayerController(ClientPlayerEntity player){
@@ -163,7 +168,7 @@ public class GameClient {
         float screenY = y * GuiScale / windowSize.Y * 2 - 1;
         return new Vector2D<float>(screenX, screenY);
     }
-    
+
     public Vector2D<float> GetScreenSize(float w, float h){
         Vector2D<int> windowSize = GameWindow.Size;
         float screenX = w * GuiScale / windowSize.X / 2;
@@ -175,7 +180,7 @@ public class GameClient {
         while (TickActions.TryDequeue(out Action? tickAction)) {
             tickAction.Invoke();
         }
-        
+
         World?.Tick(delta);
         ServerConnection.Tick(delta);
         _server.Tick(delta);
@@ -188,71 +193,71 @@ public class GameClient {
     }
 
     private Vector3D<float> GetSunSkyTilt(float playerPosX){
-        Matrix4X4<float> mat = Matrix4X4.CreateRotationZ(MathF.Cos(playerPosX * 2 * MathF.PI) * MathF.PI/2);
+        Matrix4X4<float> mat = Matrix4X4.CreateRotationZ(MathF.Cos(playerPosX * 2 * MathF.PI) * MathF.PI / 2);
         return Vector3D.Transform(Vector3D<float>.UnitY, mat);
     }
-    
+
     private Vector3D<float> GetSunSkyProgress(float playerPosZ, Vector3D<float> currentPos){
-        Matrix4X4<float> mat = Matrix4X4.CreateRotationX(playerPosZ*MathF.PI*2 + MathF.PI);
+        Matrix4X4<float> mat = Matrix4X4.CreateRotationX(playerPosZ * MathF.PI * 2 + MathF.PI);
         return Vector3D.Transform(currentPos, mat);
     }
 
     private void DrawBlockOutline(WorldRayResult result){
         Vector3D<int> blockPos = result.Pos;
         AABB? aabb = World?.GetBlock(blockPos).GetCollisionBox();
-        if(aabb == null)
+        if (aabb == null)
             return;
         aabb += blockPos;
         const float padding = 0.001f;
         Vector3D<float> p000 = new Vector3D<float>(aabb.MinX - padding, aabb.MinY - padding, aabb.MinZ - padding);
         Vector3D<float> p111 = new Vector3D<float>(aabb.MaxX + padding, aabb.MaxY + padding, aabb.MaxZ + padding);
-        
+
         Vector3D<float> p100 = new Vector3D<float>(p111.X, p000.Y, p000.Z);
         Vector3D<float> p010 = new Vector3D<float>(p000.X, p111.Y, p000.Z);
         Vector3D<float> p001 = new Vector3D<float>(p000.X, p000.Y, p111.Z);
-        
+
         Vector3D<float> p011 = new Vector3D<float>(p000.X, p111.Y, p111.Z);
         Vector3D<float> p101 = new Vector3D<float>(p111.X, p000.Y, p111.Z);
         Vector3D<float> p110 = new Vector3D<float>(p111.X, p111.Y, p000.Z);
 
         Vector3D<float> color = new Vector3D<float>(0.8f, 0.8f, 0.8f);
-        
+
         VertexBuilder builder = RenderEngine.GetVertexBuilder(ShaderType.Lines);
         builder.Add(new Vertex{ Pos = p000, Color = color });
         builder.Add(new Vertex{ Pos = p100, Color = color });
-        
+
         builder.Add(new Vertex{ Pos = p000, Color = color });
         builder.Add(new Vertex{ Pos = p010, Color = color });
-        
+
         builder.Add(new Vertex{ Pos = p000, Color = color });
         builder.Add(new Vertex{ Pos = p001, Color = color });
-        
-        
+
+
         builder.Add(new Vertex{ Pos = p111, Color = color });
         builder.Add(new Vertex{ Pos = p011, Color = color });
-        
+
         builder.Add(new Vertex{ Pos = p111, Color = color });
         builder.Add(new Vertex{ Pos = p101, Color = color });
-        
+
         builder.Add(new Vertex{ Pos = p111, Color = color });
         builder.Add(new Vertex{ Pos = p110, Color = color });
-        
-        
+
+
         builder.Add(new Vertex{ Pos = p110, Color = color });
         builder.Add(new Vertex{ Pos = p010, Color = color });
-        
+
         builder.Add(new Vertex{ Pos = p110, Color = color });
         builder.Add(new Vertex{ Pos = p100, Color = color });
-        
+
         builder.Add(new Vertex{ Pos = p010, Color = color });
         builder.Add(new Vertex{ Pos = p011, Color = color });
-        
+
         builder.Add(new Vertex{ Pos = p100, Color = color });
         builder.Add(new Vertex{ Pos = p101, Color = color });
-        
+
         builder.Add(new Vertex{ Pos = p101, Color = color });
         builder.Add(new Vertex{ Pos = p001, Color = color });
-        
+
         builder.Add(new Vertex{ Pos = p001, Color = color });
         builder.Add(new Vertex{ Pos = p011, Color = color });
     }
