@@ -35,6 +35,7 @@ public class ClientPacketHandler : IClientPacketHandler {
             _serverConnection.PlayerEntity = player;
             world.AddPlayer(player, packet);
             _client.CreatePlayerController(player);
+            _client.ReInitGuis();
         }
     }
 

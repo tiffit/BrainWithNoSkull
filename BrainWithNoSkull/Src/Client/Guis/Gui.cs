@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using BrainWithNoSkull.Client.Guis.Widgets;
 using BrainWithNoSkull.Client.Render;
 using BrainWithNoSkull.Client.Render.Data;
 using BrainWithNoSkull.Client.Render.RenderEngine;
@@ -11,24 +12,38 @@ namespace BrainWithNoSkull.Client.Guis;
 
 public abstract class Gui {
 
-    protected IRenderEngine RenderEngine = null!;
+    public IRenderEngine RenderEngine = null!;
     protected int ScaledWidth, ScaledHeight;
-    protected FontRenderer Font = null!;
+    public FontRenderer Font = null!;
+
+    protected IItemContainer? HeldStackContainer;
+    protected int HeldStackIndex;
+
+    protected List<Widget> Widgets = [];
     
     public virtual void Init(IRenderEngine renderEngine, FontRenderer font, int scaledWidth, int scaledHeight){
+        Widgets.Clear();
         RenderEngine = renderEngine;
         ScaledWidth = scaledWidth;
         ScaledHeight = scaledHeight;
         Font = font;
     }
 
+    public void RenderBase(VertexBuilder guiVb){
+        foreach (Widget widget in Widgets) {
+            widget.Render(guiVb, this);
+        }
+        
+        Render(guiVb);
+    }
+    
     public abstract void Render(VertexBuilder guiVb);
 
-    protected void DrawTexture(VertexBuilder vb, float x, float y, int u, int v, int width, int height, int textureSize, uint textureIndex){
+    public void DrawTexture(VertexBuilder vb, float x, float y, int u, int v, int width, int height, int textureSize, uint textureIndex){
         DrawTexture(vb, x, y, 0, u, v, width, height, textureSize, textureIndex);
     }
     
-    protected void DrawTexture(VertexBuilder vb, float x, float y, float z, int u, int v, int width, int height, int textureSize, uint textureIndex){
+    public void DrawTexture(VertexBuilder vb, float x, float y, float z, int u, int v, int width, int height, int textureSize, uint textureIndex){
         float u0 = u / (float)textureSize;
         float v0 = v / (float)textureSize;
         float u1 = (u + width) / (float)textureSize;
@@ -78,19 +93,6 @@ public abstract class Gui {
             TextureIndex = textureIndex,
             Uv = new Vector2D<float>(u0, v0)
         });
-    }
-
-    protected void DrawSlot(VertexBuilder vb, IItemContainer? container, int slotIndex, int x, int y, float z, uint invIconsTexture){
-        ItemStack? stack = container?.GetItem(slotIndex);
-        bool hasStack = false;
-        if (!ItemStack.IsNull(stack)) {
-            GameClient.Instance.ItemRenderer.RenderItemInGui(vb, stack, x + 9, y + 9, z - 0.02f, 40, 40);
-            if (stack.Count > 1) {
-                Font.RenderString(x, y, z - 0.03f, "" + stack.Count, ColorUtil.FromFloats(1f, 0.65f, 0f));
-            }
-            hasStack = true;
-        }
-        DrawTexture(vb, x, y, z, hasStack ? 0 : 18, 0, 18, 18, 256, invIconsTexture);
     }
 
     public virtual bool PausesGame(){

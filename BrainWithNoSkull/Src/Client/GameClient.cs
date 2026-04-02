@@ -109,6 +109,10 @@ public class GameClient {
 
     private void OnWindowResize(Vector2D<int> newSize){
         ScaledWindowSize = newSize / GuiScale;
+        ReInitGuis();
+    }
+
+    public void ReInitGuis(){
         Hud?.Init(RenderEngine, FontRenderer, ScaledWindowSize.X, ScaledWindowSize.Y);
         Gui?.Init(RenderEngine, FontRenderer, ScaledWindowSize.X, ScaledWindowSize.Y);
     }
@@ -123,8 +127,8 @@ public class GameClient {
         Skybox.Render(RenderEngine, _lightData);
 
         VertexBuilder guiVb = RenderEngine.GetVertexBuilder(ShaderType.Gui);
-        Hud?.Render(guiVb);
-        Gui?.Render(guiVb);
+        Hud?.RenderBase(guiVb);
+        Gui?.RenderBase(guiVb);
 
         while (RenderActions.TryDequeue(out Action? renderAction)) {
             renderAction.Invoke();

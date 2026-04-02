@@ -1,4 +1,5 @@
-﻿using BrainWithNoSkull.Client.Render;
+﻿using BrainWithNoSkull.Client.Guis.Widgets;
+using BrainWithNoSkull.Client.Render;
 using BrainWithNoSkull.Client.Render.Data;
 using BrainWithNoSkull.Client.Render.RenderEngine;
 using BrainWithNoSkull.Client.World;
@@ -20,11 +21,12 @@ public class HudGui : Gui {
     public override void Init(IRenderEngine renderEngine, FontRenderer font, int scaledWidth, int scaledHeight){
         base.Init(renderEngine, font, scaledWidth, scaledHeight);
         _invIconsTexture = ClientAssetLoader.BlockTextureAtlas.LookupGui("Inv_Icons");
+        PlayerInventory? inv = GameClient.Instance.ServerConnection.PlayerEntity?.Inventory;
+        Widgets.Add(new InventoryWidget(0.99f, scaledWidth, scaledHeight, inv, true));
     }
 
     public override void Render(VertexBuilder guiVb){
         RenderFps();
-        RenderHotbar(guiVb);
         RenderCrosshair(guiVb);
     }
 
@@ -32,26 +34,6 @@ public class HudGui : Gui {
         float crosshairX = (ScaledWidth / 2) - 1f;
         float crosshairY = (ScaledHeight / 2) - 1f;
         DrawTexture(vb, crosshairX, crosshairY, 0.99f, 54, 0, 3, 3, 256, _invIconsTexture);
-    }
-
-    private void RenderHotbar(VertexBuilder vb){
-        const int hotbarWidth = 176;
-        const int hotbarHeight = 24;
-        int hotbarX = ScaledWidth / 2 - hotbarWidth/2;
-        int hotbarY = ScaledHeight - hotbarHeight - 2;
-        DrawTexture(vb, hotbarX, hotbarY, 0.99f, 0, 18, hotbarWidth, hotbarHeight, 256, _invIconsTexture);
-
-        PlayerInventory? inv = GameClient.Instance.ServerConnection.PlayerEntity?.Inventory;
-        
-        const int hotbarSlots = 9;
-        for (int i = 0; i < hotbarSlots; i++) {
-            int slotX = ScaledWidth / 2 - hotbarSlots * 19 / 2 + i*19;
-            int slotY = hotbarY + 3;
-            DrawSlot(vb, inv, i, slotX, slotY, 0.96f, _invIconsTexture);
-            if ((inv?.HotbarSlot ?? -1) == i) {
-                DrawTexture(vb, slotX, slotY, 0.94f, 36, 0, 18, 18, 256, _invIconsTexture);
-            }
-        }
     }
     
     private void RenderFps(){

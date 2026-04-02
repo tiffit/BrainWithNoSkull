@@ -26,6 +26,7 @@ public class PlayerController {
     private readonly Keybinding _keybindMoveRight = new Keybinding("Right", new BoundInput(Key.D), KeyContext.FirstPerson, true);
     private readonly Keybinding _keybindMoveForward = new Keybinding("Forward", new BoundInput(Key.W), KeyContext.FirstPerson, true);
     private readonly Keybinding _keybindMoveBackwards = new Keybinding("Backwards", new BoundInput(Key.S), KeyContext.FirstPerson, true);
+    private readonly Keybinding _keybindJump = new Keybinding("Jump", new BoundInput(Key.Space), KeyContext.FirstPerson, true);
     private readonly Keybinding _keybindBreakBlock = new Keybinding("Break Block", new BoundInput(MouseButton.Left), KeyContext.FirstPerson, false);
     private readonly Keybinding _keybindInteract = new Keybinding("Interact", new BoundInput(MouseButton.Right), KeyContext.FirstPerson, false);
     
@@ -103,7 +104,7 @@ public class PlayerController {
             _velocity.Y = MathF.Max(-40, _velocity.Y + -18 * (float)delta);
         }
 
-        if (onGround && _inputHandler.IsKeyDown(Key.Space) && _velocity.Y == 0) {
+        if (onGround && _keybindJump.IsPressed(context, _inputHandler) && _velocity.Y == 0) {
             _velocity = new Vector3D<float>(0, 7, 0);
         }
 
