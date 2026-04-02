@@ -16,24 +16,24 @@ public class FontRenderer {
         _renderEngine = renderEngine;
     }
 
-    public void RenderString(float x, float y, float z, string text, Vector3D<float> color){
+    public void RenderString(float x, float y, float z, string text, uint color){
         Glyph[] glyphs = new Glyph[text.Length];
         FontTextureAtlas fontAtlas = ClientAssetLoader.FontTextureAtlas;
         for (var i = 0; i < text.Length; i++) {
             glyphs[i] = fontAtlas.GetGlyph(text[i]);
         }
-        RenderGlyphs(x, y, z, glyphs, in color);
+        RenderGlyphs(x, y, z, glyphs, color);
     }
 
-    private void RenderGlyphs(float x, float y, float z, Glyph[] glyphs, in Vector3D<float> color){
+    private void RenderGlyphs(float x, float y, float z, Glyph[] glyphs, uint color){
         VertexBuilder vb = _renderEngine.GetVertexBuilder(ShaderType.GuiText);
         foreach (Glyph glyph in glyphs) {
-            RenderGlyph(x * _client.GuiScale, y * _client.GuiScale, z, glyph, vb, in color);
+            RenderGlyph(x * _client.GuiScale, y * _client.GuiScale, z, glyph, vb, color);
             x += (int)glyph.Width + 1;
         }
     }
 
-    private void RenderGlyph(float x, float y, float z, Glyph glyph, VertexBuilder builder, in Vector3D<float> color){
+    private void RenderGlyph(float x, float y, float z, Glyph glyph, VertexBuilder builder, uint color){
         Vector2D<int> windowSize = _client.GameWindow.Size;
         float screenX = (x / windowSize.X)*2 - 1;
         float screenY = (y / windowSize.Y)*2 - 1;

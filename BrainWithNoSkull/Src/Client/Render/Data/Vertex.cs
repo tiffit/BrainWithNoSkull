@@ -5,7 +5,7 @@ namespace BrainWithNoSkull.Client.Render.Data;
 
 public struct Vertex {
     public Vector3D<float> Pos;
-    public Vector3D<float> Color;
+    public uint Color;
     public Vector2D<float> Uv;
     public Vector3D<float> Normal;
     public uint TextureIndex;
@@ -18,9 +18,11 @@ public struct Vertex {
         }
 
         if (vParams.Contains(VertexParam.Color)) {
-            buffer[index++] = Color.X;
-            buffer[index++] = Color.Y;
-            buffer[index++] = Color.Z;
+            unsafe {
+                uint color = Color;
+                uint* ptr = &color;
+                buffer[index++] = *(float*)ptr;
+            }
         }
 
         if (vParams.Contains(VertexParam.Uv)) {

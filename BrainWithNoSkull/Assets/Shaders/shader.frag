@@ -22,7 +22,7 @@ layout (set = 0, binding = 4) uniform ShadowMapData {
     vec3 lightDir;
 } shadowMapData;
 
-layout (location = 0) in vec3 fragColor;
+layout (location = 0) in vec4 fragColor;
 layout (location = 1) in vec2 fragUV;
 layout (location = 2) in vec4 inViewPos;
 layout (location = 3) in vec4 inPos;
@@ -73,7 +73,7 @@ float filterPCF(vec4 sc, uint cascadeIndex)
 }
 
 void main() {
-    vec4 color = texture(texSampler[inTextureIndex], fragUV) * vec4(fragColor, 1);
+    vec4 color = texture(texSampler[inTextureIndex], fragUV) * fragColor;
 
     uint cascadeIndex = 0;
     for (uint i = 0; i < SHADOW_MAP_CASCADE_COUNT - 1; i++) {

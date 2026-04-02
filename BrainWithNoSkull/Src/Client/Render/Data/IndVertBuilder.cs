@@ -7,7 +7,7 @@ public class IndVertBuilder {
     private readonly LinkedList<Vertex> _vertices;
     
     private Vector3D<float> _pos;
-    private Vector3D<float> _color;
+    private uint _color;
     private Vector2D<float> _uv;
     private Vector3D<float> _normal;
 
@@ -16,12 +16,7 @@ public class IndVertBuilder {
         _vertices = vertices;
     }
 
-    public IndVertBuilder Color(float r, float g, float b){
-        _color = new Vector3D<float>(r, g, b);
-        return this;
-    }
-    
-    public IndVertBuilder Color(Vector3D<float> color){
+    public IndVertBuilder Color(uint color){
         _color = color;
         return this;
     }

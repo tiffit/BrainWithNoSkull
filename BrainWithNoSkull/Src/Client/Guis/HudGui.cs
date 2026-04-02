@@ -2,6 +2,7 @@
 using BrainWithNoSkull.Client.Render.Data;
 using BrainWithNoSkull.Client.Render.RenderEngine;
 using BrainWithNoSkull.Client.World;
+using BrainWithNoSkull.Util;
 using BrainWithNoSkull.World.Entities.Player;
 using BrainWithNoSkull.World.ItemStacks;
 using Silk.NET.Maths;
@@ -51,7 +52,7 @@ public class HudGui : Gui {
             if (!ItemStack.IsNull(stack)) {
                 GameClient.Instance.ItemRenderer.RenderItemInGui(vb, stack, slotX + 9, slotY + 9, 0.96f, 40, 40);
                 if (stack.Count > 1) {
-                    Font.RenderString(slotX, slotY, 0.93f, "" + stack.Count, new Vector3D<float>(1f, 0.65f, 0f));
+                    Font.RenderString(slotX, slotY, 0.93f, "" + stack.Count, ColorUtil.FromFloats(1f, 0.65f, 0f));
                 }
                 hasStack = true;
             }
@@ -72,11 +73,11 @@ public class HudGui : Gui {
             int z = (int)player.Position.Z;
             fps = $"{fps} ({x}, {y}, {z})";
         }
-        Font.RenderString(fpsPos - 1, fpsPos, 0.99f, fps, new Vector3D<float>(0, 0, 0));
-        Font.RenderString(fpsPos + 1, fpsPos, 0.99f, fps, new Vector3D<float>(0, 0, 0));
-        Font.RenderString(fpsPos, fpsPos - 1, 0.99f, fps, new Vector3D<float>(0, 0, 0));
-        Font.RenderString(fpsPos, fpsPos + 1, 0.99f, fps, new Vector3D<float>(0, 0, 0));
-        Font.RenderString(fpsPos, fpsPos, 0, fps, new Vector3D<float>(1, 1, 1));
+        Font.RenderString(fpsPos - 1, fpsPos, 0.99f, fps, ColorUtil.FromBytes(0, 0, 0));
+        Font.RenderString(fpsPos + 1, fpsPos, 0.99f, fps, ColorUtil.FromBytes(0, 0, 0));
+        Font.RenderString(fpsPos, fpsPos - 1, 0.99f, fps, ColorUtil.FromBytes(0, 0, 0));
+        Font.RenderString(fpsPos, fpsPos + 1, 0.99f, fps, ColorUtil.FromBytes(0, 0, 0));
+        Font.RenderString(fpsPos, fpsPos, 0, fps, ColorUtil.FromBytes(255, 255, 255));
         
         _frameCount++;
         long nowTime = DateTimeOffset.Now.ToUnixTimeMilliseconds() / 1000;

@@ -61,13 +61,13 @@ public class CubeBlockModel : UnbakedBlockModel {
         in Vector2D<float> uv1, in Vector2D<float> uv2, in Vector2D<float> uv3, in Vector2D<float> uv4, in Vector3D<float> normal, uint texIndex){
         
         List<Vertex> list =[
-            new Vertex{ Pos = p1, Color = Vector3D<float>.One, Normal = normal, Uv = uv1, TextureIndex = texIndex },
-            new Vertex{ Pos = p3, Color = Vector3D<float>.One, Normal = normal, Uv = uv3, TextureIndex = texIndex },
-            new Vertex{ Pos = p4, Color = Vector3D<float>.One, Normal = normal, Uv = uv4, TextureIndex = texIndex },
+            new Vertex{ Pos = p1, Color = 0xff_ff_ff_ff, Normal = normal, Uv = uv1, TextureIndex = texIndex },
+            new Vertex{ Pos = p3, Color = 0xff_ff_ff_ff, Normal = normal, Uv = uv3, TextureIndex = texIndex },
+            new Vertex{ Pos = p4, Color = 0xff_ff_ff_ff, Normal = normal, Uv = uv4, TextureIndex = texIndex },
 
-            new Vertex{ Pos = p1, Color = Vector3D<float>.One, Normal = normal, Uv = uv1, TextureIndex = texIndex },
-            new Vertex{ Pos = p2, Color = Vector3D<float>.One, Normal = normal, Uv = uv2, TextureIndex = texIndex },
-            new Vertex{ Pos = p3, Color = Vector3D<float>.One, Normal = normal, Uv = uv3, TextureIndex = texIndex }
+            new Vertex{ Pos = p1, Color = 0xff_ff_ff_ff, Normal = normal, Uv = uv1, TextureIndex = texIndex },
+            new Vertex{ Pos = p2, Color = 0xff_ff_ff_ff, Normal = normal, Uv = uv2, TextureIndex = texIndex },
+            new Vertex{ Pos = p3, Color = 0xff_ff_ff_ff, Normal = normal, Uv = uv3, TextureIndex = texIndex }
         ];
 
         return list;

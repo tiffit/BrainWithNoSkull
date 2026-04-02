@@ -220,7 +220,7 @@ public class GameClient {
         Vector3D<float> p101 = new Vector3D<float>(p111.X, p000.Y, p111.Z);
         Vector3D<float> p110 = new Vector3D<float>(p111.X, p111.Y, p000.Z);
 
-        Vector3D<float> color = new Vector3D<float>(0.8f, 0.8f, 0.8f);
+        uint color = ColorUtil.FromFloats(0.8f, 0.8f, 0.8f);
 
         VertexBuilder builder = RenderEngine.GetVertexBuilder(ShaderType.Lines);
         builder.Add(new Vertex{ Pos = p000, Color = color });

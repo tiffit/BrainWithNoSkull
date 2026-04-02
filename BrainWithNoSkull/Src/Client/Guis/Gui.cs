@@ -35,42 +35,42 @@ public abstract class Gui {
         
         vb.Add(new Vertex{
             Pos = new Vector3D<float>(posMin, z),
-            Color = Vector3D<float>.One,
+            Color = 0xff_ff_ff_ff,
             TextureIndex = textureIndex,
             Uv = new Vector2D<float>(u0, v0)
         });
         
         vb.Add(new Vertex{
             Pos = new Vector3D<float>(posMax.X, posMin.Y, z),
-            Color = Vector3D<float>.One,
+            Color = 0xff_ff_ff_ff,
             TextureIndex = textureIndex,
             Uv = new Vector2D<float>(u1, v0)
         });
         
         vb.Add(new Vertex{
             Pos = new Vector3D<float>(posMax, z),
-            Color = Vector3D<float>.One,
+            Color = 0xff_ff_ff_ff,
             TextureIndex = textureIndex,
             Uv = new Vector2D<float>(u1, v1)
         });
         
         vb.Add(new Vertex{
             Pos = new Vector3D<float>(posMax, z),
-            Color = Vector3D<float>.One,
+            Color = 0xff_ff_ff_ff,
             TextureIndex = textureIndex,
             Uv = new Vector2D<float>(u1, v1)
         });
         
         vb.Add(new Vertex{
             Pos = new Vector3D<float>(posMin.X, posMax.Y, z),
-            Color = Vector3D<float>.One,
+            Color = 0xff_ff_ff_ff,
             TextureIndex = textureIndex,
             Uv = new Vector2D<float>(u0, v1)
         });
         
         vb.Add(new Vertex{
             Pos = new Vector3D<float>(posMin, z),
-            Color = Vector3D<float>.One,
+            Color = 0xff_ff_ff_ff,
             TextureIndex = textureIndex,
             Uv = new Vector2D<float>(u0, v0)
         });
