@@ -40,8 +40,8 @@ public class InventoryWidget: GroupingWidget {
         }
     }
 
-    public override void Render(VertexBuilder guiVb, Gui parent){
-        base.Render(guiVb, parent);
+    public override void Render(VertexBuilder guiVb, Gui parent, int mouseX, int mouseY){
+        base.Render(guiVb, parent, mouseX, mouseY);
         
         parent.DrawTexture(guiVb, _hotbarX, _hotbarY, Z, 0, 18, HotbarWidth, HotbarHeight, 256, _invIconsTexture);
 

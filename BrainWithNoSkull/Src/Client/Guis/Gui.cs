@@ -30,14 +30,18 @@ public abstract class Gui {
     }
 
     public void RenderBase(VertexBuilder guiVb){
+        Vector2D<float> mousePos = GameClient.Instance.InputHandler.MousePosition;
+        int mouseX = (int)(mousePos.X / GameClient.Instance.GuiScale);
+        int mouseY = (int)(mousePos.Y / GameClient.Instance.GuiScale);
+        
         foreach (Widget widget in Widgets) {
-            widget.Render(guiVb, this);
+            widget.Render(guiVb, this, mouseX, mouseY);
         }
         
-        Render(guiVb);
+        Render(guiVb, mouseX, mouseY);
     }
     
-    public abstract void Render(VertexBuilder guiVb);
+    public abstract void Render(VertexBuilder guiVb, int mouseX, int mouseY);
 
     public void DrawTexture(VertexBuilder vb, float x, float y, int u, int v, int width, int height, int textureSize, uint textureIndex){
         DrawTexture(vb, x, y, 0, u, v, width, height, textureSize, textureIndex);

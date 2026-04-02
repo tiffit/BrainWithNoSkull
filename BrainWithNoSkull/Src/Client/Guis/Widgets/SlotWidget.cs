@@ -20,7 +20,7 @@ public class SlotWidget: Widget {
         _hotbar = container is PlayerInventory && slot < 9;
     }
 
-    public override void Render(VertexBuilder guiVb, Gui parent){
+    public override void Render(VertexBuilder guiVb, Gui parent, int mouseX, int mouseY){
         ItemStack? stack = _container?.GetItem(_slot);
         bool hasStack = false;
         if (!ItemStack.IsNull(stack)) {

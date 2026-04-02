@@ -9,7 +9,7 @@ public class InputHandler {
     private readonly GameClient _client;
     private readonly IInputContext _context;
 
-    private Vector2D<float> _mousePosition;
+    public Vector2D<float> MousePosition;
     private Vector2D<float>? _previousMousePositon;
 
     private readonly HashSet<Key> _pressedKeys = [];
@@ -34,8 +34,8 @@ public class InputHandler {
     }
 
     private void OnMouseMove(IMouse mouse, Vector2 amount){
-        _mousePosition = amount.ToGeneric();
-        _previousMousePositon ??= _mousePosition;
+        MousePosition = amount.ToGeneric();
+        _previousMousePositon ??= MousePosition;
     }
     
     private void OnMouseDown(IMouse mouse, MouseButton btn){
@@ -52,8 +52,8 @@ public class InputHandler {
     }
 
     public void Tick(double delta, out Vector2D<float> mouseMovement){
-        mouseMovement = _mousePosition - (_previousMousePositon ?? _mousePosition);
-        _previousMousePositon = _mousePosition;
+        mouseMovement = MousePosition - (_previousMousePositon ?? MousePosition);
+        _previousMousePositon = MousePosition;
     }
 
     public void Reset(){
@@ -78,7 +78,7 @@ public class InputHandler {
             Vector2D<float> mousePos = (Vector2D<float>)_client.GameWindow.Size / 2;
             mouse.Position = mousePos.ToSystem();
             mouse.Cursor.CursorMode = mode;
-            _mousePosition = mousePos;
+            MousePosition = mousePos;
             _previousMousePositon = mousePos;
         }
     }

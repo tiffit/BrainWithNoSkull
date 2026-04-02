@@ -26,9 +26,9 @@ public class GameClient {
     public IRenderEngine RenderEngine{ get; private set; } = null!;
     public IWindow GameWindow{ get; private set; } = null!;
 
-    private InputHandler _inputHandler = null!;
+    public InputHandler InputHandler = null!;
     private Camera _camera = null!;
-    private LightData _lightData = new LightData();
+    private readonly LightData _lightData = new LightData();
     private PlayerController? _playerController;
 
     private LocalGameServer _server;
@@ -104,7 +104,7 @@ public class GameClient {
 
     private void OnWindowLoad(){
         IInputContext ctx = GameWindow.CreateInput();
-        _inputHandler = new InputHandler(this, ctx);
+        InputHandler = new InputHandler(this, ctx);
     }
 
     private void OnWindowResize(Vector2D<int> newSize){
@@ -156,15 +156,15 @@ public class GameClient {
     public void SetGui(Gui? gui){
         Gui = gui;
         if (gui == null) {
-            _inputHandler.SetCursorMode(CursorMode.Disabled);
+            InputHandler.SetCursorMode(CursorMode.Disabled);
         }else {
             gui.Init(RenderEngine, FontRenderer, ScaledWindowSize.X, ScaledWindowSize.Y);
-            _inputHandler.SetCursorMode(CursorMode.Normal);
+            InputHandler.SetCursorMode(CursorMode.Normal);
         }
     }
 
     public void CreatePlayerController(ClientPlayerEntity player){
-        _playerController = new PlayerController(this, player, _inputHandler);
+        _playerController = new PlayerController(this, player, InputHandler);
     }
 
     public Vector2D<float> GetScreenPos(float x, float y){

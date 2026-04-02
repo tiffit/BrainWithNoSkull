@@ -4,7 +4,7 @@ namespace BrainWithNoSkull.Client.Guis;
 
 public class PauseGui: Gui {
     
-    public override void Render(VertexBuilder guiVb){
+    public override void Render(VertexBuilder guiVb, int mouseX, int mouseY){
     }
 
     public override bool PausesGame(){

@@ -15,9 +15,9 @@ public class GroupingWidget: Widget {
         _widgets.Add(widget);
     }
 
-    public override void Render(VertexBuilder guiVb, Gui parent){
+    public override void Render(VertexBuilder guiVb, Gui parent, int mouseX, int mouseY){
         foreach (Widget widget in _widgets) {
-            widget.Render(guiVb, parent);
+            widget.Render(guiVb, parent, mouseX, mouseY);
         }
     }
 }

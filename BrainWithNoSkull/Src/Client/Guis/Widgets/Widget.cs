@@ -18,5 +18,5 @@ public abstract class Widget {
         Height = height;
     }
 
-    public abstract void Render(VertexBuilder guiVb, Gui parent);
+    public abstract void Render(VertexBuilder guiVb, Gui parent, int mouseX, int mouseY);
 }

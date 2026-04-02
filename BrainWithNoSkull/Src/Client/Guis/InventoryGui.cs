@@ -24,7 +24,7 @@ public class InventoryGui: Gui {
 
     }
     
-    public override void Render(VertexBuilder guiVb){
+    public override void Render(VertexBuilder guiVb, int mouseX, int mouseY){
     }
     
 }

@@ -25,7 +25,7 @@ public class HudGui : Gui {
         Widgets.Add(new InventoryWidget(0.99f, scaledWidth, scaledHeight, inv, true));
     }
 
-    public override void Render(VertexBuilder guiVb){
+    public override void Render(VertexBuilder guiVb, int mouseX, int mouseY){
         RenderFps();
         RenderCrosshair(guiVb);
     }
