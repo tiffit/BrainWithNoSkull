@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using BrainWithNoSkull.Client.Guis;
+using BrainWithNoSkull.Client.Input;
 using BrainWithNoSkull.Client.Net;
 using BrainWithNoSkull.Client.Render;
 using BrainWithNoSkull.Client.Render.Data;

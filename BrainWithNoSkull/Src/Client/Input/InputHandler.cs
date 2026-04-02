@@ -2,7 +2,7 @@
 using Silk.NET.Input;
 using Silk.NET.Maths;
 
-namespace BrainWithNoSkull.Client;
+namespace BrainWithNoSkull.Client.Input;
 
 public class InputHandler {
 
@@ -12,9 +12,9 @@ public class InputHandler {
     private Vector2D<float> _mousePosition;
     private Vector2D<float>? _previousMousePositon;
 
-    public readonly HashSet<Key> _pressedKeys = [];
-    public readonly HashSet<MouseButton> _mouseDownThisFrame = [];
-    public readonly HashSet<Key> _keysDownThisFrame = [];
+    private readonly HashSet<Key> _pressedKeys = [];
+    private readonly HashSet<MouseButton> _mouseDownThisFrame = [];
+    private readonly HashSet<Key> _keysDownThisFrame = [];
     
     public InputHandler(GameClient client, IInputContext context){
         _client = client;
