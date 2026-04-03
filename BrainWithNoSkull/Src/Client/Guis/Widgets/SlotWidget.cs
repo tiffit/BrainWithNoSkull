@@ -25,20 +25,39 @@ public class SlotWidget: Widget {
         ItemStack? stack = _container?.GetItem(_slot);
         bool hasStack = false;
         if (!ItemStack.IsNull(stack)) {
-            GameClient.Instance.ItemRenderer.RenderItemInGui(guiVb, stack, X + 9, Y+ 9, Z - 0.01f, 40, 40);
-            if (stack.Count > 1) {
-                Parent.Font.RenderString(X, Y, Z - 0.03f, "" + stack.Count, ColorUtil.FromFloats(1f, 0.65f, 0f));
+            if (IsHeldStack()) {
+                DrawDashedLine(mouseX, mouseY);
+                GameClient.Instance.ItemRenderer.RenderItemInGui(guiVb, stack, mouseX, mouseY, 0.1f, 40, 40);
+                if (stack.Count > 1) {
+                    Parent.Font.RenderString(mouseX - 9, mouseY - 9, 0.1f - 0.03f, "" + stack.Count, ColorUtil.FromFloats(1f, 0.65f, 0f));
+                }
+            }
+            else {
+                GameClient.Instance.ItemRenderer.RenderItemInGui(guiVb, stack, X + 9, Y+ 9, Z - 0.01f, 40, 40);
+                if (stack.Count > 1) {
+                    Parent.Font.RenderString(X, Y, Z - 0.03f, "" + stack.Count, ColorUtil.FromFloats(1f, 0.65f, 0f));
+                }
             }
             hasStack = true;
         }
-        Parent.DrawTexture(guiVb, X, Y, Z, hasStack ? 0 : 18, 0, 18, 18, 256, _invIconsTexture);
+        Parent.GuiRenderer.DrawTexture(guiVb, X, Y, Z, hasStack ? 0 : 18, 0, 18, 18, 256, _invIconsTexture);
         if (_hotbar && ((_container as PlayerInventory)?.HotbarSlot ?? -1) == _slot) {
-            Parent.DrawTexture(guiVb, X, Y, Z - 0.02f, 36, 0, 18, 18, 256, _invIconsTexture);
+            Parent.GuiRenderer.DrawTexture(guiVb, X, Y, Z - 0.02f, 36, 0, 18, 18, 256, _invIconsTexture);
         }
     }
 
     public override bool OnMouseDown(MouseButton btn, int relX, int relY){
-        Console.WriteLine(_slot);
+        if (_container != null) {
+            Parent.OnSlotClicked(_slot, _container);
+        }
         return true;
+    }
+
+    private bool IsHeldStack(){
+        return _container != null && Parent.HeldStackContainer == _container && Parent.HeldStackIndex == _slot;
+    }
+
+    private void DrawDashedLine(int mouseX, int mouseY){
+        Parent.GuiRenderer.DrawLine(X + Width/2f, Y + Height/2f, mouseX, mouseY, 0.11f, 5, 0xff_ff_ff_ff);
     }
 }

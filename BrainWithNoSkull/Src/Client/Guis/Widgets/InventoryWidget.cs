@@ -43,22 +43,22 @@ public class InventoryWidget: GroupingWidget {
     public override void Render(VertexBuilder guiVb, int mouseX, int mouseY){
         base.Render(guiVb, mouseX, mouseY);
         
-        Parent.DrawTexture(guiVb, _hotbarX, _hotbarY, Z, 0, 18, HotbarWidth, HotbarHeight, 256, _invIconsTexture);
+        Parent.GuiRenderer.DrawTexture(guiVb, _hotbarX, _hotbarY, Z, 0, 18, HotbarWidth, HotbarHeight, 256, _invIconsTexture);
 
         if (!_hud && _inv != null) {
             int invRows = (_inv.InventorySize - 9) / 9;
             //bottom
-            Parent.DrawTexture(guiVb, _invX, _invYBottom - 1, 0.99f, 0, 39, HotbarWidth, 3, 256, _invIconsTexture);
+            Parent.GuiRenderer.DrawTexture(guiVb, _invX, _invYBottom - 1, 0.99f, 0, 39, HotbarWidth, 3, 256, _invIconsTexture);
             //middle
             for (int i = 0; i < invRows; i++) {
                 int y = _invYBottom - (i + 1) * 19;
-                Parent.DrawTexture(guiVb, _invX, y, 0.99f, 0, 21, HotbarWidth, 18, 256, _invIconsTexture);
+                Parent.GuiRenderer.DrawTexture(guiVb, _invX, y, 0.99f, 0, 21, HotbarWidth, 18, 256, _invIconsTexture);
                 if (i != 0) {
-                    Parent.DrawTexture(guiVb, _invX, y + 18, 0.99f, 0, 21, HotbarWidth, 1, 256, _invIconsTexture);
+                    Parent.GuiRenderer.DrawTexture(guiVb, _invX, y + 18, 0.99f, 0, 21, HotbarWidth, 1, 256, _invIconsTexture);
                 }
             }
             //top
-            Parent.DrawTexture(guiVb, _invX, _invYBottom - invRows*19 - 3, 0.99f, 0, 18, HotbarWidth, 3, 256, _invIconsTexture);
+            Parent.GuiRenderer.DrawTexture(guiVb, _invX, _invYBottom - invRows*19 - 3, 0.99f, 0, 18, HotbarWidth, 3, 256, _invIconsTexture);
         }
     }
 }

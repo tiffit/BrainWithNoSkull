@@ -33,7 +33,7 @@ public class HudGui : Gui {
     private void RenderCrosshair(VertexBuilder vb){
         float crosshairX = (ScaledWidth / 2) - 1f;
         float crosshairY = (ScaledHeight / 2) - 1f;
-        DrawTexture(vb, crosshairX, crosshairY, 0.99f, 54, 0, 3, 3, 256, _invIconsTexture);
+        GuiRenderer.DrawTexture(vb, crosshairX, crosshairY, 0.99f, 54, 0, 3, 3, 256, _invIconsTexture);
     }
     
     private void RenderFps(){
