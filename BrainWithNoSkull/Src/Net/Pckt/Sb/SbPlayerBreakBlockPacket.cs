@@ -33,7 +33,8 @@ public class SbPlayerBreakBlockPacket : IPacket {
 
         if (player?.World != null) {
             Block currentBlock = player.World.GetBlock(BlockPos);
-            player.Inventory.AddItem(new ItemStack(ItemRegistry.BlockItems[currentBlock], 1));
+            ItemStack? stack = new ItemStack(ItemRegistry.BlockItems[currentBlock], 1);
+            player.Inventory.AddItem(ref stack);
             player.World.SetBlock(BlockPos, BlockRegistry.Air);
         }
     }

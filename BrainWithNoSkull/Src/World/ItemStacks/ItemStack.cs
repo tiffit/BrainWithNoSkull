@@ -35,4 +35,10 @@ public class ItemStack {
         return stack == null || stack.Count == 0 || stack.Item == ItemRegistry.BlockItems[BlockRegistry.Air];
     }
 
+    public static bool CanCombine(ItemStack? stack1, ItemStack? stack2){
+        if (IsNull(stack1) || IsNull(stack2))
+            return true;
+        return stack1.Item == stack2.Item;
+    }
+
 }

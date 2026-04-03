@@ -7,4 +7,30 @@ public interface IItemContainer {
     public ItemStack? GetItem(int slot);
 
     public int GetInventorySize();
+
+    public void SetItemInSlot(ItemStack? stack, int slot);
+
+    public bool CombineStacks(int slot, ref ItemStack? other, bool swap){
+        if (ItemStack.IsNull(other))
+            return false;
+        
+        ItemStack? current = GetItem(slot);
+        if (ItemStack.CanCombine(current, other)) {
+            if (!ItemStack.IsNull(current)) {
+                current.Count += other.Count;
+                other = null;
+            }
+            else {
+                SetItemInSlot(other.Clone(), slot);
+                other = null;
+            }
+            return true;
+        }
+
+        if (swap) {
+            SetItemInSlot(other.Clone(), slot);
+            other = current;
+        }
+        return true;
+    }
 }

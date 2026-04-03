@@ -1,9 +1,8 @@
-﻿using System.ComponentModel;
-using BrainWithNoSkull.Client.Guis.Widgets;
+﻿using BrainWithNoSkull.Client.Guis.Widgets;
 using BrainWithNoSkull.Client.Render;
 using BrainWithNoSkull.Client.Render.Data;
 using BrainWithNoSkull.Client.Render.RenderEngine;
-using BrainWithNoSkull.Util;
+using BrainWithNoSkull.Net.Pckt.Sb;
 using BrainWithNoSkull.World;
 using BrainWithNoSkull.World.ItemStacks;
 using Silk.NET.Input;
@@ -69,9 +68,22 @@ public abstract class Gui {
 
     public void OnSlotClicked(int slot, IItemContainer container){
         ItemStack? stack = container.GetItem(slot);
-        bool hasItemInSlot = !ItemStack.IsNull(stack);
-        bool hasItemOnCursor = HeldStackContainer != null;
-        if (hasItemInSlot && !hasItemOnCursor) {
+
+        if (HeldStackContainer != null) {
+            if (container == HeldStackContainer && slot == HeldStackIndex) {
+                HeldStackContainer = null;
+                return;
+            }
+            ItemStack? cursorStack = GetCursorStack();
+            container.CombineStacks(slot, ref cursorStack, true);
+            HeldStackContainer.SetItemInSlot(cursorStack, HeldStackIndex);
+            
+            GameClient.Instance.ServerConnection.SendPacket(new SbMoveInventoryItemsPacket(0, HeldStackIndex, 0, slot));
+            
+            if (ItemStack.IsNull(cursorStack)) {
+                HeldStackContainer = null;
+            }
+        }else if (!ItemStack.IsNull(stack)) {
             HeldStackContainer = container;
             HeldStackIndex = slot;
         }

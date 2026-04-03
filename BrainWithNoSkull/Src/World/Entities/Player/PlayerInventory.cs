@@ -16,28 +16,19 @@ public class PlayerInventory: IItemContainer {
         }
     }
 
-    public void AddItem(ItemStack stack){
-        for (int i = 0; i < InventorySize; i++) {
-            AddItemToSlot(stack, i);
-            if (stack.Count == 0) {
-                return;
+    public void AddItem(ref ItemStack? stack){
+        for (int a = 0; a < 2; a++) {
+            for (int i = 0; i < InventorySize; i++) {
+                if (a == 1 || !ItemStack.IsNull(GetItem(i))) {
+                    if ((this as IItemContainer).CombineStacks(i, ref stack, false)) {
+                        DirtySlots.Add(i);
+                    }
+                    if (ItemStack.IsNull(stack)) {
+                        stack = null;
+                        return;
+                    }
+                }
             }
-        }
-    }
-
-    public void AddItemToSlot(ItemStack stack, int slot){
-        ItemStack? current = Items[slot];
-        if (ItemStack.IsNull(current)) {
-            Items[slot] = stack.Clone();
-            stack.Count = 0;
-            DirtySlots.Add(slot);
-            return;
-        }
-
-        if (stack.Item == current.Item) {
-            current.Count += stack.Count;
-            stack.Count = 0;
-            DirtySlots.Add(slot);
         }
     }
 
