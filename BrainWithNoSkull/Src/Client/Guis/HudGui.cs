@@ -22,7 +22,7 @@ public class HudGui : Gui {
         base.Init(renderEngine, font, scaledWidth, scaledHeight);
         _invIconsTexture = ClientAssetLoader.BlockTextureAtlas.LookupGui("Inv_Icons");
         PlayerInventory? inv = GameClient.Instance.ServerConnection.PlayerEntity?.Inventory;
-        Widgets.Add(new InventoryWidget(0.99f, scaledWidth, scaledHeight, inv, true));
+        Widgets.Add(new InventoryWidget(0.99f, scaledWidth, scaledHeight, this, inv, true));
     }
 
     public override void Render(VertexBuilder guiVb, int mouseX, int mouseY){

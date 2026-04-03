@@ -20,7 +20,7 @@ public class InventoryGui: Gui {
         _player = GameClient.Instance.ServerConnection.PlayerEntity;
         _inventory = _player?.Inventory;
 
-        Widgets.Add(new InventoryWidget(0.8f, scaledWidth, scaledHeight, _inventory, false));
+        Widgets.Add(new InventoryWidget(0.8f, scaledWidth, scaledHeight, this, _inventory, false));
 
     }
     

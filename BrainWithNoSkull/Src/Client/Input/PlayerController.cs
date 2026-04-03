@@ -54,6 +54,10 @@ public class PlayerController {
         KeyContext context = _client.Gui == null ? KeyContext.FirstPerson : KeyContext.Gui;
         if (context == KeyContext.Gui) {
             mouseMovement = new Vector2D<float>();
+            Gui gui = _client.Gui!;
+            foreach (MouseButton btn in _inputHandler.MouseDownThisFrame) {
+                gui.HandleMouseButtonInput(btn, true);
+            }
         }
 
         if (!_hasMouseMoved && mouseMovement.Equals(Vector2D<float>.Zero)) {

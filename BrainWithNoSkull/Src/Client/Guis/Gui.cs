@@ -6,6 +6,7 @@ using BrainWithNoSkull.Client.Render.RenderEngine;
 using BrainWithNoSkull.Util;
 using BrainWithNoSkull.World;
 using BrainWithNoSkull.World.ItemStacks;
+using Silk.NET.Input;
 using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.Client.Guis;
@@ -30,12 +31,10 @@ public abstract class Gui {
     }
 
     public void RenderBase(VertexBuilder guiVb){
-        Vector2D<float> mousePos = GameClient.Instance.InputHandler.MousePosition;
-        int mouseX = (int)(mousePos.X / GameClient.Instance.GuiScale);
-        int mouseY = (int)(mousePos.Y / GameClient.Instance.GuiScale);
+        GetScaledMousePos(out int mouseX, out int mouseY);
         
         foreach (Widget widget in Widgets) {
-            widget.Render(guiVb, this, mouseX, mouseY);
+            widget.Render(guiVb, mouseX, mouseY);
         }
         
         Render(guiVb, mouseX, mouseY);
@@ -103,4 +102,22 @@ public abstract class Gui {
         return false;
     }
 
+    public void HandleMouseButtonInput(MouseButton btn, bool down){
+        GetScaledMousePos(out int mouseX, out int mouseY);
+        OnMouseDown(btn, mouseX, mouseY);
+        foreach (Widget widget in Widgets) {
+            if (widget.IsWithin(mouseX, mouseY)) {
+                widget.OnMouseDown(btn, mouseX - widget.X, mouseY - widget.Y);
+            }
+        }
+    }
+
+    protected virtual void OnMouseDown(MouseButton btn, int mouseX, int mouseY){}
+
+    private static void GetScaledMousePos(out int mouseX, out int mouseY){
+        Vector2D<float> mousePos = GameClient.Instance.InputHandler.MousePosition;
+        mouseX = (int)(mousePos.X / GameClient.Instance.GuiScale);
+        mouseY = (int)(mousePos.Y / GameClient.Instance.GuiScale);
+    }
+    
 }

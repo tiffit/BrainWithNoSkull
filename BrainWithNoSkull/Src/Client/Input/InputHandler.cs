@@ -12,9 +12,9 @@ public class InputHandler {
     public Vector2D<float> MousePosition;
     private Vector2D<float>? _previousMousePositon;
 
-    private readonly HashSet<Key> _pressedKeys = [];
-    private readonly HashSet<MouseButton> _mouseDownThisFrame = [];
-    private readonly HashSet<Key> _keysDownThisFrame = [];
+    public readonly HashSet<Key> PressedKeys = [];
+    public readonly HashSet<MouseButton> MouseDownThisFrame = [];
+    public readonly HashSet<Key> KeysDownThisFrame = [];
     
     public InputHandler(GameClient client, IInputContext context){
         _client = client;
@@ -39,16 +39,16 @@ public class InputHandler {
     }
     
     private void OnMouseDown(IMouse mouse, MouseButton btn){
-        _mouseDownThisFrame.Add(btn);
+        MouseDownThisFrame.Add(btn);
     }
     
     private void OnKeyDown(IKeyboard keyboard, Key key, int scanCode){
-        _pressedKeys.Add(key);
-        _keysDownThisFrame.Add(key);
+        PressedKeys.Add(key);
+        KeysDownThisFrame.Add(key);
     }
     
     private void OnKeyUp(IKeyboard keyboard, Key key, int scanCode){
-        _pressedKeys.Remove(key);
+        PressedKeys.Remove(key);
     }
 
     public void Tick(double delta, out Vector2D<float> mouseMovement){
@@ -57,20 +57,20 @@ public class InputHandler {
     }
 
     public void Reset(){
-        _mouseDownThisFrame.Clear();
-        _keysDownThisFrame.Clear();
+        MouseDownThisFrame.Clear();
+        KeysDownThisFrame.Clear();
     }
 
     public bool IsKeyDown(Key key){
-        return _pressedKeys.Contains(key);
+        return PressedKeys.Contains(key);
     }
 
     public bool IsButtonPressedThisFrame(MouseButton btn){
-        return _mouseDownThisFrame.Contains(btn);
+        return MouseDownThisFrame.Contains(btn);
     }
     
     public bool IsKeyPressedThisFrame(Key key){
-        return _keysDownThisFrame.Contains(key);
+        return KeysDownThisFrame.Contains(key);
     }
 
     public void SetCursorMode(CursorMode mode){
