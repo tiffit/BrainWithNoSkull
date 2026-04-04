@@ -26,4 +26,16 @@ public class MatrixStack {
     public void Translate(float x, float y, float z){
         _stack.Last!.Value *= Matrix4X4.CreateTranslation(x, y, z);
     }
+    
+    public void Scale(float scale){
+        Scale(scale, scale, scale);
+    }
+    
+    public void Scale(float x, float y, float z){
+        _stack.Last!.Value *= Matrix4X4.CreateScale(x, y, z);
+    }
+    
+    public void Rotate(Quaternion<float> quat){
+        _stack.Last!.Value *= Matrix4X4.CreateFromQuaternion(quat);
+    }
 }

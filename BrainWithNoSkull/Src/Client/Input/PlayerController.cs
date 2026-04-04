@@ -154,7 +154,7 @@ public class PlayerController {
         }
 
         if (_keybindBreakBlock.IsPressed(context, _inputHandler)) {
-            if (_client.BlockRayResult != null) {
+            if (_client.BlockRayResult != null && !_player.BlockBreakPause) {
                 Vector3D<int> blockPos = _client.BlockRayResult.Value.Pos;
                 if (_player.BlockBreakPosition == null || _player.BlockBreakPosition != blockPos) {
                     _player.BlockBreakPosition = blockPos;
@@ -164,8 +164,12 @@ public class PlayerController {
                 if (_player.BlockBreakTime >= world!.GetBlock(blockPos).BreakTime) {
                     _client.TickActions.Enqueue(() => {
                         _player.World?.SetBlock(blockPos, BlockRegistry.Air);
+                        _player.BlockBreakPause = false;
                     });
                     _player.ServerConnection.SendPacket(new SbPlayerBreakBlockPacket(blockPos));
+                    _player.BlockBreakPosition = null;
+                    _player.BlockBreakTime = 0;
+                    _player.BlockBreakPause = true;
                 }
             }
         }

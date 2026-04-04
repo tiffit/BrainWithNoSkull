@@ -41,4 +41,7 @@ public class ItemStack {
         return stack1.Item == stack2.Item;
     }
 
+    public override string ToString(){
+        return $"Stack({Item}x{Count})";
+    }
 }

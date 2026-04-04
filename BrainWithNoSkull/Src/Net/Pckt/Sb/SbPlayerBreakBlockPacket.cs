@@ -1,5 +1,6 @@
 ﻿using BrainWithNoSkull.Registries;
 using BrainWithNoSkull.World.Blocks;
+using BrainWithNoSkull.World.Entities;
 using BrainWithNoSkull.World.Entities.Player;
 using BrainWithNoSkull.World.ItemStacks;
 using Silk.NET.Maths;
@@ -33,9 +34,13 @@ public class SbPlayerBreakBlockPacket : IPacket {
 
         if (player?.World != null) {
             Block currentBlock = player.World.GetBlock(BlockPos);
-            ItemStack? stack = new ItemStack(ItemRegistry.BlockItems[currentBlock], 1);
-            player.Inventory.AddItem(ref stack);
+            ItemStack stack = new ItemStack(ItemRegistry.BlockItems[currentBlock], 1);
             player.World.SetBlock(BlockPos, BlockRegistry.Air);
+
+            if (!ItemStack.IsNull(stack)) {
+                ItemStackEntity entity = new ItemStackEntity(player.World){Stack = stack};
+                player.World.AddEntity(entity, new Vector3D<float>(BlockPos.X + 0.5f, BlockPos.Y + 0.5f, BlockPos.Z + 0.5f));
+            }
         }
     }
 }

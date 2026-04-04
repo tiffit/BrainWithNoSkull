@@ -9,6 +9,7 @@ public class ClientPlayerEntity : PlayerEntity {
 
     public float BlockBreakTime;
     public Vector3D<int>? BlockBreakPosition;
+    public bool BlockBreakPause = false;
     
     public ServerConnectionBase ServerConnection{ get; private set; }
     

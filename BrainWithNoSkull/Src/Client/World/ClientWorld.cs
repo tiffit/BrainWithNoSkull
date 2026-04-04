@@ -1,9 +1,14 @@
-﻿using BrainWithNoSkull.Net;
+﻿using BrainWithNoSkull.Client.Render.Data;
+using BrainWithNoSkull.Client.Render.Entities;
+using BrainWithNoSkull.Client.Render.RenderEngine;
+using BrainWithNoSkull.Client.Render.Shader;
+using BrainWithNoSkull.Net;
 using BrainWithNoSkull.Net.Pckt.Cb;
 using BrainWithNoSkull.Net.Pckt.Sb;
 using BrainWithNoSkull.Util;
 using BrainWithNoSkull.World;
 using BrainWithNoSkull.World.Blocks;
+using BrainWithNoSkull.World.Entities;
 using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.Client.World;
@@ -17,15 +22,15 @@ public class ClientWorld : WorldBase {
     private Vector2D<int>? _playerChunk;
     private bool _newChunkLoaded = false;
 
-    private PriorityQueue<Vector2D<int>, int> _chunkMeshQueue = new PriorityQueue<Vector2D<int>, int>();
-    private HashSet<Vector3D<int>> _chunkMeshRebuilds = [];
+    private readonly PriorityQueue<Vector2D<int>, int> _chunkMeshQueue = new PriorityQueue<Vector2D<int>, int>();
+    private readonly HashSet<Vector3D<int>> _chunkMeshRebuilds = [];
 
     public ClientWorld(GameClient client, ServerConnectionBase serverConnection, WorldSettings settings) : base(settings, false){
         _gameClient = client;
         _serverConnection = serverConnection;
     }
 
-    public void Render(double delta){
+    public void Render(double delta, Camera camera){
         ClientPlayerEntity? player = _serverConnection.PlayerEntity;
         if (player?.Chunk != null) {
             if (_newChunkLoaded || _playerChunk != player.Chunk.Coords) {
@@ -66,6 +71,21 @@ public class ClientWorld : WorldBase {
             
             if (_chunkMeshQueue.TryDequeue(out Vector2D<int> generateCoords, out int _)) {
                 TryGenerateMesh(generateCoords);
+            }
+            
+            //Entity rendering
+            foreach (Vector2D<int> chunkCoords in _chunkMeshes.Keys) {
+                Chunk? chunk = Chunks.GetChunk(chunkCoords);
+                if (chunk != null) {
+                    VertexBuilder vb = GameClient.Instance.RenderEngine.GetVertexBuilder(ShaderType.WorldEntity);
+                    foreach (Entity entity in chunk.GetEntities()) {
+                        IEntityRenderer? renderer = EntityRendererRegistry.GetRenderer<Entity>(entity.Type);
+                        if (renderer != null && (camera.Frustum?.IsBoxInside(entity.GetBoundingBox()) ?? false)) {
+                            MatrixStack ms = new MatrixStack();
+                            renderer.Render(entity, ms, vb);
+                        }
+                    }
+                }
             }
         }
     }

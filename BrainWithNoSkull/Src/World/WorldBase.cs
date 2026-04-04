@@ -24,7 +24,7 @@ public class WorldBase {
         Chunks = new ChunkStorage(this);
     }
 
-    public void AddEntity(Entity entity, Vector3D<float> position){
+    public virtual void AddEntity(Entity entity, Vector3D<float> position){
         Chunk chunk = GetChunk(ChunkUtils.ToChunkCoords(position))!;
         chunk.AddEntity(entity);
         entity.SetPosition(position);

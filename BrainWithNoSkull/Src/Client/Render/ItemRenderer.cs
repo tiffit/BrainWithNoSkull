@@ -37,4 +37,16 @@ public class ItemRenderer {
             });
         }
     }
+    
+    public void RenderItemInWorld(VertexBuilder vb, MatrixStack ms, ItemStack stack){
+        Block block = (stack.Item as BlockItem)!.Block;
+        IBakedBlockModel model = BlockModels.BakedModels[block];
+        
+        foreach (Vertex v in model.GetVertices(new Vector3D<float>(-0.5f, -0.5f, -0.5f), block, block.ConfigContainer.GetDefault(), [..Direction.All])) {
+            vb.Add(v with{
+                Pos = ms.Transform(v.Pos)
+                // Normal = Vector3D.Normalize(ms.Transform(v.Normal))
+            });
+        }
+    }
 }

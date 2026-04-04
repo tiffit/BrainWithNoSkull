@@ -55,7 +55,7 @@ public class Entity {
         return false;
     }
     
-    public void WriteToPacket(PacketWriter writer){}
+    public virtual void WriteToPacket(PacketWriter writer){}
     
-    public void ReadFromPacket(PacketReader reader){}
+    public virtual void ReadFromPacket(PacketReader reader){}
 }

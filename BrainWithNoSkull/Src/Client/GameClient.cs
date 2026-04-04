@@ -4,6 +4,7 @@ using BrainWithNoSkull.Client.Input;
 using BrainWithNoSkull.Client.Net;
 using BrainWithNoSkull.Client.Render;
 using BrainWithNoSkull.Client.Render.Data;
+using BrainWithNoSkull.Client.Render.Entities;
 using BrainWithNoSkull.Client.Render.RenderEngine;
 using BrainWithNoSkull.Client.Render.Shader;
 using BrainWithNoSkull.Client.World;
@@ -59,6 +60,7 @@ public class GameClient {
         PacketRegistry.Register();
 
         ClientAssetLoader.Load();
+        EntityRendererRegistry.RegisterAll();
 
         SetupWindow();
 
@@ -135,7 +137,7 @@ public class GameClient {
             renderAction.Invoke();
         }
 
-        World?.Render(delta);
+        World?.Render(delta, _camera);
 
         if (_playerController != null) {
             _playerController.Update(delta);

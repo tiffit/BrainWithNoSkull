@@ -1,5 +1,6 @@
 ﻿using BrainWithNoSkull.Net.Pckt;
 using BrainWithNoSkull.Net.Pckt.Cb;
+using BrainWithNoSkull.Server;
 using BrainWithNoSkull.World;
 using BrainWithNoSkull.World.Entities.Player;
 using Silk.NET.Maths;
@@ -27,6 +28,7 @@ public abstract class ConnectedClientBase {
                         if (toSend != null) {
                             chunkCoords = toSend.Coords;
                             if (_loadedChunks.Add(chunkCoords)) {
+                                (Entity.World as ServerWorld)!.AddListener(chunkCoords, this);
                                 SendPacket(toSend.ToChunkPacket());
                             }
                         }

@@ -9,7 +9,7 @@ public class CbNewEntityPacket : IPacket {
     public EntityType EntityType;
     public Vector3D<float> Position;
     public uint Id;
-    public byte[] ExtraData;
+    public byte[] ExtraData = null!;
     
     public CbNewEntityPacket(){}
     

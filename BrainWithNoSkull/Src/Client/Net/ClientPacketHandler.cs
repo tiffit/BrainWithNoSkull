@@ -2,6 +2,7 @@
 using BrainWithNoSkull.Net;
 using BrainWithNoSkull.Net.Pckt.Cb;
 using BrainWithNoSkull.World;
+using BrainWithNoSkull.World.Entities;
 using BrainWithNoSkull.World.ItemStacks;
 
 namespace BrainWithNoSkull.Client.Net;
@@ -48,6 +49,13 @@ public class ClientPacketHandler : IClientPacketHandler {
     }
 
     public void HandleNewEntity(CbNewEntityPacket packet){
-        Console.WriteLine("New entity");
+        WorldBase? world = _serverConnection.PlayerEntity?.World;
+        if (world != null) {
+            Entity entity = packet.EntityType.Factory(world);
+            world.AddEntity(entity, packet.Position);
+            using MemoryStream stream = new MemoryStream(packet.ExtraData);
+            using PacketReader reader = new PacketReader(stream);
+            entity.ReadFromPacket(reader);
+        }
     }
 }
