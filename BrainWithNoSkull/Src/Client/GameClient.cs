@@ -12,6 +12,7 @@ using BrainWithNoSkull.Net.Pckt;
 using BrainWithNoSkull.Server;
 using BrainWithNoSkull.Util;
 using BrainWithNoSkull.World;
+using BrainWithNoSkull.World.Blocks;
 using Silk.NET.Input;
 using Silk.NET.Input.Glfw;
 using Silk.NET.Maths;
@@ -226,44 +227,114 @@ public class GameClient {
         Vector3D<float> p110 = new Vector3D<float>(p111.X, p111.Y, p000.Z);
 
         uint color = ColorUtil.FromFloats(0.8f, 0.8f, 0.8f);
+        uint breakColor = ColorUtil.FromFloats(0.5f, 0.5f, 0.5f, 0.1f);
 
-        VertexBuilder builder = RenderEngine.GetVertexBuilder(ShaderType.Lines);
-        builder.Add(new Vertex{ Pos = p000, Color = color });
-        builder.Add(new Vertex{ Pos = p100, Color = color });
+        VertexBuilder vbLines = RenderEngine.GetVertexBuilder(ShaderType.Lines);
+        vbLines.Add(new Vertex{ Pos = p000, Color = color });
+        vbLines.Add(new Vertex{ Pos = p100, Color = color });
 
-        builder.Add(new Vertex{ Pos = p000, Color = color });
-        builder.Add(new Vertex{ Pos = p010, Color = color });
+        vbLines.Add(new Vertex{ Pos = p000, Color = color });
+        vbLines.Add(new Vertex{ Pos = p010, Color = color });
 
-        builder.Add(new Vertex{ Pos = p000, Color = color });
-        builder.Add(new Vertex{ Pos = p001, Color = color });
-
-
-        builder.Add(new Vertex{ Pos = p111, Color = color });
-        builder.Add(new Vertex{ Pos = p011, Color = color });
-
-        builder.Add(new Vertex{ Pos = p111, Color = color });
-        builder.Add(new Vertex{ Pos = p101, Color = color });
-
-        builder.Add(new Vertex{ Pos = p111, Color = color });
-        builder.Add(new Vertex{ Pos = p110, Color = color });
+        vbLines.Add(new Vertex{ Pos = p000, Color = color });
+        vbLines.Add(new Vertex{ Pos = p001, Color = color });
 
 
-        builder.Add(new Vertex{ Pos = p110, Color = color });
-        builder.Add(new Vertex{ Pos = p010, Color = color });
+        vbLines.Add(new Vertex{ Pos = p111, Color = color });
+        vbLines.Add(new Vertex{ Pos = p011, Color = color });
 
-        builder.Add(new Vertex{ Pos = p110, Color = color });
-        builder.Add(new Vertex{ Pos = p100, Color = color });
+        vbLines.Add(new Vertex{ Pos = p111, Color = color });
+        vbLines.Add(new Vertex{ Pos = p101, Color = color });
 
-        builder.Add(new Vertex{ Pos = p010, Color = color });
-        builder.Add(new Vertex{ Pos = p011, Color = color });
+        vbLines.Add(new Vertex{ Pos = p111, Color = color });
+        vbLines.Add(new Vertex{ Pos = p110, Color = color });
 
-        builder.Add(new Vertex{ Pos = p100, Color = color });
-        builder.Add(new Vertex{ Pos = p101, Color = color });
 
-        builder.Add(new Vertex{ Pos = p101, Color = color });
-        builder.Add(new Vertex{ Pos = p001, Color = color });
+        vbLines.Add(new Vertex{ Pos = p110, Color = color });
+        vbLines.Add(new Vertex{ Pos = p010, Color = color });
 
-        builder.Add(new Vertex{ Pos = p001, Color = color });
-        builder.Add(new Vertex{ Pos = p011, Color = color });
+        vbLines.Add(new Vertex{ Pos = p110, Color = color });
+        vbLines.Add(new Vertex{ Pos = p100, Color = color });
+
+        vbLines.Add(new Vertex{ Pos = p010, Color = color });
+        vbLines.Add(new Vertex{ Pos = p011, Color = color });
+
+        vbLines.Add(new Vertex{ Pos = p100, Color = color });
+        vbLines.Add(new Vertex{ Pos = p101, Color = color });
+
+        vbLines.Add(new Vertex{ Pos = p101, Color = color });
+        vbLines.Add(new Vertex{ Pos = p001, Color = color });
+
+        vbLines.Add(new Vertex{ Pos = p001, Color = color });
+        vbLines.Add(new Vertex{ Pos = p011, Color = color });
+        
+        VertexBuilder vbBreakProgress = RenderEngine.GetVertexBuilder(ShaderType.WorldPosColor);
+        ClientPlayerEntity? player = ServerConnection.PlayerEntity;
+        if (player?.BlockBreakPosition != null) {
+            Block block = player.World!.GetBlock(player.BlockBreakPosition.Value);
+            float progress = float.Clamp(player.BlockBreakTime / block.BreakTime, 0, 1f);
+
+            float centerX = (aabb.MaxX + aabb.MinX)/2;
+            float centerY = (aabb.MaxY + aabb.MinY)/2;
+            float centerZ = (aabb.MaxZ + aabb.MinZ)/2;
+
+            float sizeX = (aabb.MaxX - aabb.MinX)/2 * progress;
+            float sizeY = (aabb.MaxY - aabb.MinY)/2 * progress;
+            float sizeZ = (aabb.MaxZ - aabb.MinZ)/2 * progress;
+            
+            //Up
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(centerX - sizeX, aabb.MaxY + padding, centerZ - sizeZ), Color = breakColor });
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(centerX + sizeX, aabb.MaxY + padding, centerZ + sizeZ), Color = breakColor });
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(centerX - sizeX, aabb.MaxY + padding, centerZ + sizeZ), Color = breakColor });
+            
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(centerX - sizeX, aabb.MaxY + padding, centerZ - sizeZ), Color = breakColor });
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(centerX + sizeX, aabb.MaxY + padding, centerZ - sizeZ), Color = breakColor });
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(centerX + sizeX, aabb.MaxY + padding, centerZ + sizeZ), Color = breakColor });
+            
+            //Down
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(centerX - sizeX, aabb.MinY - padding, centerZ - sizeZ), Color = breakColor });
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(centerX - sizeX, aabb.MinY - padding, centerZ + sizeZ), Color = breakColor });
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(centerX + sizeX, aabb.MinY - padding, centerZ + sizeZ), Color = breakColor });
+            
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(centerX - sizeX, aabb.MinY - padding, centerZ - sizeZ), Color = breakColor });
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(centerX + sizeX, aabb.MinY - padding, centerZ + sizeZ), Color = breakColor });
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(centerX + sizeX, aabb.MinY - padding, centerZ - sizeZ), Color = breakColor });
+            
+            //North (+x)
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(aabb.MaxX + padding, centerY - sizeY, centerZ - sizeZ), Color = breakColor });
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(aabb.MaxX + padding, centerY - sizeY, centerZ + sizeZ), Color = breakColor });
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(aabb.MaxX + padding, centerY + sizeY, centerZ + sizeZ), Color = breakColor });
+            
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(aabb.MaxX + padding, centerY - sizeY, centerZ - sizeZ), Color = breakColor });
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(aabb.MaxX + padding, centerY + sizeY, centerZ + sizeZ), Color = breakColor });
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(aabb.MaxX + padding, centerY + sizeY, centerZ - sizeZ), Color = breakColor });
+            
+            //South (-x)
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(aabb.MinX - padding, centerY - sizeY, centerZ - sizeZ), Color = breakColor });
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(aabb.MinX - padding, centerY + sizeY, centerZ + sizeZ), Color = breakColor });
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(aabb.MinX - padding, centerY - sizeY, centerZ + sizeZ), Color = breakColor });
+            
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(aabb.MinX - padding, centerY - sizeY, centerZ - sizeZ), Color = breakColor });
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(aabb.MinX - padding, centerY + sizeY, centerZ - sizeZ), Color = breakColor });
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(aabb.MinX - padding, centerY + sizeY, centerZ + sizeZ), Color = breakColor });
+            
+            //East (+z)
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(centerX - sizeX, centerY - sizeY, aabb.MaxZ + padding), Color = breakColor });
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(centerX + sizeX, centerY + sizeY, aabb.MaxZ + padding), Color = breakColor });
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(centerX + sizeX, centerY - sizeY, aabb.MaxZ + padding), Color = breakColor });
+            
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(centerX - sizeX, centerY - sizeY, aabb.MaxZ + padding), Color = breakColor });
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(centerX - sizeX, centerY + sizeY, aabb.MaxZ + padding), Color = breakColor });
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(centerX + sizeX, centerY + sizeY, aabb.MaxZ + padding), Color = breakColor });
+            
+            //West (-z)
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(centerX - sizeX, centerY - sizeY, aabb.MinZ - padding), Color = breakColor });
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(centerX + sizeX, centerY - sizeY, aabb.MinZ - padding), Color = breakColor });
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(centerX + sizeX, centerY + sizeY, aabb.MinZ - padding), Color = breakColor });
+            
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(centerX - sizeX, centerY - sizeY, aabb.MinZ - padding), Color = breakColor });
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(centerX + sizeX, centerY + sizeY, aabb.MinZ - padding), Color = breakColor });
+            vbBreakProgress.Add(new Vertex{ Pos = new Vector3D<float>(centerX - sizeX, centerY + sizeY, aabb.MinZ - padding), Color = breakColor });
+        }
     }
 }

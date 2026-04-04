@@ -17,4 +17,7 @@ C:\VulkanSDK\1.4.341.1\Bin\glslc.exe gui.frag -o Compiled/gui_frag.spv
 
 C:\VulkanSDK\1.4.341.1\Bin\glslc.exe guiColor.vert -o Compiled/guiColor_vert.spv
 C:\VulkanSDK\1.4.341.1\Bin\glslc.exe guiColor.frag -o Compiled/guiColor_frag.spv
+
+C:\VulkanSDK\1.4.341.1\Bin\glslc.exe worldPosColor.vert -o Compiled/worldPosColor_vert.spv
+C:\VulkanSDK\1.4.341.1\Bin\glslc.exe worldPosColor.frag -o Compiled/worldPosColor_frag.spv
 pause

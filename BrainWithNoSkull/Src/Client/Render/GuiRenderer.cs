@@ -89,16 +89,13 @@ public class GuiRenderer {
         Vector2D<float> p4 = new Vector2D<float>(0, heightOffset);
 
         float angle = MathF.Atan2(diff.Y, diff.X);
-        //
-        // Console.WriteLine(Single.RadiansToDegrees(angle));
-        //
+
         Matrix4X4<float> rotation = Matrix4X4.CreateRotationZ(angle);
         p1 = Vector2D.Transform(p1, rotation);
         p2 = Vector2D.Transform(p2, rotation);
         p3 = Vector2D.Transform(p3, rotation);
         p4 = Vector2D.Transform(p4, rotation);
-        //
-        // diff = Vector2D.Transform(diff, rotation);
+        
         p1 += in1;
         p2 += in1;
         p3 += in1;
