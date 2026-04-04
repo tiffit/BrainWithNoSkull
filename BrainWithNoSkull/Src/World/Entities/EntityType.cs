@@ -1,8 +1,9 @@
 ﻿using BrainWithNoSkull.Registries;
+using BrainWithNoSkull.Util;
 
 namespace BrainWithNoSkull.World.Entities;
 
-public record EntityType(Type UnderlyingType, string Id, ushort Index, EntityFactory Factory) : IRegistryEntry{
+public record EntityType(Type UnderlyingType, string Id, ushort Index, AABB Aabb, EntityFactory Factory) : IRegistryEntry{
     public string GetId(){
         return Id;
     }
@@ -22,6 +23,7 @@ public class EntityTypeBuilder {
     private readonly string _id;
     private readonly EntityFactory _factory;
     private readonly ushort _index;
+    private AABB _aabb = new AABB(-0.5f, 0, -0.5f, 0.5f, 1, 0.5f);
     
     public EntityTypeBuilder(Type type, string id, EntityFactory factory){
         _type = type;
@@ -30,7 +32,12 @@ public class EntityTypeBuilder {
         _index = _nextIndex++;
     }
 
+    public EntityTypeBuilder BoundingBox(AABB aabb){
+        _aabb = aabb;
+        return this;
+    }
+
     public EntityType Build(){
-        return new EntityType(_type, _id, _index, _factory);
+        return new EntityType(_type, _id, _index, _aabb, _factory);
     }
 }

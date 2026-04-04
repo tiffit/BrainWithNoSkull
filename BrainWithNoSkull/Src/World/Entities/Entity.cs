@@ -4,13 +4,14 @@ using Silk.NET.Maths;
 namespace BrainWithNoSkull.World.Entities;
 
 public class Entity {
-    private AABB _boundingBox = new AABB(-0.4f, 0, -0.4f, 0.4f, 1.5f, 0.4f);
     private static uint _nextId;
 
     public EntityType Type;
     public uint Id = _nextId++;
     public WorldBase? World;
     public Chunk? Chunk;
+
+    public bool Remove = false;
     
     public Vector3D<float> Position{ get; private set; }
     
@@ -31,7 +32,7 @@ public class Entity {
     }
 
     public AABB GetBoundingBox(){
-        return _boundingBox + Position;
+        return Type.Aabb + Position;
     }
 
     public virtual void Tick(){
