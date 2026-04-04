@@ -45,7 +45,7 @@ public class Keybinding {
         if (!_context.HasFlag(context))
             return false;
         return _defaultInput.InputType switch{
-            InputType.Mouse => inputHandler.IsButtonPressedThisFrame((MouseButton)_defaultInput.Code),
+            InputType.Mouse => _isHeld ? inputHandler.IsMouseButtonDown((MouseButton)_defaultInput.Code) : inputHandler.IsButtonPressedThisFrame((MouseButton)_defaultInput.Code),
             InputType.Keyboard => _isHeld ? inputHandler.IsKeyDown((Key)_defaultInput.Code) : inputHandler.IsKeyPressedThisFrame((Key)_defaultInput.Code),
             _ => false
         };

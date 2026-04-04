@@ -13,6 +13,9 @@ public class Block : IRegistryEntry {
     private readonly string _id;
     public readonly BlockConfigContainer ConfigContainer = new BlockConfigContainer();
     
+    //Properties
+    public float BreakTime = 0f;
+    
     public Block(string id){
         _id = id;
         _index = NextIndex++;

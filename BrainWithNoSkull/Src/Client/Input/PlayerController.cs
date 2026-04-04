@@ -27,7 +27,7 @@ public class PlayerController {
     private readonly Keybinding _keybindMoveForward = new Keybinding("Forward", new BoundInput(Key.W), KeyContext.FirstPerson, true);
     private readonly Keybinding _keybindMoveBackwards = new Keybinding("Backwards", new BoundInput(Key.S), KeyContext.FirstPerson, true);
     private readonly Keybinding _keybindJump = new Keybinding("Jump", new BoundInput(Key.Space), KeyContext.FirstPerson, true);
-    private readonly Keybinding _keybindBreakBlock = new Keybinding("Break Block", new BoundInput(MouseButton.Left), KeyContext.FirstPerson, false);
+    private readonly Keybinding _keybindBreakBlock = new Keybinding("Break Block", new BoundInput(MouseButton.Left), KeyContext.FirstPerson, true);
     private readonly Keybinding _keybindInteract = new Keybinding("Interact", new BoundInput(MouseButton.Right), KeyContext.FirstPerson, false);
     
     private readonly Keybinding _keybindHotbar1 = new Keybinding("Hotbar 1", new BoundInput(Key.Number1), KeyContext.FirstPerson, false);
@@ -156,28 +156,37 @@ public class PlayerController {
         if (_keybindBreakBlock.IsPressed(context, _inputHandler)) {
             if (_client.BlockRayResult != null) {
                 Vector3D<int> blockPos = _client.BlockRayResult.Value.Pos;
-                _client.TickActions.Enqueue(() => {
-                    if (world != null) {
-                        world.SetBlock(blockPos, BlockRegistry.Air);
-                    }
-                });
-                _player.ServerConnection.SendPacket(new SbPlayerBreakBlockPacket(blockPos));
+                if (_player.BlockBreakPosition == null || _player.BlockBreakPosition != blockPos) {
+                    _player.BlockBreakPosition = blockPos;
+                    _player.BlockBreakTime = 0;
+                }
+                _player.BlockBreakTime += (float)delta;
+                if (_player.BlockBreakTime >= world!.GetBlock(blockPos).BreakTime) {
+                    _client.TickActions.Enqueue(() => {
+                        _player.World?.SetBlock(blockPos, BlockRegistry.Air);
+                    });
+                    _player.ServerConnection.SendPacket(new SbPlayerBreakBlockPacket(blockPos));
+                }
             }
         }
-        else if (_keybindInteract.IsPressed(context, _inputHandler)) {
-            WorldRayResult? result = _client.BlockRayResult;
-            if (result != null) {
-                ItemStack? stack = _player.Inventory.GetHeldStack();
-                if (!ItemStack.IsNull(stack)) {
-                    _client.TickActions.Enqueue(() => {
-                        if (world != null) {
-                            ItemStack? updatedStack = _player.Inventory.GetHeldStack();
-                            if (!ItemStack.IsNull(updatedStack)) {
-                                stack.Item.Interact(result.Value, world, _player, updatedStack);
+        else {
+            _player.BlockBreakPosition = null;
+            _player.BlockBreakTime = 0;
+            if (_keybindInteract.IsPressed(context, _inputHandler)) {
+                WorldRayResult? result = _client.BlockRayResult;
+                if (result != null) {
+                    ItemStack? stack = _player.Inventory.GetHeldStack();
+                    if (!ItemStack.IsNull(stack)) {
+                        _client.TickActions.Enqueue(() => {
+                            if (world != null) {
+                                ItemStack? updatedStack = _player.Inventory.GetHeldStack();
+                                if (!ItemStack.IsNull(updatedStack)) {
+                                    stack.Item.Interact(result.Value, world, _player, updatedStack);
+                                }
                             }
-                        }
-                    });
-                    _player.ServerConnection.SendPacket(new SbItemInteractPacket(result.Value));
+                        });
+                        _player.ServerConnection.SendPacket(new SbItemInteractPacket(result.Value));
+                    }
                 }
             }
         }

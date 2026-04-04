@@ -13,6 +13,7 @@ public class InputHandler {
     private Vector2D<float>? _previousMousePositon;
 
     public readonly HashSet<Key> PressedKeys = [];
+    public readonly HashSet<MouseButton> PressedMouseButtons = [];
     public readonly HashSet<MouseButton> MouseDownThisFrame = [];
     public readonly HashSet<Key> KeysDownThisFrame = [];
     
@@ -23,6 +24,7 @@ public class InputHandler {
         foreach (IMouse mouse in _context.Mice) {
             mouse.MouseMove += OnMouseMove;
             mouse.MouseDown += OnMouseDown;
+            mouse.MouseUp += OnMouseUp;
         }
         
         foreach (IKeyboard keyboard in _context.Keyboards) {
@@ -40,6 +42,11 @@ public class InputHandler {
     
     private void OnMouseDown(IMouse mouse, MouseButton btn){
         MouseDownThisFrame.Add(btn);
+        PressedMouseButtons.Add(btn);
+    }
+
+    private void OnMouseUp(IMouse mouse, MouseButton btn){
+        PressedMouseButtons.Remove(btn);
     }
     
     private void OnKeyDown(IKeyboard keyboard, Key key, int scanCode){
@@ -63,6 +70,10 @@ public class InputHandler {
 
     public bool IsKeyDown(Key key){
         return PressedKeys.Contains(key);
+    }
+    
+    public bool IsMouseButtonDown(MouseButton key){
+        return PressedMouseButtons.Contains(key);
     }
 
     public bool IsButtonPressedThisFrame(MouseButton btn){
