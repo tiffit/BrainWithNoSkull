@@ -1,4 +1,5 @@
-﻿using BrainWithNoSkull.Util;
+﻿using BrainWithNoSkull.Net;
+using BrainWithNoSkull.Util;
 using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.World.Entities;
@@ -53,4 +54,8 @@ public class Entity {
 
         return false;
     }
+    
+    public void WriteToPacket(PacketWriter writer){}
+    
+    public void ReadFromPacket(PacketReader reader){}
 }

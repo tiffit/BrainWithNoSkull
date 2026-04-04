@@ -8,5 +8,6 @@ public interface IClientPacketHandler {
     public void HandeChunk(CbChunkPacket packet);
     public void HandlePlayerInfo(CbPlayerInfoPacket packet);
     public void HandlePlayerInventory(CbPlayerInventoryPacket packet);
+    public void HandleNewEntity(CbNewEntityPacket packet);
 
 }

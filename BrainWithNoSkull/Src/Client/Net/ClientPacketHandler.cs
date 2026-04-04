@@ -46,4 +46,8 @@ public class ClientPacketHandler : IClientPacketHandler {
             }
         }
     }
+
+    public void HandleNewEntity(CbNewEntityPacket packet){
+        Console.WriteLine("New entity");
+    }
 }

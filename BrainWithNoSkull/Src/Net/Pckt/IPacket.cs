@@ -24,6 +24,7 @@ public enum PacketType: ushort{
     Chunk,
     PlayerInfo,
     PlayerInventory,
+    NewEntity,
     
     //Server-bound
     PlayerMove,
@@ -43,7 +44,8 @@ public static class PacketRegistry {
         Registry[PacketType.WorldInfo] = () => new CbWorldInfoPacket();
         Registry[PacketType.Chunk] = () => new CbChunkPacket();
         Registry[PacketType.PlayerInfo] = () => new CbPlayerInfoPacket();
-        Registry[PacketType.PlayerInventory] = () => new CbPlayerInventoryPacket();
+        Registry[PacketType.PlayerInventory] = () => new CbPlayerInventoryPacket();;
+        Registry[PacketType.NewEntity] = () => new CbNewEntityPacket();
         
         Registry[PacketType.PlayerMove] = () => new SbPlayerMovePacket();
         Registry[PacketType.BreakBlock] = () => new SbPlayerBreakBlockPacket();
