@@ -3,6 +3,11 @@ C:\VulkanSDK\1.4.341.1\Bin\glslc.exe shader.frag -o Compiled/shader_frag.spv
 C:\VulkanSDK\1.4.341.1\Bin\glslc.exe shader_shadow.vert -o Compiled/shader_shadow_vert.spv
 C:\VulkanSDK\1.4.341.1\Bin\glslc.exe shader_shadow.frag -o Compiled/shader_shadow_frag.spv
 
+C:\VulkanSDK\1.4.341.1\Bin\glslc.exe worldEntity.vert -o Compiled/worldEntity_vert.spv
+C:\VulkanSDK\1.4.341.1\Bin\glslc.exe worldEntity.frag -o Compiled/worldEntity_frag.spv
+C:\VulkanSDK\1.4.341.1\Bin\glslc.exe worldEntity_shadow.vert -o Compiled/worldEntity_shadow_vert.spv
+C:\VulkanSDK\1.4.341.1\Bin\glslc.exe worldEntity_shadow.frag -o Compiled/worldEntity_shadow_frag.spv
+
 C:\VulkanSDK\1.4.341.1\Bin\glslc.exe skybox.vert -o Compiled/skybox_vert.spv
 C:\VulkanSDK\1.4.341.1\Bin\glslc.exe skybox.frag -o Compiled/skybox_frag.spv
 

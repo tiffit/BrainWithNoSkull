@@ -681,6 +681,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
                 Size = TransformPushConstantShadow.SizeInBytes,
                 StageFlags = ShaderStageFlags.VertexBit
             };
+            pipelineLayoutInfo.PushConstantRangeCount = 1;
 
             pipelineLayoutInfo.PPushConstantRanges = &pushConstantsShadow;
 
@@ -1337,7 +1338,10 @@ public unsafe class VkRenderEngine : IRenderEngine {
                     fixed (Buffer* bufferPtr = new[]{ pipeline.VertexBuffer }) {
                         ulong offset = 0;
                         _vk.CmdBindVertexBuffers(buffer, 0, 1, bufferPtr, ref offset);
-                        if (builder.PushConstants != null) {
+                        if (shadowMapping) {
+                            uint index = cascadeIndex;
+                            _vk.CmdPushConstants(buffer, pipeline.ShadowPipelineLayout, ShaderStageFlags.VertexBit, 0, 4, &index);
+                        }else if (builder.PushConstants != null) {
                             fixed (byte* pushConstants = builder.PushConstants) {
                                 _vk.CmdPushConstants(buffer, pipeline.PipelineLayout, builder.PushConstantStages, 0, (uint)builder.PushConstants.Length, pushConstants);
                             }
