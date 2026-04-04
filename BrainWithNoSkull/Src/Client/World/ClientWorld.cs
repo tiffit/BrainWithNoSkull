@@ -46,11 +46,11 @@ public class ClientWorld : WorldBase {
                         cleared.Add(coords);
                     }
                 }
-                
+
                 foreach (Vector2D<int> toClear in cleared) {
                     _chunkMeshes.Remove(toClear);
                 }
-                
+
                 for (int x = -ViewDistance; x <= ViewDistance; x++) {
                     for (int z = -ViewDistance; z <= ViewDistance; z++) {
                         Vector2D<int> chunkCoords = new Vector2D<int>(x, z) + ChunkUtils.ToChunkCoords(player.Position);
@@ -60,19 +60,20 @@ public class ClientWorld : WorldBase {
                     }
                 }
             }
-            
+
             foreach (Vector3D<int> rebuildCoords in _chunkMeshRebuilds) {
                 Vector2D<int> chunkCoords = new Vector2D<int>(rebuildCoords.X, rebuildCoords.Z);
                 if (_chunkMeshes.TryGetValue(chunkCoords, out var mesh)) {
                     mesh.RebuildSection(Chunks, rebuildCoords.Y);
                 }
             }
+
             _chunkMeshRebuilds.Clear();
-            
+
             if (_chunkMeshQueue.TryDequeue(out Vector2D<int> generateCoords, out int _)) {
                 TryGenerateMesh(generateCoords);
             }
-            
+
             //Entity rendering
             foreach (Vector2D<int> chunkCoords in _chunkMeshes.Keys) {
                 Chunk? chunk = Chunks.GetChunk(chunkCoords);
@@ -83,6 +84,7 @@ public class ClientWorld : WorldBase {
                         if (renderer != null && (camera.Frustum?.IsBoxInside(entity.GetBoundingBox()) ?? false)) {
                             MatrixStack ms = new MatrixStack();
                             renderer.Render(entity, ms, vb);
+                            // DrawBoundingBox(entity.GetBoundingBox());
                         }
                     }
                 }
@@ -126,13 +128,70 @@ public class ClientWorld : WorldBase {
         int offsetX = blockPos.X - sectionCoords.X * Constants.ChunkSize;
         int offsetY = blockPos.Y - sectionCoords.Y * Constants.ChunkSize;
         int offsetZ = blockPos.Z - sectionCoords.Z * Constants.ChunkSize;
-        if (offsetY == 0)_chunkMeshRebuilds.Add(sectionCoords + new Vector3D<int>(0, -1, 0));
-        else if (offsetY == Constants.ChunkSize - 1)_chunkMeshRebuilds.Add(sectionCoords + new Vector3D<int>(0, 1, 0));
-        
-        if (offsetX == 0)_chunkMeshRebuilds.Add(sectionCoords + new Vector3D<int>(-1, 0, 0));
-        else if (offsetX == Constants.ChunkSize - 1)_chunkMeshRebuilds.Add(sectionCoords + new Vector3D<int>(1, 0, 0));
-        
-        if (offsetZ == 0)_chunkMeshRebuilds.Add(sectionCoords + new Vector3D<int>(0, 0, -1));
-        else if (offsetZ == Constants.ChunkSize - 1)_chunkMeshRebuilds.Add(sectionCoords + new Vector3D<int>(0, 0, 1));
+        if (offsetY == 0) _chunkMeshRebuilds.Add(sectionCoords + new Vector3D<int>(0, -1, 0));
+        else if (offsetY == Constants.ChunkSize - 1) _chunkMeshRebuilds.Add(sectionCoords + new Vector3D<int>(0, 1, 0));
+
+        if (offsetX == 0) _chunkMeshRebuilds.Add(sectionCoords + new Vector3D<int>(-1, 0, 0));
+        else if (offsetX == Constants.ChunkSize - 1) _chunkMeshRebuilds.Add(sectionCoords + new Vector3D<int>(1, 0, 0));
+
+        if (offsetZ == 0) _chunkMeshRebuilds.Add(sectionCoords + new Vector3D<int>(0, 0, -1));
+        else if (offsetZ == Constants.ChunkSize - 1) _chunkMeshRebuilds.Add(sectionCoords + new Vector3D<int>(0, 0, 1));
+    }
+
+    public void DrawBoundingBox(AABB? aabb){
+        if (aabb == null)
+            return;
+        const float padding = 0.001f;
+        Vector3D<float> p000 = new Vector3D<float>(aabb.MinX - padding, aabb.MinY - padding, aabb.MinZ - padding);
+        Vector3D<float> p111 = new Vector3D<float>(aabb.MaxX + padding, aabb.MaxY + padding, aabb.MaxZ + padding);
+
+        Vector3D<float> p100 = new Vector3D<float>(p111.X, p000.Y, p000.Z);
+        Vector3D<float> p010 = new Vector3D<float>(p000.X, p111.Y, p000.Z);
+        Vector3D<float> p001 = new Vector3D<float>(p000.X, p000.Y, p111.Z);
+
+        Vector3D<float> p011 = new Vector3D<float>(p000.X, p111.Y, p111.Z);
+        Vector3D<float> p101 = new Vector3D<float>(p111.X, p000.Y, p111.Z);
+        Vector3D<float> p110 = new Vector3D<float>(p111.X, p111.Y, p000.Z);
+
+        uint color = ColorUtil.FromFloats(0.8f, 0.8f, 0.8f);
+
+        VertexBuilder vbLines = _gameClient.RenderEngine.GetVertexBuilder(ShaderType.Lines);
+        vbLines.Add(new Vertex{ Pos = p000, Color = color });
+        vbLines.Add(new Vertex{ Pos = p100, Color = color });
+
+        vbLines.Add(new Vertex{ Pos = p000, Color = color });
+        vbLines.Add(new Vertex{ Pos = p010, Color = color });
+
+        vbLines.Add(new Vertex{ Pos = p000, Color = color });
+        vbLines.Add(new Vertex{ Pos = p001, Color = color });
+
+
+        vbLines.Add(new Vertex{ Pos = p111, Color = color });
+        vbLines.Add(new Vertex{ Pos = p011, Color = color });
+
+        vbLines.Add(new Vertex{ Pos = p111, Color = color });
+        vbLines.Add(new Vertex{ Pos = p101, Color = color });
+
+        vbLines.Add(new Vertex{ Pos = p111, Color = color });
+        vbLines.Add(new Vertex{ Pos = p110, Color = color });
+
+
+        vbLines.Add(new Vertex{ Pos = p110, Color = color });
+        vbLines.Add(new Vertex{ Pos = p010, Color = color });
+
+        vbLines.Add(new Vertex{ Pos = p110, Color = color });
+        vbLines.Add(new Vertex{ Pos = p100, Color = color });
+
+        vbLines.Add(new Vertex{ Pos = p010, Color = color });
+        vbLines.Add(new Vertex{ Pos = p011, Color = color });
+
+        vbLines.Add(new Vertex{ Pos = p100, Color = color });
+        vbLines.Add(new Vertex{ Pos = p101, Color = color });
+
+        vbLines.Add(new Vertex{ Pos = p101, Color = color });
+        vbLines.Add(new Vertex{ Pos = p001, Color = color });
+
+        vbLines.Add(new Vertex{ Pos = p001, Color = color });
+        vbLines.Add(new Vertex{ Pos = p011, Color = color });
     }
 }
