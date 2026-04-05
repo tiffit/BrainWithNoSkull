@@ -71,4 +71,14 @@ public class ClientPacketHandler : IClientPacketHandler {
             }
         }
     }
+
+    public void HandleRemoveEntity(CbRemoveEntityPacket packet){
+        WorldBase? world = _serverConnection.PlayerEntity?.World;
+        if (world != null) {
+            Entity? entity = world.GetEntity(packet.Id);
+            if (entity != null) {
+                entity.Remove = true;
+            }
+        }
+    }
 }

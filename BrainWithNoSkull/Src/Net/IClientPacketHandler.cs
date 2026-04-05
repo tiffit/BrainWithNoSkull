@@ -10,5 +10,5 @@ public interface IClientPacketHandler {
     public void HandlePlayerInventory(CbPlayerInventoryPacket packet);
     public void HandleNewEntity(CbNewEntityPacket packet);
     public void HandleEntityMove(CbEntityMovePacket packet);
-
+    public void HandleRemoveEntity(CbRemoveEntityPacket packet);
 }

@@ -1,5 +1,6 @@
 ﻿using BrainWithNoSkull.Net;
 using BrainWithNoSkull.Registries;
+using BrainWithNoSkull.World.Entities.Player;
 using BrainWithNoSkull.World.ItemStacks;
 
 namespace BrainWithNoSkull.World.Entities;
@@ -15,6 +16,20 @@ public class ItemStackEntity: Entity {
         base.Tick();
         if (ItemStack.IsNull(Stack)) {
             Remove = true;
+        }
+
+        if (World != null) {
+            if (!Remove && World.OnServer) {
+                foreach (Entity entity in World.GetEntitiesInBox(GetBoundingBox())) {
+                    if (entity is PlayerEntity player) {
+                        player.Inventory.AddItem(ref Stack);
+                        if (ItemStack.IsNull(Stack)) {
+                            Remove = true;
+                            return;
+                        }
+                    }
+                }
+            }
         }
     }
 

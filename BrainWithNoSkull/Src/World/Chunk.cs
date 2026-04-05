@@ -84,7 +84,18 @@ public class Chunk {
         
         foreach (Entity entity in _entities.Values) {
             entity.Tick();
-            if (entity.IsPositionDirty) {
+            if (entity.Remove) {
+                _world.EntityRemoveTickets.Enqueue(new EntityRemoveTicket(entity.Id));
+                _entities.Remove(entity.Id);
+                if (_world.OnServer) {
+                    ServerWorld world = (_world as ServerWorld)!;
+                    foreach (ConnectedClientBase client in world.GetAllListeners(Coords)) {
+                        if (client.Entity != entity) {
+                            client.SendPacket(new CbRemoveEntityPacket(entity.Id));
+                        }
+                    }
+                }
+            } else if (entity.IsPositionDirty) {
                 Vector2D<int> newChunkCoords = ChunkUtils.ToChunkCoords(entity.Position);
                 if (newChunkCoords != Coords) {
                     EntityMoveChunkTicket ticket = new EntityMoveChunkTicket(entity, this, newChunkCoords);

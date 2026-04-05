@@ -11,6 +11,7 @@ namespace BrainWithNoSkull.World;
 
 public class WorldBase {
     public readonly Queue<EntityMoveChunkTicket> EntityMoveChunkTickets = [];
+    public readonly Queue<EntityRemoveTicket> EntityRemoveTickets = [];
 
     private Dictionary<uint, Entity> _entities = new Dictionary<uint, Entity>();
 
@@ -76,6 +77,10 @@ public class WorldBase {
             Chunk newChunk = GetChunk(moveChunkTicket.NewChunk)!;
             oldChunk.RemoveEntityNow(moveChunkTicket.Entity.Id);
             newChunk.AddEntity(moveChunkTicket.Entity);
+        }
+
+        while (EntityRemoveTickets.TryDequeue(out EntityRemoveTicket? removeTicket)) {
+            _entities.Remove(removeTicket.Id);
         }
     }
 

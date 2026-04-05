@@ -11,6 +11,14 @@ public record EntityType(Type UnderlyingType, string Id, ushort Index, AABB Aabb
     public ushort GetIndex(){
         return Index;
     }
+
+    public virtual bool Equals(EntityType? other){
+        return other != null && other.Index == Index;
+    }
+
+    public override int GetHashCode(){
+        return Index.GetHashCode();
+    }
 }
 
 public delegate Entity EntityFactory(WorldBase? world);
