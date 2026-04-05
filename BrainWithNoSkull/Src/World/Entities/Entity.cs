@@ -76,6 +76,10 @@ public class Entity {
         SetPosition(Position + newMove);
     }
 
+    public void AddVelocity(Vector3D<float> velocity){
+        _velocity += velocity;
+    }
+
     public bool IsOnGround(){
         if (World != null) {
             AABB currentBox = GetBoundingBox();

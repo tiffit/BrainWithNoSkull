@@ -39,6 +39,7 @@ public class SbPlayerBreakBlockPacket : IPacket {
 
             if (!ItemStack.IsNull(stack)) {
                 ItemStackEntity entity = new ItemStackEntity(player.World){Stack = stack};
+                entity.AddVelocity(new Vector3D<float>(0, 4f, 0));
                 player.World.AddEntity(entity, new Vector3D<float>(BlockPos.X + 0.5f, BlockPos.Y + 0.5f, BlockPos.Z + 0.5f));
             }
         }
