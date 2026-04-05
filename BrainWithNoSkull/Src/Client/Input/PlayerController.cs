@@ -160,7 +160,9 @@ public class PlayerController {
                     _player.BlockBreakPosition = blockPos;
                     _player.BlockBreakTime = 0;
                 }
-                _player.BlockBreakTime += (float)delta;
+
+                float breakMult = _player.Inventory.GetHeldStack()?.Item.BreakSpeed ?? 1;
+                _player.BlockBreakTime += (float)delta * breakMult;
                 if (_player.BlockBreakTime >= world!.GetBlock(blockPos).BreakTime) {
                     _client.TickActions.Enqueue(() => {
                         _player.World?.SetBlock(blockPos, BlockRegistry.Air);

@@ -10,6 +10,9 @@ public class Item : IRegistryEntry{
     private readonly ushort _index;
     private readonly string _id;
     
+    //Properties
+    public float BreakSpeed = 1f;
+    
     public Item(string id){
         _id = id;
         _index = NextIndex++;

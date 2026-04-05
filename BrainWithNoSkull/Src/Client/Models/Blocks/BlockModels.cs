@@ -11,7 +11,7 @@ public class BlockModels {
     private static readonly Dictionary<Block, UnbakedBlockModel> UnbakedModels = new Dictionary<Block, UnbakedBlockModel>();
     public static readonly Dictionary<Block, IBakedBlockModel> BakedModels = new Dictionary<Block, IBakedBlockModel>();
     
-    public static ICollection<string> CreateUnbaked(){
+    public static HashSet<string> CreateUnbaked(){
         UnbakedModels.Clear();
 
         UnbakedModels[BlockRegistry.Grass] = new CubeBlockModel("Block/Grass", "Block/Dirt", "Block/Grass_Side", "Block/Grass_Side", "Block/Grass_Side", "Block/Grass_Side");

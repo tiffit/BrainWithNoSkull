@@ -12,11 +12,15 @@ public static class ItemRegistry {
     public static readonly Registry<Item> Registry = new Registry<Item>();
 
     public static readonly Dictionary<Block, BlockItem> BlockItems = new Dictionary<Block, BlockItem>();
+
+    public static Item StonePickaxe;
     
     public static void Init(){
         foreach (Block block in BlockRegistry.Registry.GetEntries()) {
             BlockItems[block] = Registry.Register(new BlockItem(block));
         }
+
+        StonePickaxe = Registry.Register(new Item("StonePickaxe"){ BreakSpeed = 5f });
     }
 
 }

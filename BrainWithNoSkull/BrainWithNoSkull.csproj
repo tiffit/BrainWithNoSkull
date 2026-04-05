@@ -23,6 +23,7 @@
       <Folder Include="Assets\Textures\Block\" />
       <Folder Include="Assets\Textures\Font\" />
       <Folder Include="Assets\Textures\Gui\" />
+      <Folder Include="Assets\Textures\Item\" />
     </ItemGroup>
 
 </Project>
