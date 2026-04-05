@@ -43,6 +43,7 @@ public static class PacketRegistry {
     private static readonly Dictionary<PacketType, PacketFactory> Registry = new Dictionary<PacketType, PacketFactory>();
 
     public static void Register(){
+        //Client-bound
         Registry[PacketType.WorldInfo] = () => new CbWorldInfoPacket();
         Registry[PacketType.Chunk] = () => new CbChunkPacket();
         Registry[PacketType.PlayerInfo] = () => new CbPlayerInfoPacket();
@@ -51,6 +52,7 @@ public static class PacketRegistry {
         Registry[PacketType.EntityMove] = () => new CbEntityMovePacket();
         Registry[PacketType.RemoveEntity] = () => new CbRemoveEntityPacket();
         
+        //Server-bound
         Registry[PacketType.PlayerMove] = () => new SbPlayerMovePacket();
         Registry[PacketType.BreakBlock] = () => new SbPlayerBreakBlockPacket();
         Registry[PacketType.ItemInteract] = () => new SbItemInteractPacket();
@@ -68,4 +70,4 @@ public static class PacketRegistry {
     }
 }
 
-public record PacketContext(ConnectedClientBase? Client, ServerConnectionBase? ServerConnection, IClientPacketHandler? ClientPacketHandler);
+public record PacketContext(ConnectedClientBase? Client, IClientPacketHandler? ClientPacketHandler);

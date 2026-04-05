@@ -35,7 +35,7 @@ public class LocalConnectedClient : ConnectedClientBase {
     public override void Tick(double delta){
         base.Tick(delta);
         while (_packetQueue.TryDequeue(out IPacket? packet)) {
-            packet.Handle(new PacketContext(this, null, null));
+            packet.Handle(new PacketContext(this, null));
         }
     }
     

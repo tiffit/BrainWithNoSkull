@@ -39,7 +39,7 @@ public class LocalServerConnection : ServerConnectionBase {
 
     public override void Tick(double delta){
         while (_packetQueue.TryDequeue(out IPacket? packet)) {
-            packet.Handle(new PacketContext(null, this, _packetHandler));
+            packet.Handle(new PacketContext(null, _packetHandler));
         }
     }
     
