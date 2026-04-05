@@ -12,6 +12,8 @@ namespace BrainWithNoSkull.World;
 public class WorldBase {
     public readonly Queue<EntityMoveChunkTicket> EntityMoveChunkTickets = [];
 
+    private Dictionary<uint, Entity> _entities = new Dictionary<uint, Entity>();
+
     public WorldGenerator WorldGenerator{ get; private set; }
     protected ChunkStorage Chunks;
     public WorldSettings Settings{ get; private set; }
@@ -28,6 +30,12 @@ public class WorldBase {
         Chunk chunk = GetChunk(ChunkUtils.ToChunkCoords(position))!;
         chunk.AddEntity(entity);
         entity.SetPosition(position);
+        _entities[entity.Id] = entity;
+    }
+
+    public Entity? GetEntity(uint id){
+        _entities.TryGetValue(id, out Entity? value);
+        return value;
     }
 
     public Chunk? GetChunk(Vector2D<int> chunkCoords){

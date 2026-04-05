@@ -6,4 +6,6 @@ public class Constants {
     public const int SeaLevel = 128;
 
     public static int NetworkBufferSize = 1024 * 1024 * 2;
+
+    public static int TicksPerSecond = 20;
 }

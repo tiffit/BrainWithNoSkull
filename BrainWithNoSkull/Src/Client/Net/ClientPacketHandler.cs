@@ -32,7 +32,9 @@ public class ClientPacketHandler : IClientPacketHandler {
     public void HandlePlayerInfo(CbPlayerInfoPacket packet){
         ClientWorld? world = _client.World;
         if (world != null) {
-            ClientPlayerEntity player = new ClientPlayerEntity(_serverConnection, world);
+            ClientPlayerEntity player = new ClientPlayerEntity(_serverConnection, world){
+                Id = packet.Id
+            };
             _serverConnection.PlayerEntity = player;
             world.AddPlayer(player, packet);
             _client.CreatePlayerController(player);
@@ -52,10 +54,21 @@ public class ClientPacketHandler : IClientPacketHandler {
         WorldBase? world = _serverConnection.PlayerEntity?.World;
         if (world != null) {
             Entity entity = packet.EntityType.Factory(world);
+            entity.Id = packet.Id;
             world.AddEntity(entity, packet.Position);
             using MemoryStream stream = new MemoryStream(packet.ExtraData);
             using PacketReader reader = new PacketReader(stream);
             entity.ReadFromPacket(reader);
+        }
+    }
+
+    public void HandleEntityMove(CbEntityMovePacket packet){
+        WorldBase? world = _serverConnection.PlayerEntity?.World;
+        if (world != null) {
+            Entity? entity = world.GetEntity(packet.Id);
+            if (entity != null) {
+                entity.SetPosition(packet.Position);
+            }
         }
     }
 }

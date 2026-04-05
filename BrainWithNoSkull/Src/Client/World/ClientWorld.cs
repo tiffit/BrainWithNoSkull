@@ -83,7 +83,7 @@ public class ClientWorld : WorldBase {
                         IEntityRenderer? renderer = EntityRendererRegistry.GetRenderer<Entity>(entity.Type);
                         if (renderer != null && (camera.Frustum?.IsBoxInside(entity.GetBoundingBox()) ?? false)) {
                             MatrixStack ms = new MatrixStack();
-                            renderer.Render(entity, ms, vb);
+                            renderer.Render(entity, ms, vb, 0f);
                             // DrawBoundingBox(entity.GetBoundingBox());
                         }
                     }

@@ -1,6 +1,8 @@
 ﻿using System.Collections.Concurrent;
+using BrainWithNoSkull.Net;
 using BrainWithNoSkull.Net.Pckt.Cb;
 using BrainWithNoSkull.Registries;
+using BrainWithNoSkull.Server;
 using BrainWithNoSkull.Util;
 using BrainWithNoSkull.World.Blocks;
 using BrainWithNoSkull.World.Entities;
@@ -87,6 +89,15 @@ public class Chunk {
                 if (newChunkCoords != Coords) {
                     EntityMoveChunkTicket ticket = new EntityMoveChunkTicket(entity, this, newChunkCoords);
                     _world.EntityMoveChunkTickets.Enqueue(ticket);
+                }
+
+                if (_world.OnServer) {
+                    ServerWorld world = (_world as ServerWorld)!;
+                    foreach (ConnectedClientBase client in world.GetAllListeners(Coords)) {
+                        if (client.Entity != entity) {
+                            client.SendPacket(new CbEntityMovePacket(entity));
+                        }
+                    }
                 }
             }
         }

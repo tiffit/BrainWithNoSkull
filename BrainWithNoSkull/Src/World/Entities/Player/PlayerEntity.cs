@@ -9,4 +9,6 @@ public class PlayerEntity : Entity {
     public PlayerEntity(WorldBase? world) : base(EntityTypeRegistry.Player, world){
         Inventory = new PlayerInventory();
     }
+
+    public override void TickPhysics(){}
 }

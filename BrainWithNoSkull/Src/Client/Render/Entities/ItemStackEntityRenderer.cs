@@ -8,7 +8,7 @@ namespace BrainWithNoSkull.Client.Render.Entities;
 
 public class ItemStackEntityRenderer: EntityRenderer<ItemStackEntity> {
     
-    protected override void RenderEntity(ItemStackEntity entity, MatrixStack stack, VertexBuilder vb){
+    protected override void RenderEntity(ItemStackEntity entity, MatrixStack stack, VertexBuilder vb, float partialTick){
         if (!ItemStack.IsNull(entity.Stack)) {
             GameClient client = GameClient.Instance;
             float time = (float) client.GameWindow.Time;

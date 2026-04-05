@@ -6,15 +6,15 @@ using BrainWithNoSkull.World.Entities;
 namespace BrainWithNoSkull.Client.Render.Entities;
 
 public interface IEntityRenderer {
-    public void Render(Entity entity, MatrixStack stack, VertexBuilder vb);
+    public void Render(Entity entity, MatrixStack stack, VertexBuilder vb, float partialTick);
 }
 
 public abstract class EntityRenderer<T> : IEntityRenderer where T : Entity {
 
-    protected abstract void RenderEntity(T entity, MatrixStack stack, VertexBuilder vb);
+    protected abstract void RenderEntity(T entity, MatrixStack stack, VertexBuilder vb, float partialTick);
 
-    public void Render(Entity entity, MatrixStack stack, VertexBuilder vb){
-        RenderEntity((T)entity, stack, vb);
+    public void Render(Entity entity, MatrixStack stack, VertexBuilder vb, float partialTick){
+        RenderEntity((T)entity, stack, vb, partialTick);
     }
 }
 

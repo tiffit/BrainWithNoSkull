@@ -38,7 +38,7 @@ public abstract class ConnectedClientBase {
 
             if (!_playerInfoSent) {
                 _playerInfoSent = true;
-                SendPacket(new CbPlayerInfoPacket(Entity.Position));
+                SendPacket(new CbPlayerInfoPacket(Entity.Position, Entity.Id));
             }
 
             if (Entity.Inventory.DirtySlots.Count > 0) {
