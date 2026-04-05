@@ -75,6 +75,7 @@ public class ClientWorld : WorldBase {
             }
 
             //Entity rendering
+            float partialTick = _gameClient.GetPartialTick();
             foreach (Vector2D<int> chunkCoords in _chunkMeshes.Keys) {
                 Chunk? chunk = Chunks.GetChunk(chunkCoords);
                 if (chunk != null) {
@@ -83,7 +84,7 @@ public class ClientWorld : WorldBase {
                         IEntityRenderer? renderer = EntityRendererRegistry.GetRenderer<Entity>(entity.Type);
                         if (renderer != null && (camera.Frustum?.IsBoxInside(entity.GetBoundingBox()) ?? false)) {
                             MatrixStack ms = new MatrixStack();
-                            renderer.Render(entity, ms, vb, 0f);
+                            renderer.Render(entity, ms, vb, partialTick);
                             // DrawBoundingBox(entity.GetBoundingBox());
                         }
                     }

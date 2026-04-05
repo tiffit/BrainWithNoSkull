@@ -17,6 +17,7 @@ public class Entity {
     private Vector3D<float> _velocity;
     
     public Vector3D<float> Position{ get; private set; }
+    public Vector3D<float> OldPosition{ get; private set; }
     
     public bool IsPositionDirty = true;
 
@@ -33,6 +34,11 @@ public class Entity {
             IsPositionDirty = true;
         }
     }
+    
+    public void SetPositionInstant(Vector3D<float> pos){
+        SetPosition(pos);
+        OldPosition = pos;
+    }
 
     public AABB GetBoundingBox(){
         return Type.Aabb + Position;
@@ -43,6 +49,9 @@ public class Entity {
             OnGround = IsOnGround();
             if (World.OnServer) {
                 TickPhysics();
+            }
+            else {
+                OldPosition = Position;
             }
         }
     }

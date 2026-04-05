@@ -15,10 +15,11 @@ public class ItemStackEntityRenderer: EntityRenderer<ItemStackEntity> {
             
             float rotation = (MathF.PI/2f * time) % (MathF.PI * 2);
             float bobbing = 0f;//Math.Abs((time % 2f) - 1f) * 0.25f - 0.125f;
+            Vector3D<float> pos = Vector3D.Lerp(entity.OldPosition, entity.Position, partialTick);
             
             stack.Scale(0.5f, 0.5f, 0.5f);
             stack.Rotate(Quaternion<float>.CreateFromAxisAngle(Vector3D<float>.UnitY, rotation));
-            stack.Translate(entity.Position.X, entity.Position.Y + bobbing, entity.Position.Z);
+            stack.Translate(pos.X, pos.Y + bobbing, pos.Z);
             client.ItemRenderer.RenderItemInWorld(vb, stack, entity.Stack);
         }
     }

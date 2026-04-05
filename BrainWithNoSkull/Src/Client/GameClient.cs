@@ -32,6 +32,7 @@ public class GameClient {
     private Camera _camera = null!;
     private readonly LightData _lightData = new LightData();
     private PlayerController? _playerController;
+    private float _lastTick;
 
     private LocalGameServer _server;
 
@@ -186,6 +187,7 @@ public class GameClient {
     }
 
     private void Tick(double delta){
+        _lastTick = (float)GameWindow.Time;
         while (TickActions.TryDequeue(out Action? tickAction)) {
             tickAction.Invoke();
         }
@@ -193,6 +195,11 @@ public class GameClient {
         World?.Tick(delta);
         ServerConnection.Tick(delta);
         _server.Tick(delta);
+    }
+
+    public float GetPartialTick(){
+        float timePass = (float)GameWindow.Time - _lastTick;
+        return Math.Clamp(timePass / (1f / Constants.TicksPerSecond), 0f, 1f);
     }
 
     private void UpdateSun(ClientPlayerEntity player, ClientWorld world){

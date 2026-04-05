@@ -29,7 +29,7 @@ public class WorldBase {
     public virtual void AddEntity(Entity entity, Vector3D<float> position){
         Chunk chunk = GetChunk(ChunkUtils.ToChunkCoords(position))!;
         chunk.AddEntity(entity);
-        entity.SetPosition(position);
+        entity.SetPositionInstant(position);
         _entities[entity.Id] = entity;
     }
 
