@@ -22,7 +22,9 @@ public sealed class InventoryCraftingWidget: PanelWidget {
     private void OnCraftingButtonClicked(Recipe recipe){
         ClientPlayerEntity? player = GameClient.Instance.ServerConnection.PlayerEntity;
         if (player != null) {
-            player.ServerConnection.SendPacket(new SbStartCraftPacket(recipe));
+            if (recipe.CanCraft(player.Inventory)) {
+                player.ServerConnection.SendPacket(new SbStartCraftPacket(recipe));
+            }
         }
     }
     

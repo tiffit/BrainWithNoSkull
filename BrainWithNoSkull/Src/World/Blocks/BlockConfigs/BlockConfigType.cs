@@ -1,4 +1,5 @@
 ﻿using BrainWithNoSkull.Util;
+using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.World.Blocks.BlockConfigs;
 
@@ -53,5 +54,31 @@ public class HorizontalFacingBlockConfigType: BlockConfigType<Direction> {
 
     public override Direction GetDefault(){
         return Direction.North;
+    }
+}
+
+public class MultiblockBlockConfigType: BlockConfigType<Vector3D<uint>> {
+
+    public static readonly MultiblockBlockConfigType Instance = new MultiblockBlockConfigType();
+    
+    protected MultiblockBlockConfigType() : base(9){
+    }
+
+    public override Vector3D<uint> GetValue(uint bits){
+        uint x = bits & 0b111;
+        uint y = (bits >> 3) & 0b111;
+        uint z = (bits >> 6) & 0b111;
+        return new Vector3D<uint>(x, y, z);
+    }
+
+    public override uint FromValue(Vector3D<uint> value){
+        uint x = value.X & 0b111;
+        uint y = (value.Y & 0b111) << 3;
+        uint z = (value.Z & 0b111) << 6;
+        return x | y | z;
+    }
+
+    public override Vector3D<uint> GetDefault(){
+        return Vector3D<uint>.Zero;
     }
 }
