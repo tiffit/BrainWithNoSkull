@@ -65,4 +65,19 @@ public class PlayerInventory: IItemContainer {
         }
         return counts;
     }
+
+    public void Remove(Item item, int amount){
+        for (int i = 0; i < InventorySize; i++) {
+            ItemStack? stack = GetItem(i);
+            if (!ItemStack.IsNull(stack)) {
+                if (stack.Item == item) {
+                    int toRemove = Math.Min(amount, stack.Count);
+                    amount -= toRemove;
+                    stack.Count -= toRemove;
+                    DirtySlots.Add(i);
+                    if(amount == 0) return;
+                }
+            }
+        }
+    }
 }

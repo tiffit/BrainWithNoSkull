@@ -1,4 +1,5 @@
 ﻿using BrainWithNoSkull.Client.World;
+using BrainWithNoSkull.Net.Pckt.Sb;
 using BrainWithNoSkull.Registries;
 using BrainWithNoSkull.World.Recipes;
 
@@ -21,7 +22,7 @@ public sealed class InventoryCraftingWidget: PanelWidget {
     private void OnCraftingButtonClicked(Recipe recipe){
         ClientPlayerEntity? player = GameClient.Instance.ServerConnection.PlayerEntity;
         if (player != null) {
-            Console.WriteLine(recipe.CanCraft(player.Inventory));
+            player.ServerConnection.SendPacket(new SbStartCraftPacket(recipe));
         }
     }
     
