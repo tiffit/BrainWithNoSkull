@@ -15,8 +15,8 @@ public class Recipe: IRegistryEntry {
     private readonly string _id;
 
     public readonly RecipeType RecipeType;
-    public readonly IReadOnlyCollection<ItemStack> Inputs;
-    public readonly IReadOnlyCollection<ItemStack> Outputs;
+    public readonly IReadOnlyList<ItemStack> Inputs;
+    public readonly IReadOnlyList<ItemStack> Outputs;
     public readonly float Time;
     
     public Recipe(string id, RecipeType type, List<ItemStack> inputs, List<ItemStack> outputs, float time){

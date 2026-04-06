@@ -23,7 +23,8 @@ public class InventoryGui: Gui {
         InventoryWidget invWidget;
         Widgets.Add(invWidget = new InventoryWidget(0.8f, scaledWidth, scaledHeight, this, _inventory, false));
         int craftingHeight = invWidget.GetTop() - 20;
-        Widgets.Add(new InventoryCraftingWidget(ScaledWidth/2 - 100, 10, 0.8f, 200, craftingHeight, this));
+        const int craftingWidth = 150;
+        Widgets.Add(new InventoryCraftingWidget(ScaledWidth/2 - craftingWidth/2, 10, 0.8f, craftingWidth, craftingHeight, this));
     }
     
     public override void Render(VertexBuilder guiVb, int mouseX, int mouseY){
