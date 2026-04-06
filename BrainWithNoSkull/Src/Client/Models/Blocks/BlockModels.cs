@@ -23,6 +23,7 @@ public class BlockModels {
             BlockRegistry.Pebbles, HorizontalFacingBlockConfigType.Instance, Direction.Horizontal);
         UnbakedModels[BlockRegistry.Stick] = new RotatingBlockModel(new JsonBlockModel("Stick", "Block/Stick"),
             BlockRegistry.Stick, HorizontalFacingBlockConfigType.Instance, Direction.Horizontal);
+        UnbakedModels[BlockRegistry.Magnetite] = new CubeBlockModel("Block/Magnetite");
 
         HashSet<string> deps = [];
         foreach (UnbakedBlockModel model in UnbakedModels.Values) {

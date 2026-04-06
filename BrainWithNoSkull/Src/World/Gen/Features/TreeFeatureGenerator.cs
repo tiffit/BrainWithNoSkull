@@ -79,7 +79,7 @@ public class TreeFeatureGenerator : IFeatureGenerator {
     }
 
     private bool CanGenerate(int worldX, int worldZ){
-        _random.SetSeed(_seed + (long)worldX * 1619 ^ ((long)worldZ * 31337));
+        _random.SetSeed(_seed + HashCode.Combine(worldX, worldZ));
         return _random.NextDouble() < 0.008;
     }
 }

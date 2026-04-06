@@ -19,17 +19,19 @@ public static class BlockRegistry {
     public static Block OakLeaves;
     public static Block Pebbles;
     public static Block Stick;
+    public static Block Magnetite;
     
     public static void Init(){
         Air = Registry.Register(new Block("Air"));
         
         Grass = Registry.Register(new Block("Grass"){BreakTime = 1f});
         Dirt = Registry.Register(new Block("Dirt"){BreakTime = 1f});
-        Stone = Registry.Register(new Block("Stone"){BreakTime = 5f});
-        OakLog = Registry.Register(new Block("OakLog"){BreakTime = 3f});
+        Stone = Registry.Register(new Block("Stone"){BreakTime = 3f});
+        OakLog = Registry.Register(new Block("OakLog"){BreakTime = 2f});
         OakLeaves = Registry.Register(new Block("OakLeaves"){BreakTime = 0.5f});
         Pebbles = Registry.Register(new LitterBlock("Pebbles"){BreakTime = 0.1f});
         Stick = Registry.Register(new LitterBlock("Stick"){BreakTime = 0.1f});
+        Magnetite = Registry.Register(new Block("Magnetite"){BreakTime = 4.5f});
     }
 
 }

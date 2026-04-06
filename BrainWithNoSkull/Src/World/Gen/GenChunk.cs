@@ -25,11 +25,15 @@ public class GenChunk {
     }
 
     public void SetBlock(int x, int y, int z, Block block){
-        if (x < 0 || y < 0 || z < 0 || x >= Constants.ChunkSize || y >= Constants.MaxWorldHeight || z >= Constants.ChunkSize) {
+        if (OutOfBounds(x, y, z)) {
             return;
         }
 
         Blocks[x, y, z] = block;
+    }
+
+    public static bool OutOfBounds(int x, int y, int z){
+        return x < 0 || y < 0 || z < 0 || x >= Constants.ChunkSize || y >= Constants.MaxWorldHeight || z >= Constants.ChunkSize;
     }
 
     public Chunk ToChunk(WorldBase world){
