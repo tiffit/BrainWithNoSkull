@@ -85,6 +85,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
     private readonly VkUniformStore _ubo = new VkUniformStore();
     private readonly VkUniformStore _shadowUbo = new VkUniformStore();
     private readonly VkUniformStore _shadowMapDataUbo = new VkUniformStore();
+    private readonly float[] _shadowCascadeSizes = new float[ShadowMapCascadeCount];
     
     private Semaphore[] _imageAvailableSemaphore = [];
     private Semaphore[] _renderFinishedSemaphore = [];
@@ -1299,11 +1300,26 @@ public unsafe class VkRenderEngine : IRenderEngine {
             };
             _vk.CmdSetScissor(buffer, 0, 1, &scissor);
 
+            AABB? shadowFrustum = null;
+            if (shadowMapping) {
+                float radius = _shadowCascadeSizes[cascadeIndex];
+                shadowFrustum = new AABB(-radius, -radius, -radius, radius, radius, radius) + _camera.Position;
+            }
+
             if (useMeshes) {
                 foreach ((Mesh mesh, CompiledMeshData? data) in meshes) {
                     if (data != null) {
-                        if (!shadowMapping && _camera.Frustum != null && data.Aabb != null && !_camera.Frustum.IsBoxInside(data.Aabb)) {
-                            continue;
+                        if (data.Aabb != null) {
+                            if (shadowMapping) {
+                                if (shadowFrustum != null && !data.Aabb.Intersects(shadowFrustum)) {
+                                    continue;
+                                }
+                            }
+                            else {
+                                if (_camera.Frustum != null && !_camera.Frustum.IsBoxInside(data.Aabb)) {
+                                    continue;
+                                }
+                            }
                         }
 
                         fixed (Buffer* bufferPtr = new[]{ pipeline.VertexBuffer }) {
@@ -1434,6 +1450,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
             }
             
             radius = MathF.Ceiling(radius * 16) / 16f;
+            _shadowCascadeSizes[i] = radius;
             
             Vector3D<float> maxExtents = new Vector3D<float>(radius);
             Vector3D<float> minExtents = -maxExtents;
