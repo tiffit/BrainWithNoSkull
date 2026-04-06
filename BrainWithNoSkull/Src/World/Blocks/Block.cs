@@ -1,6 +1,7 @@
 ﻿using BrainWithNoSkull.Registries;
 using BrainWithNoSkull.Util;
 using BrainWithNoSkull.World.Blocks.BlockConfigs;
+using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.World.Blocks;
 
@@ -44,4 +45,8 @@ public class Block : IRegistryEntry {
     public virtual bool ShouldCullFace(Direction direction){
         return !IsAir();
     }
+}
+
+public interface IMultiblock {
+    public Vector3D<int> GetMultiblockSize();
 }

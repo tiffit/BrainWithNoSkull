@@ -3,6 +3,7 @@ using BrainWithNoSkull.Registries;
 using BrainWithNoSkull.Util;
 using BrainWithNoSkull.World.Blocks;
 using BrainWithNoSkull.World.Blocks.BlockConfigs;
+using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.Client.Models.Blocks;
 
@@ -24,6 +25,10 @@ public class BlockModels {
         UnbakedModels[BlockRegistry.Stick] = new RotatingBlockModel(new JsonBlockModel("Stick", "Block/Stick"),
             BlockRegistry.Stick, HorizontalFacingBlockConfigType.Instance, Direction.Horizontal);
         UnbakedModels[BlockRegistry.Magnetite] = new CubeBlockModel("Block/Magnetite");
+        UnbakedModels[BlockRegistry.CrudeFurnace] = new MultiblockBlockModel(BlockRegistry.CrudeFurnace, new Dictionary<Vector3D<uint>, UnbakedBlockModel>(){
+            {Vector3D<uint>.Zero, new JsonBlockModel("CrudeFurnaceBottom", "Block/CrudeFurnace")},
+            {Vector3D<uint>.UnitY, new JsonBlockModel("CrudeFurnaceTop", "Block/CrudeFurnace")}
+        });
 
         HashSet<string> deps = [];
         foreach (UnbakedBlockModel model in UnbakedModels.Values) {

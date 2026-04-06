@@ -122,8 +122,8 @@ public class ClientWorld : WorldBase {
         return false;
     }
 
-    public override void SetBlock(Vector3D<int> blockPos, Block block){
-        base.SetBlock(blockPos, block);
+    public override void SetBlock(Vector3D<int> blockPos, Block block, uint config){
+        base.SetBlock(blockPos, block, config);
         Vector3D<int> sectionCoords = ChunkUtils.ToChunkSectionedCoords(blockPos);
         _chunkMeshRebuilds.Add(sectionCoords);
         int offsetX = blockPos.X - sectionCoords.X * Constants.ChunkSize;

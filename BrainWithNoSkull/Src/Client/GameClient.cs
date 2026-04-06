@@ -219,8 +219,11 @@ public class GameClient {
     }
 
     private void DrawBlockOutline(WorldRayResult result){
-        Vector3D<int> blockPos = result.Pos;
-        AABB? aabb = World?.GetBlock(blockPos).GetCollisionBox();
+        if(World == null)
+            return;
+        Vector3D<int> blockPos = World.GetMultiblockOrigin(result.Pos);
+        
+        AABB? aabb = World.GetBlock(World.GetMultiblockOrigin(blockPos)).GetCollisionBox();
         if (aabb == null)
             return;
         aabb += blockPos;

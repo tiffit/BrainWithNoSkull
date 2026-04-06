@@ -60,13 +60,13 @@ public class Chunk {
         return _blocks[x, y, z];
     }
 
-    public void SetBlock(int x, int y, int z, Block block){
+    public void SetBlock(int x, int y, int z, Block block, uint config){
         if (OutsideChunkBounds(x, y, z)) {
             Console.WriteLine("Setting block outside of chunk");
         }
 
         _blocks[x, y, z] = block;
-        _blockConfigs[x, y, z] = block.ConfigContainer.GetDefault();
+        _blockConfigs[x, y, z] = config;
     }
 
     public bool OutsideChunkBounds(int x, int y, int z){

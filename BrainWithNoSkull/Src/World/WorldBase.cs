@@ -2,6 +2,7 @@
 using BrainWithNoSkull.Registries;
 using BrainWithNoSkull.Util;
 using BrainWithNoSkull.World.Blocks;
+using BrainWithNoSkull.World.Blocks.BlockConfigs;
 using BrainWithNoSkull.World.Entities;
 using BrainWithNoSkull.World.Gen;
 using BrainWithNoSkull.World.Gen.Chunks;
@@ -62,12 +63,60 @@ public class WorldBase {
     }
 
     public virtual void SetBlock(Vector3D<int> blockPos, Block block){
+        SetBlock(blockPos, block, block.ConfigContainer.GetDefault());
+    }
+    
+    public virtual void SetBlock(Vector3D<int> blockPos, Block block, uint config){
         Vector2D<int> chunkCoords = ChunkUtils.ToChunkCoords(blockPos);
         if (!Chunks.IsChunkLoaded(chunkCoords))
             return;
         Chunk? chunk = Chunks.GetChunk(chunkCoords);
         blockPos = ChunkUtils.ToBlockInChunk(blockPos);
-        chunk?.SetBlock(blockPos.X, blockPos.Y, blockPos.Z, block);
+        chunk?.SetBlock(blockPos.X, blockPos.Y, blockPos.Z, block, config);
+    }
+    
+    public virtual void RemoveBlock(Vector3D<int> blockPos){
+        Block block = GetBlock(blockPos, out uint config);
+        if (block is IMultiblock multiblock) {
+            Vector3D<int> size = multiblock.GetMultiblockSize();
+            Vector3D<int> origin = GetMultiblockOrigin(blockPos);
+            for (int x = 0; x < size.X; x++) {
+                for (int y = 0; y < size.Y; y++) {
+                    for (int z = 0; z < size.Z; z++) {
+                        SetBlock(new Vector3D<int>(origin.X + x, origin.Y + y, origin.Z + z), BlockRegistry.Air);
+                    }
+                }
+            }
+        }
+        else {
+            SetBlock(blockPos, BlockRegistry.Air);
+        }
+    }
+
+    public Vector3D<int> GetMultiblockOrigin(Vector3D<int> blockPos){
+        Block block = GetBlock(blockPos, out uint config);
+        if (block is IMultiblock multiblock) {
+            Vector3D<uint> offset = block.ConfigContainer.GetValue(config, MultiblockBlockConfigType.Instance);
+            return new Vector3D<int>(blockPos.X - (int)offset.X, blockPos.Y - (int)offset.Y, blockPos.Z - (int)offset.Z);
+        }
+        return blockPos;
+    }
+
+    public virtual void PlaceBlock(Vector3D<int> blockPos, Block block){
+        if (block is IMultiblock multiblock) {
+            Vector3D<int> size = multiblock.GetMultiblockSize();
+            for (uint x = 0; x < size.X; x++) {
+                for (uint y = 0; y < size.Y; y++) {
+                    for (uint z = 0; z < size.Z; z++) {
+                        uint config = block.ConfigContainer.SetValue(0, MultiblockBlockConfigType.Instance, new Vector3D<uint>(x, y, z));
+                        SetBlock(blockPos + new Vector3D<int>((int)x, (int)y, (int)z), block, config);
+                    }
+                }
+            }
+        }
+        else {
+            SetBlock(blockPos, block);
+        }
     }
 
     public virtual void Tick(double delta){

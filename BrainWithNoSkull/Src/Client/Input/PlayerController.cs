@@ -165,7 +165,7 @@ public class PlayerController {
                 _player.BlockBreakTime += (float)delta * breakMult;
                 if (_player.BlockBreakTime >= world!.GetBlock(blockPos).BreakTime) {
                     _client.TickActions.Enqueue(() => {
-                        _player.World?.SetBlock(blockPos, BlockRegistry.Air);
+                        _player.World?.RemoveBlock(blockPos);
                         _player.BlockBreakPause = false;
                     });
                     _player.ServerConnection.SendPacket(new SbPlayerBreakBlockPacket(blockPos));

@@ -17,9 +17,10 @@ public static class BlockRegistry {
     public static Block Stone;
     public static Block OakLog;
     public static Block OakLeaves;
-    public static Block Pebbles;
-    public static Block Stick;
+    public static LitterBlock Pebbles;
+    public static LitterBlock Stick;
     public static Block Magnetite;
+    public static CrudeFurnaceBlock CrudeFurnace;
     
     public static void Init(){
         Air = Registry.Register(new Block("Air"));
@@ -32,6 +33,7 @@ public static class BlockRegistry {
         Pebbles = Registry.Register(new LitterBlock("Pebbles"){BreakTime = 0.1f});
         Stick = Registry.Register(new LitterBlock("Stick"){BreakTime = 0.1f});
         Magnetite = Registry.Register(new Block("Magnetite"){BreakTime = 4.5f});
+        CrudeFurnace = Registry.Register(new CrudeFurnaceBlock("CrudeFurnace"){BreakTime = 4.5f});
     }
 
 }

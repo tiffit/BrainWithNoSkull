@@ -1,5 +1,6 @@
 ﻿using BrainWithNoSkull.Util;
 using BrainWithNoSkull.World.Blocks;
+using BrainWithNoSkull.World.Blocks.BlockConfigs;
 using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.World;
@@ -49,11 +50,18 @@ public class WorldRay {
     private void CheckBlock(WorldBase world, Vector3D<int> blockPos, HashSet<Vector3D<int>> testedBlocks, ref float bestDistance, ref Direction? bestDirection, ref Vector3D<int> bestBlockPos){
         if(!testedBlocks.Add(blockPos))
             return;
-        Block block = world.GetBlock(blockPos);
+        Block block = world.GetBlock(blockPos, out uint config);
         AABB? aabb = block.GetCollisionBox();
         if(aabb == null)
             return;
-        aabb += blockPos;
+
+        if (block is IMultiblock) {
+            Vector3D<uint> offset = block.ConfigContainer.GetValue(config, MultiblockBlockConfigType.Instance);
+            aabb = new AABB(MathF.Max(aabb.MinX, offset.X), MathF.Max(aabb.MinY, offset.Y), MathF.Max(aabb.MinZ, offset.Z),
+                MathF.Min(aabb.MaxX, offset.X + 1), MathF.Min(aabb.MaxY, offset.Y + 1), MathF.Min(aabb.MaxZ, offset.Z + 1));
+        }
+        
+        aabb += world.GetMultiblockOrigin(blockPos);
 
         List<Tuple<Direction, float>> tests = [];
         

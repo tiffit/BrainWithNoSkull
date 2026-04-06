@@ -1,4 +1,5 @@
-﻿using BrainWithNoSkull.World.Items;
+﻿using BrainWithNoSkull.Registries;
+using BrainWithNoSkull.World.Items;
 using BrainWithNoSkull.World.ItemStacks;
 
 namespace BrainWithNoSkull.World.Entities.Player;
@@ -15,6 +16,8 @@ public class PlayerInventory: IItemContainer {
         for (int i = 0; i < InventorySize; i++) {
             Items.Add(null);
         }
+        
+        SetItemInSlot(new ItemStack(BlockRegistry.CrudeFurnace, 1), 5);
     }
 
     public void AddItem(ref ItemStack? stack){

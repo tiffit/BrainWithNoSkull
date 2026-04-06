@@ -35,7 +35,7 @@ public class SbPlayerBreakBlockPacket : IPacket {
         if (player?.World != null) {
             Block currentBlock = player.World.GetBlock(BlockPos);
             ItemStack stack = new ItemStack(ItemRegistry.BlockItems[currentBlock], 1);
-            player.World.SetBlock(BlockPos, BlockRegistry.Air);
+            player.World.RemoveBlock(BlockPos);
 
             if (!ItemStack.IsNull(stack)) {
                 ItemStackEntity entity = new ItemStackEntity(player.World){Stack = stack};

@@ -33,4 +33,8 @@ public class BlockConfigContainer {
         return type.WriteSection(packed, offset, value);
     }
 
+    public bool Has<T>(BlockConfigType<T> type){
+        return _offsets.ContainsKey(type.Id);
+    }
+
 }

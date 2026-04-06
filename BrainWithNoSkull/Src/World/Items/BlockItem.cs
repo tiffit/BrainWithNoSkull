@@ -18,7 +18,7 @@ public class BlockItem : Item {
         Vector3D<int> placePos = result.Pos + result.Direction.Offset;
         AABB? aabb = Block.GetCollisionBox();
         if (aabb == null || !world.GetEntitiesInBox(aabb + placePos).Any()) {
-            world.SetBlock(placePos, Block);
+            world.PlaceBlock(placePos, Block);
             stack.Count -= 1;
             if (world.OnServer) {
                 player.Inventory.MarkHeldStackDirty();
