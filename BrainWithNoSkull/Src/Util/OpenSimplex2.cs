@@ -483,14 +483,14 @@ public static class OpenSimplex2
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static int FastFloor(double x)
+    public static int FastFloor(double x)
     {
         int xi = (int)x;
         return x < xi ? xi - 1 : xi;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static int FastRound(double x)
+    public static int FastRound(double x)
     {
         return x < 0 ? (int)(x - 0.5) : (int)(x + 0.5);
     }
