@@ -20,8 +20,10 @@ public class InventoryGui: Gui {
         _player = GameClient.Instance.ServerConnection.PlayerEntity;
         _inventory = _player?.Inventory;
 
-        Widgets.Add(new InventoryWidget(0.8f, scaledWidth, scaledHeight, this, _inventory, false));
-
+        InventoryWidget invWidget;
+        Widgets.Add(invWidget = new InventoryWidget(0.8f, scaledWidth, scaledHeight, this, _inventory, false));
+        int craftingHeight = invWidget.GetTop() - 20;
+        Widgets.Add(new InventoryCraftingWidget(ScaledWidth/2 - 100, 10, 0.8f, 200, craftingHeight, this));
     }
     
     public override void Render(VertexBuilder guiVb, int mouseX, int mouseY){

@@ -110,4 +110,49 @@ public class GuiRenderer {
         vb.Add(new Vertex{ Pos = new Vector3D<float>(p1, z), Color = color });
     }
 
+    public void DrawTexture9Slice(VertexBuilder vb, float x, float y, float z, int u, int v, int uWidth, int vHeight, int width, int height, int left, int right, int top, int bottom, int textureSize, uint textureIndex){
+        //top-left
+        DrawTexture(vb, x, y, z, u, v, left, top, textureSize, textureIndex);
+        
+        //top-right
+        DrawTexture(vb, x + width - right, y, z, u + uWidth - right, v, right, top, textureSize, textureIndex);
+        
+        //bottom-left
+        DrawTexture(vb, x, y + height - bottom, z, u, v + vHeight - bottom, left, bottom, textureSize, textureIndex);
+        
+        //bottom-right
+        DrawTexture(vb, x + width - right, y + height - bottom, z, u + uWidth - right, v + vHeight - bottom, right, bottom, textureSize, textureIndex);
+        
+        //top & bottom
+        int horizontalPadding = left + right;
+        int maxWidth = uWidth - horizontalPadding;
+        for (int i = 0; i < (width - horizontalPadding) / maxWidth + 1; i++) {
+            int drawX = i * maxWidth;
+            int drawWidth = Math.Min(width - horizontalPadding - drawX, maxWidth);
+            DrawTexture(vb, x + drawX + left, y, z, u + right, v, drawWidth, top, 256, textureIndex);
+            DrawTexture(vb, x + drawX + left, y + height - bottom, z, u + right, v + vHeight - bottom, drawWidth, bottom, 256, textureIndex);
+        }
+        
+        //left & right
+        int verticalPadding = top + bottom;
+        int maxHeight = vHeight - verticalPadding;
+        for (int i = 0; i < (height - verticalPadding) / maxHeight + 1; i++) {
+            int drawY = i * maxHeight;
+            int drawHeight = Math.Min(height - verticalPadding - drawY, maxHeight);
+            DrawTexture(vb, x, y + drawY + top, z, u, v + top, left, drawHeight, 256, textureIndex);
+            DrawTexture(vb, x + width - right, y + drawY + top, z, u + uWidth - right, v + top, right, drawHeight, 256, textureIndex);
+        }
+        
+        //middle
+        for (int hor = 0; hor < (width - horizontalPadding) / maxWidth + 1; hor++) {
+            for (int vert = 0; vert < (height - verticalPadding) / maxHeight + 1; vert++) {
+                int drawX = hor * maxWidth;
+                int drawY = vert * maxHeight;
+                int drawWidth = Math.Min(width - horizontalPadding - drawX, maxWidth);
+                int drawHeight = Math.Min(height - verticalPadding - drawY, maxHeight);
+                DrawTexture(vb, x + drawX + left, y + drawY + top, z, u + right, v + top, drawWidth, drawHeight, 256, textureIndex);
+            }
+        }
+    }
+
 }

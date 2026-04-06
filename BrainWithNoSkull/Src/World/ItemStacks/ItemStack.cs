@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using BrainWithNoSkull.Net;
 using BrainWithNoSkull.Registries;
+using BrainWithNoSkull.World.Blocks;
 using BrainWithNoSkull.World.Items;
 
 namespace BrainWithNoSkull.World.ItemStacks;
@@ -14,6 +15,8 @@ public class ItemStack {
         Item = item;
         Count = count;
     }
+    
+    public ItemStack(Block block, int count): this(ItemRegistry.BlockItems[block], count){ }
 
     public ItemStack Clone(){
         return new ItemStack(Item, Count);
