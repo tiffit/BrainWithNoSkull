@@ -27,16 +27,10 @@ public class SlotWidget: Widget {
         if (!ItemStack.IsNull(stack)) {
             if (IsHeldStack()) {
                 DrawDashedLine(mouseX, mouseY);
-                GameClient.Instance.ItemRenderer.RenderItemInGui(guiVb, stack, mouseX, mouseY, 0.1f, 40, 40);
-                if (stack.Count > 1) {
-                    Parent.Font.RenderString(mouseX - 9, mouseY - 9, 0.1f - 0.03f, "" + stack.Count, ColorUtil.FromFloats(1f, 0.65f, 0f));
-                }
+                GameClient.Instance.ItemRenderer.RenderItemInGuiWithCount(guiVb, stack, mouseX, mouseY, 0.1f, Parent.Font);
             }
             else {
-                GameClient.Instance.ItemRenderer.RenderItemInGui(guiVb, stack, X + 9, Y+ 9, Z - 0.01f, 40, 40);
-                if (stack.Count > 1) {
-                    Parent.Font.RenderString(X, Y, Z - 0.03f, "" + stack.Count, ColorUtil.FromFloats(1f, 0.65f, 0f));
-                }
+                GameClient.Instance.ItemRenderer.RenderItemInGuiWithCount(guiVb, stack, X + 9, Y+ 9, Z - 0.01f, Parent.Font);
             }
             hasStack = true;
         }

@@ -10,7 +10,7 @@ public class InvCraftingButtonWidget: ButtonWidget {
     private readonly Recipe _recipe;
     private readonly FontRenderer _font;
     
-    public InvCraftingButtonWidget(Recipe recipe, Gui parent) : base(0, 0, -0.02f, 0, 25, parent){
+    public InvCraftingButtonWidget(Recipe recipe, Gui parent, ButtonClickHandler? clickHandler) : base(0, 0, -0.02f, 0, 25, parent, clickHandler){
         _recipe = recipe;
         _font = parent.Font;
     }
@@ -20,7 +20,7 @@ public class InvCraftingButtonWidget: ButtonWidget {
 
         int x = X + 3;
         foreach (ItemStack input in _recipe.Outputs) {
-            GameClient.Instance.ItemRenderer.RenderItemInGui(guiVb, input, x + 9, Y + 4 + 9, Z - 0.02f, 40, 40);
+            GameClient.Instance.ItemRenderer.RenderItemInGuiWithCount(guiVb, input, x + 9, Y + 4 + 9, Z - 0.02f, Parent.Font);
             Parent.GuiRenderer.DrawTexture(guiVb, x, Y + 4, Z - 0.01f, 0, 0, 18, 18, 256, InvIconsTexture);
             x += 20;
         }
@@ -30,7 +30,7 @@ public class InvCraftingButtonWidget: ButtonWidget {
         x += 20;
         
         foreach (ItemStack input in _recipe.Inputs) {
-            GameClient.Instance.ItemRenderer.RenderItemInGui(guiVb, input, x + 9, Y + 4 + 9, Z - 0.02f, 40, 40);
+            GameClient.Instance.ItemRenderer.RenderItemInGuiWithCount(guiVb, input, x + 9, Y + 4 + 9, Z - 0.02f, Parent.Font);
             Parent.GuiRenderer.DrawTexture(guiVb, x, Y + 4, Z - 0.01f, 0, 0, 18, 18, 256, InvIconsTexture);
             x += 20;
         }

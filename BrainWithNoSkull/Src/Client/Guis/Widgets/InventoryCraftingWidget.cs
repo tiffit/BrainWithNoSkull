@@ -1,4 +1,5 @@
-﻿using BrainWithNoSkull.Registries;
+﻿using BrainWithNoSkull.Client.World;
+using BrainWithNoSkull.Registries;
 using BrainWithNoSkull.World.Recipes;
 
 namespace BrainWithNoSkull.Client.Guis.Widgets;
@@ -10,7 +11,17 @@ public sealed class InventoryCraftingWidget: PanelWidget {
         AddWidget(list);
         
         foreach (Recipe recipe in RecipeRegistry.Registry.GetEntries()) {
-            list.AddWidget(new InvCraftingButtonWidget(recipe, parent));
+            list.AddWidget(new InvCraftingButtonWidget(recipe, parent, (_, _, _) => {
+                OnCraftingButtonClicked(recipe);
+                return true;
+            }));
+        }
+    }
+
+    private void OnCraftingButtonClicked(Recipe recipe){
+        ClientPlayerEntity? player = GameClient.Instance.ServerConnection.PlayerEntity;
+        if (player != null) {
+            Console.WriteLine(recipe.CanCraft(player.Inventory));
         }
     }
     

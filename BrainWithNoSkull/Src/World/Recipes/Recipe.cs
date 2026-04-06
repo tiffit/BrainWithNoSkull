@@ -1,4 +1,6 @@
 ﻿using BrainWithNoSkull.Registries;
+using BrainWithNoSkull.World.Entities.Player;
+using BrainWithNoSkull.World.Items;
 using BrainWithNoSkull.World.ItemStacks;
 
 namespace BrainWithNoSkull.World.Recipes;
@@ -38,5 +40,13 @@ public class Recipe: IRegistryEntry {
 
     public ushort GetIndex(){
         return _index;
+    }
+
+    public bool CanCraft(PlayerInventory inv){
+        Dictionary<Item, int> counts = inv.GetCounts();
+        return Inputs.All(stack => {
+            counts.TryGetValue(stack.Item, out int count);
+            return stack.Count <= count;
+        });
     }
 }

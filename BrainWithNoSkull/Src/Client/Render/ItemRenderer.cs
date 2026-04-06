@@ -49,7 +49,14 @@ public class ItemRenderer {
             }
         }
     }
-    
+
+    public void RenderItemInGuiWithCount(VertexBuilder vb, ItemStack stack, float x, float y, float z, FontRenderer font){
+        RenderItemInGui(vb, stack, x, y, z, 16, 16);
+        if (stack.Count > 1) {
+            font.RenderString(x - 9, y - 9, z - 0.03f, "" + stack.Count, ColorUtil.FromFloats(1f, 0.65f, 0f));
+        }
+    }
+
     public void RenderItemInWorld(VertexBuilder vb, MatrixStack ms, ItemStack stack){
         if (stack.Item is BlockItem item) {
             Block block = item.Block;

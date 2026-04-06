@@ -1,4 +1,4 @@
-﻿using BrainWithNoSkull.Registries;
+﻿using BrainWithNoSkull.World.Items;
 using BrainWithNoSkull.World.ItemStacks;
 
 namespace BrainWithNoSkull.World.Entities.Player;
@@ -52,5 +52,17 @@ public class PlayerInventory: IItemContainer {
 
     public int GetInventorySize(){
         return InventorySize;
+    }
+
+    public Dictionary<Item, int> GetCounts(){
+        Dictionary<Item, int> counts = new Dictionary<Item, int>();
+        for (int i = 0; i < InventorySize; i++) {
+            ItemStack? stack = GetItem(i);
+            if (!ItemStack.IsNull(stack)) {
+                counts.TryGetValue(stack.Item, out int current);
+                counts[stack.Item] = current + stack.Count;
+            }
+        }
+        return counts;
     }
 }
