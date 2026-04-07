@@ -18,9 +18,13 @@ public record BlockEntityType(Type UnderlyingType, string Id, ushort Index, Bloc
     public override int GetHashCode(){
         return Index.GetHashCode();
     }
+
+    public BlockEntity Create(){
+        return Factory(this);
+    }
 }
 
-public delegate BlockEntityType BlockEntityFactory();
+public delegate BlockEntity BlockEntityFactory(BlockEntityType type);
 
 public class BlockEntityTypeBuilder {
 

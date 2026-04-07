@@ -21,14 +21,14 @@ public class WorldGenerator {
     }
 
     public Chunk Generate(Vector2D<int> chunkCoords){
-        GenChunk genChunk = new GenChunk(chunkCoords, Constants.ChunkSize);
+        GenChunk genChunk = new GenChunk(_world, chunkCoords, Constants.ChunkSize);
         _chunkGen.Generate(chunkCoords, genChunk);
         
         foreach (IFeatureGenerator gen in _featureGenerators) {
             gen.GenerateFeatures(_world, chunkCoords, _chunkGen, genChunk);
         }
         
-        return genChunk.ToChunk(_world);
+        return genChunk.ToChunk();
     }
     
 }

@@ -1,10 +1,12 @@
-﻿using BrainWithNoSkull.Util;
+﻿using BrainWithNoSkull.Registries;
+using BrainWithNoSkull.Util;
+using BrainWithNoSkull.World.BlockEntities;
 using BrainWithNoSkull.World.Blocks.BlockConfigs;
 using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.World.Blocks.Specific;
 
-public class CrudeFurnaceBlock: NonFullBlock, IMultiblock {
+public class CrudeFurnaceBlock: NonFullBlock, IMultiblock, IBlockEntityProvider {
     
     private static readonly AABB CollisionBox = new AABB(1/8f, 0, 1/8f, 7/8f, 1 + 6/8f, 7/8f);
     
@@ -18,5 +20,9 @@ public class CrudeFurnaceBlock: NonFullBlock, IMultiblock {
 
     public override AABB GetCollisionBox(){
         return CollisionBox;
+    }
+
+    public BlockEntity GetBlockEntity(){
+        return BlockEntityRegistry.CrudeFurnace.Create();
     }
 }

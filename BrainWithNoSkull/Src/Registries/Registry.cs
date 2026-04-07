@@ -34,6 +34,7 @@ public class Registries {
         BlockRegistry.Init();
         ItemRegistry.Init();
         EntityTypeRegistry.Init();
+        BlockEntityRegistry.Init();
         RecipeRegistry.Init();
     }
 }

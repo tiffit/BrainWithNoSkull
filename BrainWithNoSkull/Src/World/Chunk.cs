@@ -4,6 +4,7 @@ using BrainWithNoSkull.Net.Pckt.Cb;
 using BrainWithNoSkull.Registries;
 using BrainWithNoSkull.Server;
 using BrainWithNoSkull.Util;
+using BrainWithNoSkull.World.BlockEntities;
 using BrainWithNoSkull.World.Blocks;
 using BrainWithNoSkull.World.Entities;
 using Silk.NET.Maths;
@@ -17,13 +18,18 @@ public class Chunk {
     public readonly Vector2D<int> Coords;
     private readonly Block[,,] _blocks;
     private readonly uint[,,] _blockConfigs;
+    private readonly BlockEntity?[,,] _blockEntities;
+    private readonly Dictionary<Vector3D<int>, ITickingBlockEntity> _tickingBlocks;
     private readonly Dictionary<uint, Entity> _entities = [];
     
-    public Chunk(WorldBase world, Vector2D<int> chunkCoords, Block[,,] blocks, uint[,,] blockConfigs){
+    public Chunk(WorldBase world, Vector2D<int> chunkCoords, Block[,,] blocks, uint[,,] blockConfigs, BlockEntity?[,,] blockEntities, 
+        Dictionary<Vector3D<int>, ITickingBlockEntity> tickingBlocks){
         _world = world;
         Coords = chunkCoords;
         _blocks = blocks;
         _blockConfigs = blockConfigs;
+        _blockEntities = blockEntities;
+        _tickingBlocks = tickingBlocks;
     }
 
     public void AddEntity(Entity entity){
@@ -67,6 +73,32 @@ public class Chunk {
 
         _blocks[x, y, z] = block;
         _blockConfigs[x, y, z] = config;
+        
+        BlockEntity? old = _blockEntities[x, y, z];
+        if (old is ITickingBlockEntity) {
+            _tickingBlocks.Remove(new Vector3D<int>(x, y, z));
+        }
+
+        if (block is IBlockEntityProvider provider) {
+            BlockEntity entity = provider.GetBlockEntity();
+            entity.World = _world;
+            entity.BlockPosition = new Vector3D<int>(x, y, z);
+            _blockEntities[x, y, z] = entity;
+            if (entity is ITickingBlockEntity ticking) {
+                _tickingBlocks[entity.BlockPosition] = ticking;
+            }
+        }
+        else {
+            _blockEntities[x, y, z] = null;
+        }
+    }
+    
+    public BlockEntity? GetBlockEntity(int x, int y, int z){
+        if (OutsideChunkBounds(x, y, z)) {
+            Console.WriteLine("Accessing block entity outside of chunk, returning air");
+            return null;
+        }
+        return _blockEntities[x, y, z];
     }
 
     public bool OutsideChunkBounds(int x, int y, int z){
@@ -111,6 +143,10 @@ public class Chunk {
                     }
                 }
             }
+        }
+        
+        foreach ((Vector3D<int> pos, ITickingBlockEntity blockEntity) in _tickingBlocks) {
+            blockEntity.Tick();
         }
     }
     

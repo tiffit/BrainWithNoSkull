@@ -2,6 +2,7 @@
 using BrainWithNoSkull.Net;
 using BrainWithNoSkull.Net.Pckt.Cb;
 using BrainWithNoSkull.World;
+using BrainWithNoSkull.World.BlockEntities;
 using BrainWithNoSkull.World.Entities;
 using BrainWithNoSkull.World.ItemStacks;
 
@@ -24,7 +25,8 @@ public class ClientPacketHandler : IClientPacketHandler {
     public void HandeChunk(CbChunkPacket packet){
         ClientWorld? world = _client.World;
         if (world != null) {
-            Chunk chunk = new Chunk(world, packet.ChunkCoords, packet.Blocks, packet.BlockConfigs);
+            BlockEntity?[,,] blockEntities = new BlockEntity?[Constants.ChunkSize, Constants.MaxWorldHeight, Constants.ChunkSize];
+            Chunk chunk = new Chunk(world, packet.ChunkCoords, packet.Blocks, packet.BlockConfigs, blockEntities, []);
             world.OnChunkLoaded(chunk);
         }
     }

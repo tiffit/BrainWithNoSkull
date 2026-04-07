@@ -1,5 +1,6 @@
 ﻿using BrainWithNoSkull.Registries;
 using BrainWithNoSkull.Util;
+using BrainWithNoSkull.World.BlockEntities;
 using BrainWithNoSkull.World.Blocks.BlockConfigs;
 using Silk.NET.Maths;
 
@@ -49,4 +50,8 @@ public class Block : IRegistryEntry {
 
 public interface IMultiblock {
     public Vector3D<int> GetMultiblockSize();
+}
+
+public interface IBlockEntityProvider {
+    public BlockEntity GetBlockEntity();
 }

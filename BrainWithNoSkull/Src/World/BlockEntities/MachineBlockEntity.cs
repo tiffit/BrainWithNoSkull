@@ -20,7 +20,7 @@ public class MachineBlockEntity: BlockEntity, ITickingBlockEntity {
     public readonly MachineTier Tier;
     public readonly bool AutoDetect;
     
-    public MachineBlockEntity(RecipeType recipeType, FuelType fuelType, MachineTier tier, bool autoDetect){
+    public MachineBlockEntity(BlockEntityType type, RecipeType recipeType, FuelType fuelType, MachineTier tier, bool autoDetect) : base(type){
         RecipeType = recipeType;
         FuelType = fuelType;
         Tier = tier;
