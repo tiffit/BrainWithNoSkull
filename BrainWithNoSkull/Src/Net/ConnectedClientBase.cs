@@ -3,6 +3,7 @@ using BrainWithNoSkull.Net.Pckt.Cb;
 using BrainWithNoSkull.Server;
 using BrainWithNoSkull.World;
 using BrainWithNoSkull.World.Entities.Player;
+using BrainWithNoSkull.World.ItemStacks;
 using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.Net;
@@ -52,8 +53,9 @@ public abstract class ConnectedClientBase {
 
             if (Container != null) {
                 byte[] dirtyVariables = Container.GetDirtySyncVariables();
-                if (dirtyVariables.Length > 1) {
-                    SendPacket(new CbUpdateContainerPacket(Container.Id, dirtyVariables));
+                List<Tuple<int, ItemStack?>> dirtyItems = Container.GetDirtyItemStacks();
+                if (dirtyVariables.Length > 1 || dirtyItems.Count > 0) {
+                    SendPacket(new CbUpdateContainerPacket(Container.Id, dirtyVariables, dirtyItems));
                 }
             }
         }

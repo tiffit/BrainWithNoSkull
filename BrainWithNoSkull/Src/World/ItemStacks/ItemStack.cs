@@ -44,6 +44,19 @@ public class ItemStack {
         return stack1.Item == stack2.Item;
     }
 
+    public static bool AreEqual(ItemStack? stack1, ItemStack? stack2){
+        if (IsNull(stack1)) {
+            return IsNull(stack2);
+        }
+        if (IsNull(stack2)) {
+            return false;
+        }
+
+        if (stack1.Item != stack2.Item)
+            return false;
+        return stack1.Count == stack2.Count;
+    }
+
     public override string ToString(){
         return $"Stack({Item}x{Count})";
     }

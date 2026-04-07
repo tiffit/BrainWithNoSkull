@@ -1,6 +1,7 @@
 ﻿using BrainWithNoSkull.Registries;
 using BrainWithNoSkull.World;
 using BrainWithNoSkull.World.Entities.Player;
+using BrainWithNoSkull.World.ItemStacks;
 using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.Net;
@@ -54,11 +55,13 @@ public class ContainerSync {
 
     private ushort _nextSyncVariableId;
     private readonly Dictionary<ushort, ISyncVariable> _syncVariables = new Dictionary<ushort, ISyncVariable>();
+    private readonly ItemStack?[] _itemCache;
     
     public ContainerSync(uint id, IItemContainer container, PlayerEntity player){
         Id = id;
         Container = container;
         Player = player;
+        _itemCache = new ItemStack[container.GetInventorySize()];
     }
 
     protected SyncVariable<T> AddSyncVariable<T>(SyncVariable<T> variable){
@@ -96,6 +99,18 @@ public class ContainerSync {
                 variable.ReadPacket(reader);
             }
         }
+    }
+
+    public List<Tuple<int, ItemStack?>> GetDirtyItemStacks(){
+        List<Tuple<int, ItemStack?>> list = [];
+        for (int i = 0; i < _itemCache.Length; i++) {
+            ItemStack? realItem = Container.GetItem(i);
+            if (!ItemStack.AreEqual(_itemCache[i], realItem)) {
+                _itemCache[i] = realItem;
+                list.Add(new Tuple<int, ItemStack?>(i, realItem));
+            }
+        }
+        return list;
     }
 }
 

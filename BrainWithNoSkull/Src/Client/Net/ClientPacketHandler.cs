@@ -104,8 +104,12 @@ public class ClientPacketHandler : IClientPacketHandler {
     }
 
     public void HandleUpdateContainer(CbUpdateContainerPacket packet){
-        if (_serverConnection.Container != null && _serverConnection.Container.Id == packet.Id) {
-            _serverConnection.Container.UpdateSyncVariables(packet.SyncVariables);
+        ContainerSync? sync = _serverConnection.Container;
+        if (sync != null && sync.Id == packet.Id) {
+            sync.UpdateSyncVariables(packet.SyncVariables);
+            foreach ((int slot, ItemStack? stack) in packet.UpdatedItems) {
+                sync.Container.SetItemInSlot(stack, slot);
+            }
         }
     }
 }
