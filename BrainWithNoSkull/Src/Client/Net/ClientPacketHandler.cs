@@ -1,6 +1,7 @@
 ﻿using BrainWithNoSkull.Client.World;
 using BrainWithNoSkull.Net;
 using BrainWithNoSkull.Net.Pckt.Cb;
+using BrainWithNoSkull.Util;
 using BrainWithNoSkull.World;
 using BrainWithNoSkull.World.BlockEntities;
 using BrainWithNoSkull.World.Entities;
@@ -25,8 +26,7 @@ public class ClientPacketHandler : IClientPacketHandler {
     public void HandeChunk(CbChunkPacket packet){
         ClientWorld? world = _client.World;
         if (world != null) {
-            BlockEntity?[,,] blockEntities = new BlockEntity?[Constants.ChunkSize, Constants.MaxWorldHeight, Constants.ChunkSize];
-            Chunk chunk = new Chunk(world, packet.ChunkCoords, packet.Blocks, packet.BlockConfigs, blockEntities, []);
+            Chunk chunk = new Chunk(world, packet.ChunkCoords, packet.Blocks, packet.BlockConfigs, [], []);
             world.OnChunkLoaded(chunk);
         }
     }
@@ -81,6 +81,15 @@ public class ClientPacketHandler : IClientPacketHandler {
             if (entity != null) {
                 entity.Remove = true;
             }
+        }
+    }
+
+    public void HandleNewBlockEntity(CbNewBlockEntityPacket packet){
+        WorldBase? world = _serverConnection.PlayerEntity?.World;
+        if (world != null) {
+            BlockEntity entity = packet.BlockEntityType.Create();
+            Chunk? chunk = world.GetChunk(ChunkUtils.ToChunkCoords(packet.Position));
+            chunk?.SetBlockEntity(packet.Position.X, packet.Position.Y, packet.Position.Z, entity);
         }
     }
 }

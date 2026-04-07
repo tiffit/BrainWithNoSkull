@@ -6,6 +6,7 @@ using BrainWithNoSkull.Server;
 using BrainWithNoSkull.Util;
 using BrainWithNoSkull.World.BlockEntities;
 using BrainWithNoSkull.World.Blocks;
+using BrainWithNoSkull.World.Blocks.BlockConfigs;
 using BrainWithNoSkull.World.Entities;
 using Silk.NET.Maths;
 
@@ -18,11 +19,11 @@ public class Chunk {
     public readonly Vector2D<int> Coords;
     private readonly Block[,,] _blocks;
     private readonly uint[,,] _blockConfigs;
-    private readonly BlockEntity?[,,] _blockEntities;
+    private readonly Dictionary<Vector3D<int>, BlockEntity> _blockEntities;
     private readonly Dictionary<Vector3D<int>, ITickingBlockEntity> _tickingBlocks;
     private readonly Dictionary<uint, Entity> _entities = [];
     
-    public Chunk(WorldBase world, Vector2D<int> chunkCoords, Block[,,] blocks, uint[,,] blockConfigs, BlockEntity?[,,] blockEntities, 
+    public Chunk(WorldBase world, Vector2D<int> chunkCoords, Block[,,] blocks, uint[,,] blockConfigs, Dictionary<Vector3D<int>, BlockEntity> blockEntities, 
         Dictionary<Vector3D<int>, ITickingBlockEntity> tickingBlocks){
         _world = world;
         Coords = chunkCoords;
@@ -73,23 +74,32 @@ public class Chunk {
 
         _blocks[x, y, z] = block;
         _blockConfigs[x, y, z] = config;
-        
-        BlockEntity? old = _blockEntities[x, y, z];
+
+        if (block is IMultiblock) {
+            Vector3D<uint> val = block.ConfigContainer.GetValue(config, MultiblockBlockConfigType.Instance);
+            if(val != Vector3D<uint>.Zero)
+                return;
+        }
+        SetBlockEntity(x, y, z, (block as IBlockEntityProvider)?.GetBlockEntity());
+    }
+
+    public void SetBlockEntity(int x, int y, int z, BlockEntity? entity){
+        Vector3D<int> pos = new Vector3D<int>(x, y, z);
+        _blockEntities.TryGetValue(pos, out BlockEntity? old);
         if (old is ITickingBlockEntity) {
             _tickingBlocks.Remove(new Vector3D<int>(x, y, z));
         }
 
-        if (block is IBlockEntityProvider provider) {
-            BlockEntity entity = provider.GetBlockEntity();
+        if (entity != null) {
             entity.World = _world;
-            entity.BlockPosition = new Vector3D<int>(x, y, z);
-            _blockEntities[x, y, z] = entity;
+            entity.BlockPosition = pos;
+            _blockEntities[pos] = entity;
             if (entity is ITickingBlockEntity ticking) {
-                _tickingBlocks[entity.BlockPosition] = ticking;
+                _tickingBlocks[pos] = ticking;
             }
         }
         else {
-            _blockEntities[x, y, z] = null;
+            _blockEntities.Remove(pos);
         }
     }
     
@@ -98,7 +108,9 @@ public class Chunk {
             Console.WriteLine("Accessing block entity outside of chunk, returning air");
             return null;
         }
-        return _blockEntities[x, y, z];
+
+        _blockEntities.TryGetValue(new Vector3D<int>(x, y, z), out BlockEntity? entity);
+        return entity;
     }
 
     public bool OutsideChunkBounds(int x, int y, int z){
@@ -107,6 +119,12 @@ public class Chunk {
 
     public CbChunkPacket ToChunkPacket(){
         return new CbChunkPacket(_blocks, _blockConfigs, Coords);
+    }
+
+    public void SendAllBlockEntities(ConnectedClientBase client){
+        foreach (BlockEntity entity in _blockEntities.Values) {
+            client.SendPacket(new CbNewBlockEntityPacket(entity));
+        }
     }
 
     public void Tick(){

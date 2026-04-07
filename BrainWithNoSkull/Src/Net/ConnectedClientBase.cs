@@ -30,6 +30,7 @@ public abstract class ConnectedClientBase {
                             if (_loadedChunks.Add(chunkCoords)) {
                                 (Entity.World as ServerWorld)!.AddListener(chunkCoords, this);
                                 SendPacket(toSend.ToChunkPacket());
+                                toSend.SendAllBlockEntities(this);
                             }
                         }
                     }
