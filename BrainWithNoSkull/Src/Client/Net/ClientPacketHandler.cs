@@ -1,4 +1,5 @@
-﻿using BrainWithNoSkull.Client.World;
+﻿using BrainWithNoSkull.Client.Guis;
+using BrainWithNoSkull.Client.World;
 using BrainWithNoSkull.Net;
 using BrainWithNoSkull.Net.Pckt.Cb;
 using BrainWithNoSkull.Util;
@@ -94,6 +95,17 @@ public class ClientPacketHandler : IClientPacketHandler {
     }
 
     public void HandleOpenContainer(CbOpenContainerPacket packet){
-        Console.WriteLine("open container!!!");
+        DummyItemContainer container = new DummyItemContainer(packet.Size);
+        ContainerSync sync = packet.Type.Factory(packet.Id, container, _serverConnection.PlayerEntity!);
+        _serverConnection.Container = sync;
+        if(_client.ContainerGuis.TryGetValue(packet.Type, out Func<ContainerSync, ContainerGui>? factory)) {
+            _client.SetGui(factory(sync));
+        }
+    }
+
+    public void HandleUpdateContainer(CbUpdateContainerPacket packet){
+        if (_serverConnection.Container != null && _serverConnection.Container.Id == packet.Id) {
+            _serverConnection.Container.UpdateSyncVariables(packet.SyncVariables);
+        }
     }
 }

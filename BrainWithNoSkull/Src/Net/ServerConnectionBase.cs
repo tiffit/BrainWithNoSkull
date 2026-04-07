@@ -6,6 +6,7 @@ namespace BrainWithNoSkull.Net;
 public abstract class ServerConnectionBase {
 
     public ClientPlayerEntity? PlayerEntity;
+    public ContainerSync? Container;
     
     public abstract void SendPacket(IPacket packet);
 

@@ -29,6 +29,7 @@ public enum PacketType: ushort{
     RemoveEntity,
     NewBlockEntity,
     OpenContainer,
+    UpdateContainer,
     
     //Server-bound
     PlayerMove,
@@ -57,6 +58,7 @@ public static class PacketRegistry {
         Registry[PacketType.RemoveEntity] = () => new CbRemoveEntityPacket();
         Registry[PacketType.NewBlockEntity] = () => new CbNewBlockEntityPacket();
         Registry[PacketType.OpenContainer] = () => new CbOpenContainerPacket();
+        Registry[PacketType.UpdateContainer] = () => new CbUpdateContainerPacket();
         
         //Server-bound
         Registry[PacketType.PlayerMove] = () => new SbPlayerMovePacket();

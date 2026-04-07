@@ -2,6 +2,7 @@
 using BrainWithNoSkull.World.Entities.Player;
 using BrainWithNoSkull.World.ItemStacks;
 using BrainWithNoSkull.World.Recipes;
+using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.World.BlockEntities;
 
@@ -17,8 +18,18 @@ public enum MachineTier : byte {
 }
 
 public class MachineContainerSync: ContainerSync {
+
+    private readonly MachineBlockEntity _blockEntity = null!;
+
+    public readonly SyncVariable<Vector3D<int>> MachinePos;
+    
+    public MachineContainerSync(uint id, MachineBlockEntity blockEntity, ServerPlayerEntity player) : base(id, blockEntity.Container, player){
+        _blockEntity = blockEntity;
+        MachinePos = AddSyncVariable(new Vector3DIntSyncVariable(Vector3D<int>.Zero, () => _blockEntity.BlockPosition));
+    }
     
     public MachineContainerSync(uint id, IItemContainer container, PlayerEntity player) : base(id, container, player){
+        MachinePos = AddSyncVariable(new Vector3DIntSyncVariable(Vector3D<int>.Zero, null));
     }
     
 }

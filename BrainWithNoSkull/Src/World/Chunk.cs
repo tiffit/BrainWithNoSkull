@@ -92,7 +92,7 @@ public class Chunk {
 
         if (entity != null) {
             entity.World = _world;
-            entity.BlockPosition = pos;
+            entity.BlockPosition = pos + new Vector3D<int>(Coords.X*Constants.ChunkSize, 0, Coords.Y*Constants.ChunkSize);
             _blockEntities[pos] = entity;
             if (entity is ITickingBlockEntity ticking) {
                 _tickingBlocks[pos] = ticking;

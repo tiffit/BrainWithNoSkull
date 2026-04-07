@@ -16,7 +16,7 @@ public abstract class ConnectedClientBase {
     private bool _playerInfoSent = false;
 
     public ContainerSync? Container;
-    private uint _nextContainerId = 0;
+    private uint _nextContainerId = 1;
     
     public abstract void SendPacket(IPacket packet);
 
@@ -49,18 +49,28 @@ public abstract class ConnectedClientBase {
                 SendPacket(new CbPlayerInventoryPacket(Entity.Inventory));
                 Entity.Inventory.DirtySlots.Clear();
             }
+
+            if (Container != null) {
+                byte[] dirtyVariables = Container.GetDirtySyncVariables();
+                if (dirtyVariables.Length > 1) {
+                    SendPacket(new CbUpdateContainerPacket(Container.Id, dirtyVariables));
+                }
+            }
         }
     }
-
-    public void OpenContainer(ContainerSyncType type, IItemContainer container){
+    
+    public void OpenContainer(ContainerSyncType type, ContainerSync sync){
         if(Container != null)
             CloseContainer();
-        uint id = _nextContainerId++;
-        Container = type.Factory(id, container, Entity!);
-        SendPacket(new CbOpenContainerPacket(id, container.GetInventorySize(), type));
+        Container = sync;
+        SendPacket(new CbOpenContainerPacket(Container.Id, sync.Container.GetInventorySize(), type));
     }
 
     public void CloseContainer(){
         Container = null;
+    }
+
+    public uint GetNextContainerId(){
+        return _nextContainerId++;
     }
 }

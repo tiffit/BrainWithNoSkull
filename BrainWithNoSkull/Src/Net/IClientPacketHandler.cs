@@ -13,4 +13,5 @@ public interface IClientPacketHandler {
     public void HandleRemoveEntity(CbRemoveEntityPacket packet);
     public void HandleNewBlockEntity(CbNewBlockEntityPacket packet);
     public void HandleOpenContainer(CbOpenContainerPacket packet);
+    public void HandleUpdateContainer(CbUpdateContainerPacket packet);
 }

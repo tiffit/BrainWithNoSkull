@@ -10,6 +10,7 @@ using BrainWithNoSkull.Client.Render.Shader;
 using BrainWithNoSkull.Client.World;
 using BrainWithNoSkull.Net;
 using BrainWithNoSkull.Net.Pckt;
+using BrainWithNoSkull.Registries;
 using BrainWithNoSkull.Server;
 using BrainWithNoSkull.Util;
 using BrainWithNoSkull.World;
@@ -52,6 +53,8 @@ public class GameClient {
     public FontRenderer FontRenderer;
     public ItemRenderer ItemRenderer;
 
+    public readonly Dictionary<ContainerSyncType, Func<ContainerSync, ContainerGui>> ContainerGuis = new Dictionary<ContainerSyncType, Func<ContainerSync, ContainerGui>>();
+
     public GameClient(){
         Instance = this;
     }
@@ -62,6 +65,8 @@ public class GameClient {
 
         ClientAssetLoader.Load();
         EntityRendererRegistry.RegisterAll();
+
+        ContainerGuis[ContainerSyncRegistry.Machine] = sync => new MachineGui(sync);
 
         SetupWindow();
 

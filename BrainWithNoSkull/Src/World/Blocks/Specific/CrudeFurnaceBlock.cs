@@ -1,4 +1,5 @@
-﻿using BrainWithNoSkull.Registries;
+﻿using BrainWithNoSkull.Net;
+using BrainWithNoSkull.Registries;
 using BrainWithNoSkull.Server;
 using BrainWithNoSkull.Util;
 using BrainWithNoSkull.World.BlockEntities;
@@ -35,7 +36,8 @@ public class CrudeFurnaceBlock: NonFullBlock, IMultiblock, IBlockEntityProvider,
     public void Interact(ServerWorld world, ServerPlayerEntity player, Vector3D<int> pos){
         BlockEntity? blockEntity = world.GetBlockEntity(pos);
         if (blockEntity is MachineBlockEntity machine) {
-            player.Client.OpenContainer(ContainerSyncRegistry.Machine, machine.Container);
+            ContainerSync sync = new MachineContainerSync(player.Client.GetNextContainerId(), machine, player);
+            player.Client.OpenContainer(ContainerSyncRegistry.Machine, sync);
         }
     }
 }

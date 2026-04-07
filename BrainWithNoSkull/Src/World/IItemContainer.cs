@@ -64,3 +64,26 @@ public interface IItemContainer {
         }
     }
 }
+
+public class DummyItemContainer : IItemContainer {
+
+    private readonly ItemStack?[] _contents;
+    
+    public DummyItemContainer(int size){
+        _contents = new ItemStack[size];
+    }
+    
+    public ItemStack? GetItem(int slot){
+        return _contents[slot];
+    }
+
+    public int GetInventorySize(){
+        return _contents.Length;
+    }
+
+    public void SetItemInSlot(ItemStack? stack, int slot){
+        _contents[slot] = stack;
+    }
+
+    public void MarkSlotDirty(int slot){}
+}
