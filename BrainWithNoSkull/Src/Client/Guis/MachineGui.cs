@@ -47,6 +47,9 @@ public class MachineGui: ContainerGui {
             for (int i = 0; i < inputCount; i++) {
                 panel.AddWidget(new SlotWidget(5 + i*20, height/2 - 9, -0.01f, this, _sync.Container, i, invIconsTexture));
             }
+            for (int i = 0; i < outputCount; i++) {
+                panel.AddWidget(new SlotWidget(width/2 + 5 + i*20, height/2 - 9, -0.01f, this, _sync.Container, inputCount + i, invIconsTexture));
+            }
         }
     }
 }

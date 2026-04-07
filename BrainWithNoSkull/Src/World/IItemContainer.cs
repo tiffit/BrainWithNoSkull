@@ -97,3 +97,36 @@ public class DummyItemContainer : IItemContainer {
         return _id;
     }
 }
+
+public class ListItemContainer : IItemContainer {
+
+    private readonly List<ItemStack?> _list;
+    private readonly int _offset;
+    private readonly IItemContainer _parent;
+    
+    public ListItemContainer(IItemContainer parent, int offset, List<ItemStack?> list){
+        _parent = parent;
+        _offset = offset;
+        _list = list;
+    }
+    
+    public ItemStack? GetItem(int slot){
+        return _list[slot];
+    }
+
+    public int GetInventorySize(){
+        return _list.Count;
+    }
+
+    public void SetItemInSlot(ItemStack? stack, int slot){
+        _list[slot] = stack;
+    }
+
+    public void MarkSlotDirty(int slot){
+        _parent.MarkSlotDirty(_offset + slot);
+    }
+
+    public uint GetContainerId(){
+        return _parent.GetContainerId();
+    }
+}

@@ -1,4 +1,5 @@
 ﻿using BrainWithNoSkull.Net;
+using BrainWithNoSkull.Registries;
 using BrainWithNoSkull.World.Entities.Player;
 using BrainWithNoSkull.World.ItemStacks;
 using BrainWithNoSkull.World.Recipes;
@@ -36,8 +37,8 @@ public class MachineContainerSync: ContainerSync {
 
 public class MachineContainer: IItemContainer {
 
-    public List<ItemStack?> Inputs = [];
-    public List<ItemStack?> Outputs = [];
+    public readonly List<ItemStack?> Inputs = [];
+    public readonly List<ItemStack?> Outputs = [];
     
     public ItemStack? GetItem(int slot){
         return slot >= Inputs.Count ? Outputs[slot - Inputs.Count] : Inputs[slot];
@@ -59,6 +60,14 @@ public class MachineContainer: IItemContainer {
     public void MarkSlotDirty(int slot){
         
     }
+
+    public IItemContainer GetInputContainer(){
+        return new ListItemContainer(this, 0, Inputs);
+    }
+    
+    public IItemContainer GetOutputContainer(){
+        return new ListItemContainer(this, Inputs.Count, Outputs);
+    }
     
 }
 
@@ -68,11 +77,14 @@ public class MachineBlockEntity: BlockEntity, ITickingBlockEntity {
     public readonly FuelType FuelType;
     public readonly MachineTier Tier;
     public readonly bool AutoDetect;
+    private readonly RecipeLookup? _lookup;
 
     public int AutoInputSize = 1;
     public int AutoOutputSize = 1;
 
     public readonly MachineContainer Container = new MachineContainer();
+
+    public Recipe? CurrentRecipe;
     
     public MachineBlockEntity(BlockEntityType type, RecipeType recipeType, FuelType fuelType, MachineTier tier, bool autoDetect) : base(type){
         RecipeType = recipeType;
@@ -85,6 +97,8 @@ public class MachineBlockEntity: BlockEntity, ITickingBlockEntity {
             Container.Outputs.Clear();
             for (int i = 0; i < AutoInputSize; i++) Container.Inputs.Add(null);
             for (int i = 0; i < AutoOutputSize; i++) Container.Outputs.Add(null);
+            
+            _lookup = RecipeRegistry.Lookups[RecipeType];
         }
     }
 
@@ -97,5 +111,15 @@ public class MachineBlockEntity: BlockEntity, ITickingBlockEntity {
     }
     
     public void Tick(){
+        if (World.OnServer) {
+            if (CurrentRecipe == null) {
+                if (AutoDetect && _lookup != null) {
+                    CurrentRecipe = _lookup.Lookup(Container.GetInputContainer());
+                }
+            }
+            else {
+                Console.WriteLine(CurrentRecipe.GetId());
+            }
+        }
     }
 }
