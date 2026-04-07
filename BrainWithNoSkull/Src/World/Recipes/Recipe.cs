@@ -49,4 +49,42 @@ public class Recipe: IRegistryEntry {
             return stack.Count <= count;
         });
     }
+
+    public bool CanOutput(IItemContainer inv){
+        HashSet<int> usedSlots = [];
+        foreach (ItemStack o in Outputs) {
+            ItemStack? remaining = o.Clone();
+            for (int i = 0; i < inv.GetInventorySize(); i++) {
+                if(usedSlots.Contains(i))
+                    continue;
+                if (inv.CombineStacks(i, ref remaining, false, true)) {
+                    usedSlots.Add(i);
+                }
+            }
+
+            if (!ItemStack.IsNull(remaining)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public void ConsumeIngredients(IItemContainer container){
+        foreach (ItemStack input in Inputs) {
+            container.Remove(input.Item, input.Count);
+        }
+    }
+
+    public void ProduceOutput(IItemContainer container){
+        foreach (ItemStack o in Outputs) {
+            ItemStack? remaining = o.Clone();
+            for (int i = 0; i < container.GetInventorySize(); i++) {
+                container.CombineStacks(i, ref remaining, false);
+                if (ItemStack.IsNull(remaining)) {
+                    break;
+                }
+            }
+        }
+    }
 }

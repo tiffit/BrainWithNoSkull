@@ -13,28 +13,32 @@ public interface IItemContainer {
 
     public void MarkSlotDirty(int slot);
 
-    public bool CombineStacks(int slot, ref ItemStack? other, bool swap){
+    public bool CombineStacks(int slot, ref ItemStack? other, bool swap, bool simulate = false){
         if (ItemStack.IsNull(other))
             return false;
         
         ItemStack? current = GetItem(slot);
+        if (simulate && current != null) {
+            current = current.Clone();
+        }
         if (ItemStack.CanCombine(current, other)) {
             if (!ItemStack.IsNull(current)) {
                 current.Count += other.Count;
                 other = null;
             }
             else {
-                SetItemInSlot(other.Clone(), slot);
+                if(!simulate) SetItemInSlot(other.Clone(), slot);
                 other = null;
             }
             return true;
         }
 
         if (swap) {
-            SetItemInSlot(other.Clone(), slot);
+            if(!simulate) SetItemInSlot(other.Clone(), slot);
             other = current;
+            return true;
         }
-        return true;
+        return false;
     }
     
     public Dictionary<Item, int> GetCounts(){

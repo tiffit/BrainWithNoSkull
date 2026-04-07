@@ -32,15 +32,10 @@ public class SbStartCraftPacket : IPacket {
         ServerPlayerEntity? player = ctx.Client!.Entity;
 
         if (player?.World != null) {
-            if (Recipe.CanCraft(player.Inventory)) {
-                foreach (ItemStack input in Recipe.Inputs) {
-                    (player.Inventory as IItemContainer).Remove(input.Item, input.Count);
-                }
-
-                foreach (ItemStack output in Recipe.Outputs) {
-                    ItemStack? stack = output.Clone();
-                    player.Inventory.AddItem(ref stack);
-                }
+            PlayerInventory inv = player.Inventory;
+            if (Recipe.CanCraft(inv) && Recipe.CanOutput(inv)) {
+                Recipe.ConsumeIngredients(inv);
+                Recipe.ProduceOutput(inv);
             }
         }
     }

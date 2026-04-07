@@ -85,6 +85,8 @@ public class MachineBlockEntity: BlockEntity, ITickingBlockEntity {
     public readonly MachineContainer Container = new MachineContainer();
 
     public Recipe? CurrentRecipe;
+    private float _craftTime = 0;
+    private bool _craftStarted = false;
     
     public MachineBlockEntity(BlockEntityType type, RecipeType recipeType, FuelType fuelType, MachineTier tier, bool autoDetect) : base(type){
         RecipeType = recipeType;
@@ -114,11 +116,33 @@ public class MachineBlockEntity: BlockEntity, ITickingBlockEntity {
         if (World.OnServer) {
             if (CurrentRecipe == null) {
                 if (AutoDetect && _lookup != null) {
-                    CurrentRecipe = _lookup.Lookup(Container.GetInputContainer());
+                    IItemContainer inputContainer = Container.GetInputContainer();
+                    CurrentRecipe = _lookup.Lookup(inputContainer);
+                    if (CurrentRecipe != null) {
+                        CurrentRecipe.ConsumeIngredients(inputContainer);
+                        _craftTime = 0;
+                        _craftStarted = true;
+                    }
                 }
             }
             else {
-                Console.WriteLine(CurrentRecipe.GetId());
+                if (_craftStarted) {
+                    _craftTime = Math.Min(_craftTime + 1f / Constants.TicksPerSecond, CurrentRecipe.Time);
+                    if (_craftTime >= CurrentRecipe.Time) {
+                        IItemContainer outputContainer = Container.GetOutputContainer();
+                        if (CurrentRecipe.CanOutput(outputContainer)) {
+                            CurrentRecipe.ProduceOutput(outputContainer);
+                            if (AutoDetect) {
+                                CurrentRecipe = null;
+                            }
+                            _craftStarted = false;
+                        }
+
+                    }
+                }
+                else {
+                    
+                }
             }
         }
     }

@@ -106,7 +106,7 @@ public class ContainerSync {
         for (int i = 0; i < _itemCache.Length; i++) {
             ItemStack? realItem = Container.GetItem(i);
             if (!ItemStack.AreEqual(_itemCache[i], realItem)) {
-                _itemCache[i] = realItem;
+                _itemCache[i] = realItem?.Clone();
                 list.Add(new Tuple<int, ItemStack?>(i, realItem));
             }
         }
