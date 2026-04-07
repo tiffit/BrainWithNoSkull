@@ -26,7 +26,7 @@ public class GroupingWidget: Widget {
         bool any = false;
         foreach (Widget widget in Widgets) {
             if (widget.IsWithin(relX + X, relY + Y)) {
-                if (widget.OnMouseDown(btn, widget.X - relX, widget.Y - relY)) {
+                if (widget.OnMouseDown(btn, relX + X - widget.X, relY + Y - widget.Y)) {
                     any = true;
                 }
             }
