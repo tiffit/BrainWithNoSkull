@@ -31,6 +31,10 @@ public abstract class Gui {
         GuiRenderer = new GuiRenderer(this, renderEngine);
     }
 
+    public void ReInit(){
+        Init(RenderEngine, Font, ScaledWidth, ScaledHeight);
+    }
+
     public void RenderBase(VertexBuilder guiVb){
         GetScaledMousePos(out int mouseX, out int mouseY);
 
@@ -78,7 +82,7 @@ public abstract class Gui {
             container.CombineStacks(slot, ref cursorStack, true);
             HeldStackContainer.SetItemInSlot(cursorStack, HeldStackIndex);
             
-            GameClient.Instance.ServerConnection.SendPacket(new SbMoveInventoryItemsPacket(0, HeldStackIndex, 0, slot));
+            GameClient.Instance.ServerConnection.SendPacket(new SbMoveInventoryItemsPacket(HeldStackContainer.GetContainerId(), HeldStackIndex, container.GetContainerId(), slot));
             
             if (ItemStack.IsNull(cursorStack)) {
                 HeldStackContainer = null;

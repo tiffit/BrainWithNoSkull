@@ -39,13 +39,14 @@ public class SbMoveInventoryItemsPacket : IPacket {
     public void Handle(PacketContext ctx){
         ServerPlayerEntity? player = ctx.Client!.Entity;
         if (player?.World != null) {
-            IItemContainer srcContainer = player.Inventory;
-            IItemContainer dstContainer = player.Inventory;
-            ItemStack? srcStack = srcContainer.GetItem(SrcSlot);
-            if (dstContainer.CombineStacks(DstSlot, ref srcStack, true)) {
-                srcContainer.SetItemInSlot(srcStack, SrcSlot);
+            IItemContainer? srcContainer = ctx.Client.GetContainerFromId(SrcContainer);
+            IItemContainer? dstContainer = ctx.Client.GetContainerFromId(DstContainer);
+            if (srcContainer != null && dstContainer != null) {
+                ItemStack? srcStack = srcContainer.GetItem(SrcSlot);
+                if (dstContainer.CombineStacks(DstSlot, ref srcStack, true)) {
+                    srcContainer.SetItemInSlot(srcStack, SrcSlot);
+                }
             }
-            
         }
 
     }

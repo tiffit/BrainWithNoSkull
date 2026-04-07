@@ -95,7 +95,7 @@ public class ClientPacketHandler : IClientPacketHandler {
     }
 
     public void HandleOpenContainer(CbOpenContainerPacket packet){
-        DummyItemContainer container = new DummyItemContainer(packet.Size);
+        DummyItemContainer container = new DummyItemContainer(packet.Id, packet.Size);
         ContainerSync sync = packet.Type.Factory(packet.Id, container, _serverConnection.PlayerEntity!);
         _serverConnection.Container = sync;
         if(_client.ContainerGuis.TryGetValue(packet.Type, out Func<ContainerSync, ContainerGui>? factory)) {

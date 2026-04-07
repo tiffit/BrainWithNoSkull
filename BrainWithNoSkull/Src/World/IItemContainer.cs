@@ -63,14 +63,20 @@ public interface IItemContainer {
             }
         }
     }
+
+    public uint GetContainerId(){
+        return 0;
+    }
 }
 
 public class DummyItemContainer : IItemContainer {
 
     private readonly ItemStack?[] _contents;
+    private readonly uint _id;
     
-    public DummyItemContainer(int size){
+    public DummyItemContainer(uint id, int size){
         _contents = new ItemStack[size];
+        _id = id;
     }
     
     public ItemStack? GetItem(int slot){
@@ -86,4 +92,8 @@ public class DummyItemContainer : IItemContainer {
     }
 
     public void MarkSlotDirty(int slot){}
+
+    public uint GetContainerId(){
+        return _id;
+    }
 }

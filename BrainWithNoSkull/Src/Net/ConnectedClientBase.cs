@@ -73,4 +73,12 @@ public abstract class ConnectedClientBase {
     public uint GetNextContainerId(){
         return _nextContainerId++;
     }
+
+    public IItemContainer? GetContainerFromId(uint id){
+        if (id == 0)
+            return Entity?.Inventory;
+        if (Container != null && Container.Id == id)
+            return Container.Container;
+        return null;
+    }
 }

@@ -87,6 +87,14 @@ public class MachineBlockEntity: BlockEntity, ITickingBlockEntity {
             for (int i = 0; i < AutoOutputSize; i++) Container.Outputs.Add(null);
         }
     }
+
+    public int GetInputSlotCount(){
+        return AutoInputSize;
+    }
+
+    public int GetOutputSlotCount(){
+        return AutoOutputSize;
+    }
     
     public void Tick(){
     }
