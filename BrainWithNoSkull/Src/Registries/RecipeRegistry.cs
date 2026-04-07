@@ -9,6 +9,7 @@ namespace BrainWithNoSkull.Registries;
 [SuppressMessage("Usage", "CA2211:Non-constant fields should not be visible")]
 public static class RecipeRegistry {
     public static readonly Registry<Recipe> Registry = new Registry<Recipe>();
+    public static readonly Dictionary<RecipeType, RecipeLookup> Lookups = new Dictionary<RecipeType, RecipeLookup>();
 
     public static Recipe StonePickaxe;
     public static Recipe CrudeFurnace;
@@ -24,5 +25,13 @@ public static class RecipeRegistry {
             new ItemStack(BlockRegistry.CrudeFurnace, 1),
             5f
         ));
+
+        Lookups[RecipeType.Crafting] = new RecipeLookup();
+        Lookups[RecipeType.Smelting] = new RecipeLookup();
+        
+        foreach (Recipe recipe in Registry.GetEntries()) {
+            RecipeLookup lookup = Lookups[recipe.RecipeType];
+            lookup.AddRecipe(recipe);
+        }
     }
 }

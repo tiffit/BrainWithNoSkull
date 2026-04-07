@@ -1,4 +1,5 @@
 ﻿using BrainWithNoSkull.Registries;
+using BrainWithNoSkull.World;
 using BrainWithNoSkull.World.Entities.Player;
 using BrainWithNoSkull.World.ItemStacks;
 using BrainWithNoSkull.World.Recipes;
@@ -33,7 +34,7 @@ public class SbStartCraftPacket : IPacket {
         if (player?.World != null) {
             if (Recipe.CanCraft(player.Inventory)) {
                 foreach (ItemStack input in Recipe.Inputs) {
-                    player.Inventory.Remove(input.Item, input.Count);
+                    (player.Inventory as IItemContainer).Remove(input.Item, input.Count);
                 }
 
                 foreach (ItemStack output in Recipe.Outputs) {

@@ -45,6 +45,10 @@ public class PlayerInventory: IItemContainer {
         DirtySlots.Add(slot);
     }
 
+    public void MarkSlotDirty(int slot){
+        DirtySlots.Add(slot);
+    }
+
     public void MarkHeldStackDirty(){
         DirtySlots.Add(HotbarSlot);
     }
@@ -55,32 +59,5 @@ public class PlayerInventory: IItemContainer {
 
     public int GetInventorySize(){
         return InventorySize;
-    }
-
-    public Dictionary<Item, int> GetCounts(){
-        Dictionary<Item, int> counts = new Dictionary<Item, int>();
-        for (int i = 0; i < InventorySize; i++) {
-            ItemStack? stack = GetItem(i);
-            if (!ItemStack.IsNull(stack)) {
-                counts.TryGetValue(stack.Item, out int current);
-                counts[stack.Item] = current + stack.Count;
-            }
-        }
-        return counts;
-    }
-
-    public void Remove(Item item, int amount){
-        for (int i = 0; i < InventorySize; i++) {
-            ItemStack? stack = GetItem(i);
-            if (!ItemStack.IsNull(stack)) {
-                if (stack.Item == item) {
-                    int toRemove = Math.Min(amount, stack.Count);
-                    amount -= toRemove;
-                    stack.Count -= toRemove;
-                    DirtySlots.Add(i);
-                    if(amount == 0) return;
-                }
-            }
-        }
     }
 }

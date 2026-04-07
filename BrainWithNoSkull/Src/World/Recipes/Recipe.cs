@@ -42,7 +42,7 @@ public class Recipe: IRegistryEntry {
         return _index;
     }
 
-    public bool CanCraft(PlayerInventory inv){
+    public bool CanCraft(IItemContainer inv){
         Dictionary<Item, int> counts = inv.GetCounts();
         return Inputs.All(stack => {
             counts.TryGetValue(stack.Item, out int count);
