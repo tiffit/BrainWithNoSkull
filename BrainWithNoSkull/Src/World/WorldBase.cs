@@ -1,6 +1,7 @@
 ﻿using BrainWithNoSkull.Client.World;
 using BrainWithNoSkull.Registries;
 using BrainWithNoSkull.Util;
+using BrainWithNoSkull.World.BlockEntities;
 using BrainWithNoSkull.World.Blocks;
 using BrainWithNoSkull.World.Blocks.BlockConfigs;
 using BrainWithNoSkull.World.Entities;
@@ -91,6 +92,18 @@ public class WorldBase {
         else {
             SetBlock(blockPos, BlockRegistry.Air);
         }
+    }
+    
+    public BlockEntity? GetBlockEntity(Vector3D<int> blockPos){
+        Vector2D<int> chunkCoords = ChunkUtils.ToChunkCoords(blockPos);
+        if (!Chunks.IsChunkLoaded(chunkCoords))
+            return null;
+        Chunk? chunk = Chunks.GetChunk(chunkCoords);
+        blockPos = ChunkUtils.ToBlockInChunk(blockPos);
+        if (blockPos.Y is < 0 or > Constants.MaxWorldHeight || chunk == null)
+            return null;
+
+        return chunk.GetBlockEntity(blockPos.X, blockPos.Y, blockPos.Z);
     }
 
     public Vector3D<int> GetMultiblockOrigin(Vector3D<int> blockPos){

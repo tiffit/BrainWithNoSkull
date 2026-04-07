@@ -28,14 +28,16 @@ public enum PacketType: ushort{
     EntityMove,
     RemoveEntity,
     NewBlockEntity,
+    OpenContainer,
     
     //Server-bound
     PlayerMove,
     BreakBlock,
-    ItemInteract,
+    ItemUse,
     ChangeHotbarSlot,
     MoveInventoryItems,
-    StartCraft
+    StartCraft,
+    Interact
 }
 
 public delegate IPacket PacketFactory();
@@ -54,14 +56,16 @@ public static class PacketRegistry {
         Registry[PacketType.EntityMove] = () => new CbEntityMovePacket();
         Registry[PacketType.RemoveEntity] = () => new CbRemoveEntityPacket();
         Registry[PacketType.NewBlockEntity] = () => new CbNewBlockEntityPacket();
+        Registry[PacketType.OpenContainer] = () => new CbOpenContainerPacket();
         
         //Server-bound
         Registry[PacketType.PlayerMove] = () => new SbPlayerMovePacket();
         Registry[PacketType.BreakBlock] = () => new SbPlayerBreakBlockPacket();
-        Registry[PacketType.ItemInteract] = () => new SbItemInteractPacket();
+        Registry[PacketType.ItemUse] = () => new SbItemUsePacket();
         Registry[PacketType.ChangeHotbarSlot] = () => new SbChangeHotbarSlotPacket();
         Registry[PacketType.MoveInventoryItems] = () => new SbMoveInventoryItemsPacket();
         Registry[PacketType.StartCraft] = () => new SbStartCraftPacket();
+        Registry[PacketType.Interact] = () => new SbInteractPacket();
     }
 
     public static IPacket GetPacket(PacketType type) => Registry[type]();

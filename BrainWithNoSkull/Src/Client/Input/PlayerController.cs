@@ -4,6 +4,7 @@ using BrainWithNoSkull.Net.Pckt.Sb;
 using BrainWithNoSkull.Registries;
 using BrainWithNoSkull.Util;
 using BrainWithNoSkull.World;
+using BrainWithNoSkull.World.Blocks;
 using BrainWithNoSkull.World.ItemStacks;
 using Silk.NET.Input;
 using Silk.NET.Maths;
@@ -28,7 +29,8 @@ public class PlayerController {
     private readonly Keybinding _keybindMoveBackwards = new Keybinding("Backwards", new BoundInput(Key.S), KeyContext.FirstPerson, true);
     private readonly Keybinding _keybindJump = new Keybinding("Jump", new BoundInput(Key.Space), KeyContext.FirstPerson, true);
     private readonly Keybinding _keybindBreakBlock = new Keybinding("Break Block", new BoundInput(MouseButton.Left), KeyContext.FirstPerson, true);
-    private readonly Keybinding _keybindInteract = new Keybinding("Interact", new BoundInput(MouseButton.Right), KeyContext.FirstPerson, false);
+    private readonly Keybinding _keybindUseItem = new Keybinding("Use Item", new BoundInput(MouseButton.Right), KeyContext.FirstPerson, false);
+    private readonly Keybinding _keybindInteract = new Keybinding("Interact", new BoundInput(Key.E), KeyContext.FirstPerson, false);
     
     private readonly Keybinding _keybindHotbar1 = new Keybinding("Hotbar 1", new BoundInput(Key.Number1), KeyContext.FirstPerson, false);
     private readonly Keybinding _keybindHotbar2 = new Keybinding("Hotbar 2", new BoundInput(Key.Number2), KeyContext.FirstPerson, false);
@@ -178,7 +180,7 @@ public class PlayerController {
         else {
             _player.BlockBreakPosition = null;
             _player.BlockBreakTime = 0;
-            if (_keybindInteract.IsPressed(context, _inputHandler)) {
+            if (_keybindUseItem.IsPressed(context, _inputHandler)) {
                 WorldRayResult? result = _client.BlockRayResult;
                 if (result != null) {
                     ItemStack? stack = _player.Inventory.GetHeldStack();
@@ -191,7 +193,14 @@ public class PlayerController {
                                 }
                             }
                         });
-                        _player.ServerConnection.SendPacket(new SbItemInteractPacket(result.Value));
+                        _player.ServerConnection.SendPacket(new SbItemUsePacket(result.Value));
+                    }
+                }
+            }else if (_keybindInteract.IsPressed(context, _inputHandler)) {
+                WorldRayResult? result = _client.BlockRayResult;
+                if (world != null && result is{ Block: IBlockInteractable interactable }) {
+                    if (interactable.CanInteract(world, _player, result.Value.Pos)) {
+                        _player.ServerConnection.SendPacket(new SbInteractPacket(result.Value.Pos));
                     }
                 }
             }

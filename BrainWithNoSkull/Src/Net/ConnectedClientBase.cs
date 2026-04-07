@@ -14,6 +14,9 @@ public abstract class ConnectedClientBase {
     private int ViewDistance = 8;
     private Vector2D<int>? _lastChunk = null;
     private bool _playerInfoSent = false;
+
+    public ContainerSync? Container;
+    private uint _nextContainerId = 0;
     
     public abstract void SendPacket(IPacket packet);
 
@@ -47,5 +50,17 @@ public abstract class ConnectedClientBase {
                 Entity.Inventory.DirtySlots.Clear();
             }
         }
+    }
+
+    public void OpenContainer(ContainerSyncType type, IItemContainer container){
+        if(Container != null)
+            CloseContainer();
+        uint id = _nextContainerId++;
+        Container = type.Factory(id, container, Entity!);
+        SendPacket(new CbOpenContainerPacket(id, container.GetInventorySize(), type));
+    }
+
+    public void CloseContainer(){
+        Container = null;
     }
 }

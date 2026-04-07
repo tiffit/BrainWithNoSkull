@@ -36,5 +36,6 @@ public class Registries {
         EntityTypeRegistry.Init();
         BlockEntityRegistry.Init();
         RecipeRegistry.Init();
+        ContainerSyncRegistry.Init();
     }
 }

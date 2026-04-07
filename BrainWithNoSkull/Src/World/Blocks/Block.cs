@@ -1,7 +1,9 @@
 ﻿using BrainWithNoSkull.Registries;
+using BrainWithNoSkull.Server;
 using BrainWithNoSkull.Util;
 using BrainWithNoSkull.World.BlockEntities;
 using BrainWithNoSkull.World.Blocks.BlockConfigs;
+using BrainWithNoSkull.World.Entities.Player;
 using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.World.Blocks;
@@ -54,4 +56,10 @@ public interface IMultiblock {
 
 public interface IBlockEntityProvider {
     public BlockEntity GetBlockEntity();
+}
+
+public interface IBlockInteractable {
+    public bool CanInteract(WorldBase world, PlayerEntity player, Vector3D<int> pos);
+
+    public void Interact(ServerWorld world, ServerPlayerEntity player, Vector3D<int> pos);
 }

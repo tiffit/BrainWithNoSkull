@@ -4,18 +4,18 @@ using BrainWithNoSkull.World.ItemStacks;
 
 namespace BrainWithNoSkull.Net.Pckt.Sb;
 
-public class SbItemInteractPacket : IPacket {
+public class SbItemUsePacket : IPacket {
 
     public WorldRayResult Ray;
     
-    public SbItemInteractPacket(){ }
+    public SbItemUsePacket(){ }
     
-    public SbItemInteractPacket(WorldRayResult ray){
+    public SbItemUsePacket(WorldRayResult ray){
         Ray = ray;
     }
     
     public PacketType GetPacketType(){
-        return PacketType.ItemInteract;
+        return PacketType.ItemUse;
     }
     
     public void Write(PacketWriter writer){

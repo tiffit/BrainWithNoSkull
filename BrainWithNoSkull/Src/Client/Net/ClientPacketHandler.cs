@@ -92,4 +92,8 @@ public class ClientPacketHandler : IClientPacketHandler {
             chunk?.SetBlockEntity(packet.Position.X, packet.Position.Y, packet.Position.Z, entity);
         }
     }
+
+    public void HandleOpenContainer(CbOpenContainerPacket packet){
+        Console.WriteLine("open container!!!");
+    }
 }
