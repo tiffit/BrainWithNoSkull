@@ -2,7 +2,7 @@
 using System.Text.Json.Serialization;
 using Silk.NET.Maths;
 
-namespace BrainWithNoSkull.Client.Models.Blocks;
+namespace BrainWithNoSkull.Client.Models;
 
 public class JsonModel {
     public required JsonModelNode[] Nodes;

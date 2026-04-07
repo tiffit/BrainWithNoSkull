@@ -13,6 +13,8 @@ public static class RecipeRegistry {
 
     public static Recipe StonePickaxe;
     public static Recipe CrudeFurnace;
+    
+    public static Recipe IronBarSmelt;
 
     public static void Init(){
         StonePickaxe = Registry.Register(new Recipe("StonePickaxe", RecipeType.Crafting,
@@ -25,6 +27,9 @@ public static class RecipeRegistry {
             new ItemStack(BlockRegistry.CrudeFurnace, 1),
             5f
         ));
+        
+        IronBarSmelt = Registry.Register(new Recipe("IronBarSmelt", RecipeType.Smelting,
+            new ItemStack(BlockRegistry.Magnetite, 1), new ItemStack(ItemRegistry.IronBar, 1), 5f));
 
         Lookups[RecipeType.Crafting] = new RecipeLookup();
         Lookups[RecipeType.Smelting] = new RecipeLookup();
