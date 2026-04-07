@@ -23,52 +23,17 @@ public class ItemRenderer {
     public void RenderItemInGui(VertexBuilder vb, ItemStack stack, float x, float y, float z, float width, float height){
         Vector2D<float> screenPos = _client.GetScreenPos(x, y);
 
-        if (stack.Item is BlockItem blockItem) {
-            Vector2D<float> size = _client.GetScreenSize(40, 40);
-            Block block = blockItem.Block;
-            List<Tuple<Vector3D<float>, uint>> configs = [];
-            uint defaultConfig = block.ConfigContainer.GetDefault();
-            if (block is IMultiblock multiblock) {
-                Vector3D<int> multiblockSize = multiblock.GetMultiblockSize();
-                for (uint mbx = 0; mbx < multiblockSize.X; mbx++) {
-                    for (uint mby = 0; mby < multiblockSize.Y; mby++) {
-                        for (uint mbz = 0; mbz < multiblockSize.Z; mbz++) {
-                            uint config = block.ConfigContainer.SetValue(defaultConfig, MultiblockBlockConfigType.Instance, new Vector3D<uint>(mbx, mby, mbz));
-                            configs.Add(Tuple.Create(new Vector3D<float>(mbx, mby, mbz), config));
-                        }
-                    }
-                }
-            }
-            else {
-                configs.Add(Tuple.Create(Vector3D<float>.Zero, defaultConfig));
-            }
-
-            IBakedBlockModel model = BlockModels.BakedModels[block];
-            Quaternion<float> quat = Quaternion<float>.CreateFromAxisAngle(new Vector3D<float>(1, 0, 0), float.DegreesToRadians(180+30));
-            quat *= Quaternion<float>.CreateFromAxisAngle(new Vector3D<float>(0, 1, 0), float.DegreesToRadians(45));
+        IBakedItemModel model = ItemModels.BakedModels[stack.Item];
         
-            Matrix4X4<float> rotMatrix = Matrix4X4.CreateFromQuaternion(quat);
-            Matrix4X4<float> posMatrix = rotMatrix * Matrix4X4.CreateScale(size.X, size.Y, 0.001f);
-            posMatrix *= Matrix4X4.CreateTranslation(screenPos.X, screenPos.Y, z);
-            
-            foreach (var (translation, config) in configs) {
-                foreach (Vertex v in model.GetVertices(new Vector3D<float>(-0.5f, -0.5f, -0.5f) + translation, block, config, [..Direction.All])) {
-                    vb.Add(v with{
-                        Pos = Vector3D.Transform(v.Pos, posMatrix),
-                        Normal = Vector3D.Normalize(Vector3D.Transform(v.Normal, rotMatrix))
-                    });
-                }
-            }
-
-        }
-        else {
-            Vector2D<float> size = _client.GetScreenSize(16*2, 16*2);
-            IBakedItemModel model = ItemModels.BakedModels[stack.Item];
-            Matrix4X4<float> posMatrix = Matrix4X4.CreateScale(size.X, size.Y, 0.001f);
-            posMatrix *= Matrix4X4.CreateTranslation(screenPos.X, screenPos.Y, z);
-            foreach (Vertex v in model.GetVertices(stack)) {
-                vb.Add(v with{ Pos = Vector3D.Transform(v.Pos, posMatrix) });
-            }
+        Vector2D<float> size = _client.GetScreenSize(1, 1);
+        ItemModelTransform transform = model.GetItemModelTransform(ItemModelTransformType.Gui);
+        Matrix4X4<float> finalTransform = transform.Transform * Matrix4X4.CreateScale(size.X, size.Y, 0.001f);
+        finalTransform *= Matrix4X4.CreateTranslation(screenPos.X, screenPos.Y, z);
+        foreach (Vertex v in model.GetVertices(stack)) {
+            vb.Add(v with{
+                Pos = Vector3D.Transform(v.Pos, finalTransform),
+                Normal = Vector3D.Normalize(Vector3D.Transform(v.Normal, transform.Rotation))
+            });
         }
     }
 
@@ -80,16 +45,17 @@ public class ItemRenderer {
     }
 
     public void RenderItemInWorld(VertexBuilder vb, MatrixStack ms, ItemStack stack){
-        if (stack.Item is BlockItem item) {
-            Block block = item.Block;
-            IBakedBlockModel model = BlockModels.BakedModels[block];
+        IBakedItemModel model = ItemModels.BakedModels[stack.Item];
         
-            foreach (Vertex v in model.GetVertices(new Vector3D<float>(-0.5f, -0.5f, -0.5f), block, block.ConfigContainer.GetDefault(), [..Direction.All])) {
-                vb.Add(v with{
-                    Pos = ms.Transform(v.Pos)
-                    // Normal = Vector3D.Normalize(ms.Transform(v.Normal))
-                });
-            }
+        ItemModelTransform transform = model.GetItemModelTransform(ItemModelTransformType.World);
+        Matrix4X4<float> finalTransform = transform.Transform;
+        finalTransform *= ms.GetLast();
+        
+        foreach (Vertex v in model.GetVertices(stack)) {
+            vb.Add(v with{
+                Pos = Vector3D.Transform(v.Pos, finalTransform),
+                Normal = Vector3D.Normalize(Vector3D.Transform(v.Normal, transform.Rotation))
+            });
         }
     }
 }

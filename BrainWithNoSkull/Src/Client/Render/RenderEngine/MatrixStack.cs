@@ -38,4 +38,8 @@ public class MatrixStack {
     public void Rotate(Quaternion<float> quat){
         _stack.Last!.Value *= Matrix4X4.CreateFromQuaternion(quat);
     }
+
+    public Matrix4X4<float> GetLast(){
+        return _stack.Last!.Value;
+    }
 }

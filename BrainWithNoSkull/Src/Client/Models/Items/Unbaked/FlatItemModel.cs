@@ -7,6 +7,14 @@ namespace BrainWithNoSkull.Client.Models.Items.Unbaked;
 public class FlatItemModel: UnbakedItemModel {
 
     private readonly string _texture;
+
+    public Dictionary<ItemModelTransformType, ItemModelTransforms> Transforms = new Dictionary<ItemModelTransformType, ItemModelTransforms>{
+        {
+            ItemModelTransformType.Gui, new ItemModelTransforms(){
+                Scale = new Vector3D<float>(32, 32, 1)
+            }
+        }
+    };
     
     public FlatItemModel(string texture){
         _texture = texture;
@@ -57,7 +65,11 @@ public class FlatItemModel: UnbakedItemModel {
                 Uv = new Vector2D<float>(0, 1)
             }
         ];
+
+        Dictionary<ItemModelTransformType, ItemModelTransform> transforms = Transforms
+            .Select(pair => new KeyValuePair<ItemModelTransformType, ItemModelTransform>(pair.Key, pair.Value.GetTransform()))
+            .ToDictionary();
         
-        return new SimpleBakedItemModel(vertices);
+        return new SimpleBakedItemModel(vertices, transforms);
     }
 }

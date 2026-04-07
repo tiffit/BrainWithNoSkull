@@ -1,6 +1,7 @@
 ﻿using BrainWithNoSkull.Client.Models.Blocks.Unbaked;
 using BrainWithNoSkull.Client.Models.Items.Unbaked;
 using BrainWithNoSkull.Registries;
+using BrainWithNoSkull.World.Blocks;
 using BrainWithNoSkull.World.Items;
 
 namespace BrainWithNoSkull.Client.Models.Items;
@@ -12,6 +13,10 @@ public class ItemModels {
     public static HashSet<string> CreateUnbaked(){
         UnbakedModels.Clear();
 
+        foreach ((Block block, BlockItem item) in ItemRegistry.BlockItems) {
+            UnbakedModels[item] = new BlockItemModel(item);
+        }
+        
         UnbakedModels[ItemRegistry.StonePickaxe] = new FlatItemModel("Item/Stone_Pickaxe");
 
         HashSet<string> deps = [];
