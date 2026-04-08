@@ -14,6 +14,7 @@ public class WorldGenerator {
     public WorldGenerator(WorldBase world, IChunkGenerator chunkGen){
         _world = world;
         _chunkGen = chunkGen;
+        _featureGenerators.AddLast(new CaveFeatureGenerator(world.Settings));
         _featureGenerators.AddLast(new TreeFeatureGenerator(world.Settings));
         _featureGenerators.AddLast(new PebbleFeatureGenerator(world.Settings));
         _featureGenerators.AddLast(new StickFeatureGenerator(world.Settings));

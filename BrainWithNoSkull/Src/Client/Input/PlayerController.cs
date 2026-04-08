@@ -12,6 +12,9 @@ using Silk.NET.Maths;
 namespace BrainWithNoSkull.Client.Input;
 
 public class PlayerController {
+
+    public static bool FlyControls = false;
+    
     private readonly GameClient _client;
     private readonly ClientPlayerEntity _player;
     private readonly InputHandler _inputHandler;
@@ -102,33 +105,41 @@ public class PlayerController {
             moveDelta = Vector3D.Normalize(moveDelta) * movementSpeed;
         }
 
-        bool onGround = _player.IsOnGround();
-        if (onGround) {
-            _velocity.Y = MathF.Max(0, _velocity.Y);
-        }
-        else {
-            _velocity.Y = MathF.Max(-40, _velocity.Y + -18 * (float)delta);
-        }
-
-        if (onGround && _keybindJump.IsPressed(context, _inputHandler) && _velocity.Y == 0) {
-            _velocity = new Vector3D<float>(0, 7, 0);
-        }
-
-        moveDelta += _velocity * (float)delta;
-
-        AABB playerBox = _player.GetBoundingBox();
-        CollisionTest test = new CollisionTest(_player.World!, playerBox, moveDelta);
         Vector3D<float> newMove = moveDelta;
-        if (moveDelta.LengthSquared > 0) {
-            newMove = test.RunTest(out List<AABB> collided);
-            if (collided.Count > 0 && moveDelta.Y == 0) {
-                float maxY = collided.Max(aabb => aabb.MaxY);
-                float stepAmount = maxY - playerBox.MinY;
-                if (stepAmount < 0.6f) {
-                    test = new CollisionTest(_player.World!, playerBox + new Vector3D<float>(0, stepAmount, 0), moveDelta);
-                    newMove = test.RunTest(out collided) + new Vector3D<float>(0, stepAmount, 0);
+        
+        if (!FlyControls) {
+            bool onGround = _player.IsOnGround();
+            if (onGround) {
+                _velocity.Y = MathF.Max(0, _velocity.Y);
+            }
+            else {
+                _velocity.Y = MathF.Max(-40, _velocity.Y + -18 * (float)delta);
+            }
+
+            if (onGround && _keybindJump.IsPressed(context, _inputHandler) && _velocity.Y == 0) {
+                _velocity = new Vector3D<float>(0, 7, 0);
+            }
+
+            moveDelta += _velocity * (float)delta;
+
+            AABB playerBox = _player.GetBoundingBox();
+            CollisionTest test = new CollisionTest(_player.World!, playerBox, moveDelta);
+            newMove = moveDelta;
+            if (moveDelta.LengthSquared > 0) {
+                newMove = test.RunTest(out List<AABB> collided);
+                if (collided.Count > 0 && moveDelta.Y == 0) {
+                    float maxY = collided.Max(aabb => aabb.MaxY);
+                    float stepAmount = maxY - playerBox.MinY;
+                    if (stepAmount < 0.6f) {
+                        test = new CollisionTest(_player.World!, playerBox + new Vector3D<float>(0, stepAmount, 0), moveDelta);
+                        newMove = test.RunTest(out collided) + new Vector3D<float>(0, stepAmount, 0);
+                    }
                 }
             }
+        }else if (_keybindJump.IsPressed(context, _inputHandler)) {
+            newMove += new Vector3D<float>(0, movementSpeed, 0);
+        }else if (_inputHandler.IsKeyDown(Key.ShiftLeft)) {
+            newMove -= new Vector3D<float>(0, movementSpeed, 0);
         }
 
         Vector3D<float> newPlayerPos = _player.Position + newMove;

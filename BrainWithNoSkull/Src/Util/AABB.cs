@@ -38,6 +38,11 @@ public class AABB {
         return new AABB(MathF.Min(first.MinX, second.MinX), MathF.Min(first.MinY, second.MinY), MathF.Min(first.MinZ, second.MinZ),
             MathF.Max(first.MaxX, second.MaxX), MathF.Max(first.MaxY, second.MaxY), MathF.Max(first.MaxZ, second.MaxZ));
     }
+
+    public static AABB And(AABB first, AABB second){
+        return new AABB(MathF.Max(first.MinX, second.MinX), MathF.Max(first.MinY, second.MinY), MathF.Max(first.MinZ, second.MinZ),
+            MathF.Min(first.MaxX, second.MaxX), MathF.Min(first.MaxY, second.MaxY), MathF.Min(first.MaxZ, second.MaxZ));
+    }
     
     public static AABB operator +(AABB left, Vector3D<float> right){
         return new AABB(left.MinX + right.X, left.MinY + right.Y, left.MinZ + right.Z,
