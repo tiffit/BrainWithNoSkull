@@ -85,7 +85,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
     private readonly VkUniformStore _ubo = new VkUniformStore();
     private readonly VkUniformStore _shadowUbo = new VkUniformStore();
     private readonly VkUniformStore _shadowMapDataUbo = new VkUniformStore();
-    private readonly float[] _shadowCascadeSizes = new float[ShadowMapCascadeCount];
+    private readonly Frustum[] _shadowCascadeFrustums = new Frustum[ShadowMapCascadeCount];
     
     private Semaphore[] _imageAvailableSemaphore = [];
     private Semaphore[] _renderFinishedSemaphore = [];
@@ -1300,10 +1300,9 @@ public unsafe class VkRenderEngine : IRenderEngine {
             };
             _vk.CmdSetScissor(buffer, 0, 1, &scissor);
 
-            AABB? shadowFrustum = null;
+            Frustum? shadowFrustum = null;
             if (shadowMapping) {
-                float radius = _shadowCascadeSizes[cascadeIndex];
-                shadowFrustum = new AABB(-radius, -radius, -radius, radius, radius, radius) + _camera.Position;
+                shadowFrustum = _shadowCascadeFrustums[cascadeIndex];
             }
 
             if (useMeshes) {
@@ -1311,7 +1310,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
                     if (data != null) {
                         if (data.Aabb != null) {
                             if (shadowMapping) {
-                                if (shadowFrustum != null && !data.Aabb.Intersects(shadowFrustum)) {
+                                if (shadowFrustum != null && !shadowFrustum.IsBoxInside(data.Aabb)) {
                                     continue;
                                 }
                             }
@@ -1450,14 +1449,14 @@ public unsafe class VkRenderEngine : IRenderEngine {
             }
             
             radius = MathF.Ceiling(radius * 16) / 16f;
-            _shadowCascadeSizes[i] = radius;
+
+            Vector3D<float> lightPos = frustumCenter - _light.LightDir * radius;
             
-            Vector3D<float> maxExtents = new Vector3D<float>(radius);
-            Vector3D<float> minExtents = -maxExtents;
-            
-            Matrix4X4<float> lightViewMatrix = Matrix4X4.CreateLookAt(frustumCenter - _light.LightDir * -minExtents.Z, frustumCenter, Vector3D<float>.UnitY);
-            Matrix4X4<float> lightOrthoMatrix = Matrix4X4.CreateOrthographicOffCenter(minExtents.X, maxExtents.X, minExtents.Y, maxExtents.Y, 0, maxExtents.Z - minExtents.Z);
+            Matrix4X4<float> lightViewMatrix = Matrix4X4.CreateLookAt(lightPos, frustumCenter, Vector3D<float>.UnitY);
+            Matrix4X4<float> lightOrthoMatrix = Matrix4X4.CreateOrthographicOffCenter(-radius, radius, -radius, radius, 0, radius*2);
             lightOrthoMatrix.M22 *= -1;
+
+            _shadowCascadeFrustums[i] = new Frustum(lightPos, frustumCenter, radius);
 
             UniformBufferObject cascadeUbo = new UniformBufferObject{
                 Model = Matrix4X4<float>.Identity,
