@@ -15,9 +15,12 @@ public class MachineGui: ContainerGui {
     private MachineBlockEntity? _blockEntity;
     private ClientPlayerEntity _player = null!;
     
+    private float _progress;
+    
     public MachineGui(ContainerSync sync) : base(sync){
         _sync = (sync as MachineContainerSync)!;
         _sync.MachinePos.OnSync += OnMachinePosUpdate;
+        _sync.MachineProgress.OnSync += OnMachineProgressUpdate;
     }
 
     private void OnMachinePosUpdate(Vector3D<int> blockPos){
@@ -25,6 +28,10 @@ public class MachineGui: ContainerGui {
         if (_blockEntity != null) {
             ReInit();
         }
+    }
+    
+    private void OnMachineProgressUpdate(float progress){
+        _progress = progress;
     }
 
     public override void Init(IRenderEngine renderEngine, FontRenderer font, int scaledWidth, int scaledHeight){
@@ -45,11 +52,13 @@ public class MachineGui: ContainerGui {
             int outputCount = _blockEntity.GetOutputSlotCount();
 
             for (int i = 0; i < inputCount; i++) {
-                panel.AddWidget(new SlotWidget(5 + i*20, height/2 - 9, -0.01f, this, _sync.Container, i, invIconsTexture));
+                panel.AddWidget(new SlotWidget(width / 4 + i*20, height/2 - 9, -0.01f, this, _sync.Container, i, invIconsTexture));
             }
             for (int i = 0; i < outputCount; i++) {
-                panel.AddWidget(new SlotWidget(width/2 + 5 + i*20, height/2 - 9, -0.01f, this, _sync.Container, inputCount + i, invIconsTexture));
+                panel.AddWidget(new SlotWidget(width / 4 * 3 + i*20, height/2 - 9, -0.01f, this, _sync.Container, inputCount + i, invIconsTexture));
             }
+            
+            panel.AddWidget(new ProgressBarWidget(5, height/2 + 25, -0.01f, width - 10, 10, this, () => _progress));
         }
     }
 }

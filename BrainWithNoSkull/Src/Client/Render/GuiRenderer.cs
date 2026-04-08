@@ -10,6 +10,7 @@ public class GuiRenderer {
 
     private readonly Gui _gui;
     private readonly IRenderEngine _renderEngine;
+    public uint Color = 0xff_ff_ff_ff;
 
     public GuiRenderer(Gui gui, IRenderEngine renderEngine){
         _gui = gui;
@@ -31,42 +32,42 @@ public class GuiRenderer {
 
         vb.Add(new Vertex{
             Pos = new Vector3D<float>(posMin, z),
-            Color = 0xff_ff_ff_ff,
+            Color = Color,
             TextureIndex = textureIndex,
             Uv = new Vector2D<float>(u0, v0)
         });
 
         vb.Add(new Vertex{
             Pos = new Vector3D<float>(posMax.X, posMin.Y, z),
-            Color = 0xff_ff_ff_ff,
+            Color = Color,
             TextureIndex = textureIndex,
             Uv = new Vector2D<float>(u1, v0)
         });
 
         vb.Add(new Vertex{
             Pos = new Vector3D<float>(posMax, z),
-            Color = 0xff_ff_ff_ff,
+            Color = Color,
             TextureIndex = textureIndex,
             Uv = new Vector2D<float>(u1, v1)
         });
 
         vb.Add(new Vertex{
             Pos = new Vector3D<float>(posMax, z),
-            Color = 0xff_ff_ff_ff,
+            Color = Color,
             TextureIndex = textureIndex,
             Uv = new Vector2D<float>(u1, v1)
         });
 
         vb.Add(new Vertex{
             Pos = new Vector3D<float>(posMin.X, posMax.Y, z),
-            Color = 0xff_ff_ff_ff,
+            Color = Color,
             TextureIndex = textureIndex,
             Uv = new Vector2D<float>(u0, v1)
         });
 
         vb.Add(new Vertex{
             Pos = new Vector3D<float>(posMin, z),
-            Color = 0xff_ff_ff_ff,
+            Color = Color,
             TextureIndex = textureIndex,
             Uv = new Vector2D<float>(u0, v0)
         });

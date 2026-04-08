@@ -23,14 +23,17 @@ public class MachineContainerSync: ContainerSync {
     private readonly MachineBlockEntity _blockEntity = null!;
 
     public readonly SyncVariable<Vector3D<int>> MachinePos;
+    public readonly SyncVariable<float> MachineProgress;
     
     public MachineContainerSync(uint id, MachineBlockEntity blockEntity, ServerPlayerEntity player) : base(id, blockEntity.Container, player){
         _blockEntity = blockEntity;
         MachinePos = AddSyncVariable(new Vector3DIntSyncVariable(Vector3D<int>.Zero, () => _blockEntity.BlockPosition));
+        MachineProgress = AddSyncVariable(new FloatSyncVariable(0, _blockEntity.GetProgress));
     }
     
     public MachineContainerSync(uint id, IItemContainer container, PlayerEntity player) : base(id, container, player){
         MachinePos = AddSyncVariable(new Vector3DIntSyncVariable(Vector3D<int>.Zero, null));
+        MachineProgress = AddSyncVariable(new FloatSyncVariable(0, null));
     }
     
 }
@@ -145,5 +148,11 @@ public class MachineBlockEntity: BlockEntity, ITickingBlockEntity {
                 }
             }
         }
+    }
+
+    public float GetProgress(){
+        if (CurrentRecipe == null)
+            return 0;
+        return _craftTime / CurrentRecipe.Time;
     }
 }

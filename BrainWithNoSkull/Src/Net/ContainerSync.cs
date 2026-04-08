@@ -168,3 +168,10 @@ public class Vector3DIntSyncVariable : SyncVariable<Vector3D<int>> {
     protected override void WriteValueToPacket(PacketWriter writer, Vector3D<int> value) => writer.Write(value);
     protected override Vector3D<int> GetValueFromPacket(PacketReader reader) => reader.Read3DIntVec();
 }
+
+public class FloatSyncVariable : SyncVariable<float> {
+    public FloatSyncVariable(float value, Func<float>? getter) : base(value, getter){}
+    protected override bool AreValuesEqual(float val1, float val2) => val1 == val2;
+    protected override void WriteValueToPacket(PacketWriter writer, float value) => writer.Write(value);
+    protected override float GetValueFromPacket(PacketReader reader) => reader.ReadSingle();
+}
