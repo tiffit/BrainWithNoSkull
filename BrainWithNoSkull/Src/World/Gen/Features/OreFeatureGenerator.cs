@@ -40,7 +40,7 @@ public class OreFeatureGenerator: IFeatureGenerator {
 
     private bool CanGenerate(int worldX, int worldY, int worldZ){
         _random.SetSeed(_seed + HashCode.Combine(worldX, worldY, worldZ));
-        return _random.NextDouble() < 0.001;
+        return _random.NextDouble() < 0.005;
     }
     
     private void GenerateVein(GenChunk genChunk, int x, int y, int z){

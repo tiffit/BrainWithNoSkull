@@ -16,10 +16,6 @@ public class PlayerInventory: IItemContainer {
         for (int i = 0; i < InventorySize; i++) {
             Items.Add(null);
         }
-        
-        SetItemInSlot(new ItemStack(BlockRegistry.CrudeFurnace, 1), 5);
-        SetItemInSlot(new ItemStack(BlockRegistry.Magnetite, 5), 6);
-        SetItemInSlot(new ItemStack(ItemRegistry.IronBar, 1), 7);
     }
 
     public void AddItem(ref ItemStack? stack){
