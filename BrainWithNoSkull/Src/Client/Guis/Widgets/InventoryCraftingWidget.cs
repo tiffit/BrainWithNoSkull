@@ -12,10 +12,12 @@ public sealed class InventoryCraftingWidget: PanelWidget {
         AddWidget(list);
         
         foreach (Recipe recipe in RecipeRegistry.Registry.GetEntries()) {
-            list.AddWidget(new InvCraftingButtonWidget(recipe, parent, (_, _, _) => {
-                OnCraftingButtonClicked(recipe);
-                return true;
-            }));
+            if (recipe.RecipeType == RecipeType.Crafting) {
+                list.AddWidget(new InvCraftingButtonWidget(recipe, parent, (_, _, _) => {
+                    OnCraftingButtonClicked(recipe);
+                    return true;
+                }));
+            }
         }
     }
 
