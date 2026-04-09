@@ -79,12 +79,7 @@ public class Recipe: IRegistryEntry {
     public void ProduceOutput(IItemContainer container){
         foreach (ItemStack o in Outputs) {
             ItemStack? remaining = o.Clone();
-            for (int i = 0; i < container.GetInventorySize(); i++) {
-                container.CombineStacks(i, ref remaining, false);
-                if (ItemStack.IsNull(remaining)) {
-                    break;
-                }
-            }
+            container.AddItem(ref remaining);
         }
     }
 }

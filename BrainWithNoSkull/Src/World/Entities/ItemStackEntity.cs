@@ -25,7 +25,7 @@ public class ItemStackEntity: Entity {
                 AABB pickupBox = new AABB(-pickupSize, -pickupSize, -pickupSize, pickupSize, pickupSize, pickupSize) + Position;
                 foreach (Entity entity in World.GetEntitiesInBox(pickupBox)) {
                     if (entity is PlayerEntity player) {
-                        player.Inventory.AddItem(ref Stack);
+                        (player.Inventory as IItemContainer).AddItem(ref Stack);
                         if (ItemStack.IsNull(Stack)) {
                             Remove = true;
                             return;

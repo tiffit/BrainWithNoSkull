@@ -13,6 +13,22 @@ public interface IItemContainer {
 
     public void MarkSlotDirty(int slot);
 
+    public void AddItem(ref ItemStack? stack){
+        for (int a = 0; a < 2; a++) {
+            for (int i = 0; i < GetInventorySize(); i++) {
+                if (a == 1 || !ItemStack.IsNull(GetItem(i))) {
+                    if (CombineStacks(i, ref stack, false)) {
+                        MarkSlotDirty(i);
+                    }
+                    if (ItemStack.IsNull(stack)) {
+                        stack = null;
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
     public bool CombineStacks(int slot, ref ItemStack? other, bool swap, bool simulate = false){
         if (ItemStack.IsNull(other))
             return false;
@@ -24,6 +40,9 @@ public interface IItemContainer {
         if (ItemStack.CanCombine(current, other)) {
             if (!ItemStack.IsNull(current)) {
                 current.Count += other.Count;
+                if (!simulate) {
+                    MarkSlotDirty(slot);
+                }
                 other = null;
             }
             else {
