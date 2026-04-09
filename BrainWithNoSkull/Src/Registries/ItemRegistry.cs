@@ -15,6 +15,7 @@ public static class ItemRegistry {
 
     public static Item StonePickaxe;
     public static Item IronBar;
+    public static Item IronScrew;
     
     public static void Init(){
         foreach (Block block in BlockRegistry.Registry.GetEntries()) {
@@ -23,6 +24,7 @@ public static class ItemRegistry {
 
         StonePickaxe = Registry.Register(new Item("StonePickaxe"){ BreakSpeed = 5f });
         IronBar = Registry.Register(new Item("IronBar"));
+        IronScrew = Registry.Register(new Item("IronScrew"));
     }
 
 }
