@@ -48,6 +48,14 @@ public class Block : IRegistryEntry {
     public virtual bool ShouldCullFace(Direction direction){
         return !IsAir();
     }
+
+    public virtual bool IsFullBlock(){
+        return true;
+    }
+
+    public virtual void BlockUpdate(ServerWorld world, Vector3D<int> pos, uint config, Vector3D<int> updated){
+        
+    }
 }
 
 public interface IMultiblock {

@@ -4,6 +4,7 @@ using BrainWithNoSkull.Net.Pckt.Cb;
 using BrainWithNoSkull.Registries;
 using BrainWithNoSkull.Util;
 using BrainWithNoSkull.World;
+using BrainWithNoSkull.World.Blocks;
 using BrainWithNoSkull.World.Entities;
 using Silk.NET.Maths;
 
@@ -36,6 +37,30 @@ public class ServerWorld : WorldBase {
             foreach (ConnectedClientBase client in GetAllListeners(chunkCoords)) {
                 client.SendPacket(new CbNewEntityPacket(entity));
             }
+        }
+    }
+
+    public override void SetBlock(Vector3D<int> blockPos, Block block, uint config){
+        base.SetBlock(blockPos, block, config);
+        
+        foreach (ConnectedClientBase client in GetAllListeners(ChunkUtils.ToChunkCoords(blockPos))) {
+            client.SendPacket(new CbBlockPacket(blockPos, block, config));
+        }
+        
+        DoBlockUpdate(blockPos, Vector3D<int>.UnitX);
+        DoBlockUpdate(blockPos, Vector3D<int>.UnitY);
+        DoBlockUpdate(blockPos, Vector3D<int>.UnitZ);
+        
+        DoBlockUpdate(blockPos, -Vector3D<int>.UnitX);
+        DoBlockUpdate(blockPos, -Vector3D<int>.UnitY);
+        DoBlockUpdate(blockPos, -Vector3D<int>.UnitZ);
+    }
+
+    public void DoBlockUpdate(Vector3D<int> original, Vector3D<int> direction){
+        Vector3D<int> toUpdate = original + direction;
+        Block block = GetBlock(toUpdate, out uint config);
+        if (!block.IsAir()) {
+            block.BlockUpdate(this, toUpdate, config, original);
         }
     }
 }

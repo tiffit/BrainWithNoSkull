@@ -9,4 +9,8 @@ public class NonFullBlock: Block {
     public override bool ShouldCullFace(Direction direction){
         return false;
     }
+
+    public override bool IsFullBlock(){
+        return false;
+    }
 }

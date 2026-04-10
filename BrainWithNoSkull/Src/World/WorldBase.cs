@@ -63,7 +63,7 @@ public class WorldBase {
         return chunk.GetBlock(blockPos.X, blockPos.Y, blockPos.Z);
     }
 
-    public virtual void SetBlock(Vector3D<int> blockPos, Block block){
+    public void SetBlock(Vector3D<int> blockPos, Block block){
         SetBlock(blockPos, block, block.ConfigContainer.GetDefault());
     }
     

@@ -112,4 +112,9 @@ public class ClientPacketHandler : IClientPacketHandler {
             }
         }
     }
+
+    public void HandleBlock(CbBlockPacket packet){
+        WorldBase? world = _serverConnection.PlayerEntity?.World;
+        world?.SetBlock(packet.Position, packet.Block, packet.Config);
+    }
 }

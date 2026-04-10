@@ -1,5 +1,7 @@
-﻿using BrainWithNoSkull.Util;
+﻿using BrainWithNoSkull.Server;
+using BrainWithNoSkull.Util;
 using BrainWithNoSkull.World.Blocks.BlockConfigs;
+using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.World.Blocks.Specific;
 
@@ -12,5 +14,12 @@ public class LitterBlock: NonFullBlock {
 
     public override AABB GetCollisionBox(){
         return CollisionBox;
+    }
+
+    public override void BlockUpdate(ServerWorld world, Vector3D<int> pos, uint config, Vector3D<int> updated){
+        base.BlockUpdate(world, pos, config, updated);
+        if (!world.GetBlock(pos - Vector3D<int>.UnitY).IsFullBlock()) {
+            world.RemoveBlock(pos);
+        }
     }
 }

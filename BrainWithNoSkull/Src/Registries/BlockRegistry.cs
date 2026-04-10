@@ -23,7 +23,7 @@ public static class BlockRegistry {
     public static CrudeFurnaceBlock CrudeFurnace;
     
     public static void Init(){
-        Air = Registry.Register(new Block("Air"));
+        Air = Registry.Register(new AirBlock("Air"));
         
         Grass = Registry.Register(new Block("Grass"){BreakTime = 1f});
         Dirt = Registry.Register(new Block("Dirt"){BreakTime = 1f});
