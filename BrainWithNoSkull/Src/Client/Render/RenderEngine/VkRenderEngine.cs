@@ -1306,6 +1306,7 @@ public unsafe class VkRenderEngine : IRenderEngine {
             }
 
             if (useMeshes) {
+                int count = 0;
                 foreach ((Mesh mesh, CompiledMeshData? data) in meshes) {
                     if (data != null) {
                         if (data.Aabb != null) {
@@ -1338,8 +1339,12 @@ public unsafe class VkRenderEngine : IRenderEngine {
                             _vk.CmdPushConstants(buffer, pipeline.PipelineLayout, ShaderStageFlags.VertexBit, 0, TransformPushConstant.SizeInBytes, &transformPushConstant);
                         }
                         _vk.CmdDraw(buffer, data.VertexCount, 1, 0, 0);
+                        count++;
                     }
                 }
+
+                GameClient.Instance.LastRenderedChunkCount[shadowMapping ? cascadeIndex + 1 : 0] = count;
+                GameClient.Instance.TotalChunkMeshCount = meshes.Count;
             }
             else {
                 VertexBuilder builder = pipeline.VertexBuilder;

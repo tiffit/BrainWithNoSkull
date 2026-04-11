@@ -53,6 +53,9 @@ public class GameClient {
     public FontRenderer FontRenderer;
     public ItemRenderer ItemRenderer;
 
+    public readonly int[] LastRenderedChunkCount = new int[5];
+    public int TotalChunkMeshCount = 0;
+
     public readonly Dictionary<ContainerSyncType, Func<ContainerSync, ContainerGui>> ContainerGuis = new Dictionary<ContainerSyncType, Func<ContainerSync, ContainerGui>>();
 
     public GameClient(){
@@ -104,7 +107,7 @@ public class GameClient {
         GlfwInput.RegisterPlatform();
         GameWindow = Window.Create(windowOptions);
         GameWindow.UpdatesPerSecond = Constants.TicksPerSecond;
-        GameWindow.FramesPerSecond = 100;
+        // GameWindow.FramesPerSecond = 100;
         GameWindow.Resize += OnWindowResize;
         GameWindow.Load += OnWindowLoad;
         GameWindow.Initialize();

@@ -46,10 +46,10 @@ public class HudGui : Gui {
             int z = (int)player.Position.Z;
             fps = $"{fps} ({x}, {y}, {z})";
         }
-        Font.RenderString(fpsPos - 1, fpsPos, 0.99f, fps, ColorUtil.FromBytes(0, 0, 0));
-        Font.RenderString(fpsPos + 1, fpsPos, 0.99f, fps, ColorUtil.FromBytes(0, 0, 0));
-        Font.RenderString(fpsPos, fpsPos - 1, 0.99f, fps, ColorUtil.FromBytes(0, 0, 0));
-        Font.RenderString(fpsPos, fpsPos + 1, 0.99f, fps, ColorUtil.FromBytes(0, 0, 0));
+        Font.RenderString(fpsPos - 1, fpsPos, 0.999f, fps, ColorUtil.FromBytes(0, 0, 0));
+        Font.RenderString(fpsPos + 1, fpsPos, 0.999f, fps, ColorUtil.FromBytes(0, 0, 0));
+        Font.RenderString(fpsPos, fpsPos - 1, 0.999f, fps, ColorUtil.FromBytes(0, 0, 0));
+        Font.RenderString(fpsPos, fpsPos + 1, 0.999f, fps, ColorUtil.FromBytes(0, 0, 0));
         Font.RenderString(fpsPos, fpsPos, 0, fps, ColorUtil.FromBytes(255, 255, 255));
         
         _frameCount++;
@@ -59,5 +59,12 @@ public class HudGui : Gui {
             _frameCount = 0;
             _lastFrameSecond = nowTime;
         }
+        
+        GameClient client = GameClient.Instance;
+        int[] counts = client.LastRenderedChunkCount;
+        string chunkCount = $"{counts[0]}/{client.TotalChunkMeshCount}";
+        Font.RenderString(fpsPos, fpsPos + 10, 0, chunkCount, ColorUtil.FromBytes(255, 255, 255));
+        string shadowCount = $"{counts[1]} {counts[2]} {counts[3]} {counts[4]}";
+        Font.RenderString(fpsPos, fpsPos + 20, 0, shadowCount, ColorUtil.FromBytes(255, 255, 255));
     }
 }
