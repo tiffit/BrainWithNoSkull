@@ -14,6 +14,7 @@ public abstract class ConnectedClientBase {
     private readonly HashSet<Vector2D<int>> _loadedChunks = [];
     private int ViewDistance = 8;
     private Vector2D<int>? _lastChunk = null;
+    private bool _sentAllChunks = false;
     private bool _playerInfoSent = false;
 
     public ContainerSync? Container;
@@ -23,19 +24,24 @@ public abstract class ConnectedClientBase {
 
     public virtual void Tick(double delta){
         if (Entity is{ World: not null, Chunk: not null }) {
-            if (_lastChunk != Entity.Chunk.Coords) {
+            if (!_sentAllChunks || _lastChunk != Entity.Chunk.Coords) {
                 _lastChunk = Entity.Chunk.Coords;
+                _sentAllChunks = true;
+                ServerWorld world = (Entity.World as ServerWorld)!;
                 for (int x = -ViewDistance; x <= ViewDistance; x++) {
                     for (int z = -ViewDistance; z <= ViewDistance; z++) {
                         Vector2D<int> chunkCoords = _lastChunk.Value + new Vector2D<int>(x, z);
-                        Chunk? toSend = Entity.World.GetChunk(chunkCoords);
+                        Chunk? toSend = world.GetOrQueueChunk(chunkCoords, Math.Abs(x) + Math.Abs(z));
                         if (toSend != null) {
                             chunkCoords = toSend.Coords;
                             if (_loadedChunks.Add(chunkCoords)) {
-                                (Entity.World as ServerWorld)!.AddListener(chunkCoords, this);
+                                world.AddListener(chunkCoords, this);
                                 SendPacket(toSend.ToChunkPacket());
                                 toSend.SendAllBlockEntities(this);
                             }
+                        }
+                        else {
+                            _sentAllChunks = false;
                         }
                     }
                 }

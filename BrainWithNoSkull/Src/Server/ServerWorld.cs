@@ -13,6 +13,8 @@ namespace BrainWithNoSkull.Server;
 public class ServerWorld : WorldBase {
 
     private readonly Dictionary<Vector2D<int>, List<ConnectedClientBase>> _listeningClients = new Dictionary<Vector2D<int>, List<ConnectedClientBase>>();
+    private readonly PriorityQueue<Vector2D<int>, int> _chunkGenerationQueue = new PriorityQueue<Vector2D<int>, int>();
+    private readonly HashSet<Vector2D<int>> _generatingChunks = [];
     
     public ServerWorld(WorldSettings settings) : base(settings, true){
     }
@@ -61,6 +63,25 @@ public class ServerWorld : WorldBase {
         Block block = GetBlock(toUpdate, out uint config);
         if (!block.IsAir()) {
             block.BlockUpdate(this, toUpdate, config, original);
+        }
+    }
+
+    public Chunk? GetOrQueueChunk(Vector2D<int> chunkCoords, int range){
+        if (!Chunks.IsChunkLoaded(chunkCoords)) {
+            if (_generatingChunks.Add(chunkCoords)) {
+                _chunkGenerationQueue.Enqueue(chunkCoords, range);
+            }
+            return null;
+        }
+        return Chunks.GetChunk(chunkCoords);
+    }
+
+    public override void Tick(double delta){
+        base.Tick(delta);
+
+        if(_chunkGenerationQueue.TryDequeue(out Vector2D<int> chunkCoords, out int _)) {
+            GetChunk(chunkCoords);
+            _generatingChunks.Remove(chunkCoords);
         }
     }
 }

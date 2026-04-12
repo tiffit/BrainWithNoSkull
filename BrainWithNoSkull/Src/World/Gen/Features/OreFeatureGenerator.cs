@@ -46,7 +46,7 @@ public class OreFeatureGenerator: IFeatureGenerator {
     private void GenerateVein(GenChunk genChunk, int x, int y, int z){
         int numToGenerate = _random.NextInt(_maxSize - _minSize) + _minSize;
         float rotation = _random.NextFloat() * MathF.PI;
-        float scale = numToGenerate / 8.0f;
+        float scale = numToGenerate / 32.0f;
 
         float sin = MathF.Sin(rotation) * scale;
         float cos = MathF.Cos(rotation) * scale;
@@ -66,9 +66,9 @@ public class OreFeatureGenerator: IFeatureGenerator {
             float posX = float.Lerp(minX, maxX, delta);
             float posY = float.Lerp(minY, maxY, delta);
             float posZ = float.Lerp(minZ, maxZ, delta);
-
+        
             toPlace.Add(new Vector3D<int>((int)MathF.Floor(posX), (int)MathF.Floor(posY), (int)MathF.Floor(posZ)));
-
+        
             for (float dx = -1; dx <= 1; dx++) {
                 for (float dy = -1; dy <= 1; dy++) {
                     for (float dz = -1; dz <= 1; dz++) {
@@ -76,10 +76,16 @@ public class OreFeatureGenerator: IFeatureGenerator {
                         if (!toPlace.Contains(pos)) {
                             potentialPlace.Add(pos);
                         }
+
+                        if (potentialPlace.Count + toPlace.Count > numToGenerate * 2) {
+                            goto finishFindingPos;
+                        }
                     }
                 }
             }
         }
+
+        finishFindingPos:
 
         List<Vector3D<int>> potential = new List<Vector3D<int>>(potentialPlace);
         
