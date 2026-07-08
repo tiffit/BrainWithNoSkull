@@ -39,7 +39,8 @@ public enum PacketType: ushort{
     ChangeHotbarSlot,
     MoveInventoryItems,
     StartCraft,
-    Interact
+    Interact,
+    Chat
 }
 
 public delegate IPacket PacketFactory();
@@ -70,6 +71,7 @@ public static class PacketRegistry {
         Registry[PacketType.MoveInventoryItems] = () => new SbMoveInventoryItemsPacket();
         Registry[PacketType.StartCraft] = () => new SbStartCraftPacket();
         Registry[PacketType.Interact] = () => new SbInteractPacket();
+        Registry[PacketType.Chat] = () => new SbChatPacket();
     }
 
     public static IPacket GetPacket(PacketType type) => Registry[type]();

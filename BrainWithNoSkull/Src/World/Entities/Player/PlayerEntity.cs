@@ -1,8 +1,9 @@
-﻿using BrainWithNoSkull.Registries;
+﻿using BrainWithNoSkull.Commands.Components;
+using BrainWithNoSkull.Registries;
 
 namespace BrainWithNoSkull.World.Entities.Player;
 
-public class PlayerEntity : Entity {
+public class PlayerEntity : Entity, ICommandExecutor {
 
     public PlayerInventory Inventory;
     

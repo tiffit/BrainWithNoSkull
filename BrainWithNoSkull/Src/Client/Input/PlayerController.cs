@@ -1,7 +1,6 @@
 ﻿using BrainWithNoSkull.Client.Guis;
 using BrainWithNoSkull.Client.World;
 using BrainWithNoSkull.Net.Pckt.Sb;
-using BrainWithNoSkull.Registries;
 using BrainWithNoSkull.Util;
 using BrainWithNoSkull.World;
 using BrainWithNoSkull.World.Blocks;
@@ -47,6 +46,7 @@ public class PlayerController {
     
     private readonly Keybinding _keybindInventory = new Keybinding("Inventory", new BoundInput(Key.Tab), KeyContext.All, false);
     private readonly Keybinding _keybindPause = new Keybinding("Pause", new BoundInput(Key.Escape), KeyContext.All, false);
+    private readonly Keybinding _keybindChat = new Keybinding("Chat", new BoundInput(Key.Enter), KeyContext.FirstPerson, false);
 
     public PlayerController(GameClient client, ClientPlayerEntity player, InputHandler inputHandler){
         _client = client;
@@ -62,6 +62,12 @@ public class PlayerController {
             Gui gui = _client.Gui!;
             foreach (MouseButton btn in _inputHandler.MouseDownThisFrame) {
                 gui.HandleMouseButtonInput(btn, true);
+            }
+            foreach (Key key in _inputHandler.KeysDownThisFrame) {
+                gui.HandleKeyInput(key, true);
+            }
+            foreach (char chr in _inputHandler.CharsDownThisFrame) {
+                gui.HandleCharInput(chr);
             }
         }
 
@@ -236,6 +242,11 @@ public class PlayerController {
 
         if (_keybindInventory.IsPressed(context, _inputHandler)) {
             _client.SetGui(_client.Gui == null ? new InventoryGui() : null);
+        }
+        else if (_keybindChat.IsPressed(context, _inputHandler)) {
+            if (_client.Gui == null) {
+                _client.SetGui(new ChatGui());
+            }
         }
         else if (_keybindPause.IsPressed(context, _inputHandler)) {
             _client.SetGui(_client.Gui == null ? new PauseGui() : null);

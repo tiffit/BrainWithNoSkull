@@ -1,11 +1,7 @@
-﻿using BrainWithNoSkull.Client.Models.Blocks;
-using BrainWithNoSkull.Client.Models.Items;
+﻿using BrainWithNoSkull.Client.Models.Items;
 using BrainWithNoSkull.Client.Render.Data;
 using BrainWithNoSkull.Client.Render.RenderEngine;
 using BrainWithNoSkull.Util;
-using BrainWithNoSkull.World.Blocks;
-using BrainWithNoSkull.World.Blocks.BlockConfigs;
-using BrainWithNoSkull.World.Items;
 using BrainWithNoSkull.World.ItemStacks;
 using Silk.NET.Maths;
 

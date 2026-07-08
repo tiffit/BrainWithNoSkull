@@ -1,5 +1,4 @@
 ﻿using BrainWithNoSkull.Registries;
-using BrainWithNoSkull.World.Entities.Player;
 using BrainWithNoSkull.World.Items;
 using BrainWithNoSkull.World.ItemStacks;
 

@@ -60,9 +60,20 @@ public abstract class Gui {
             }
         }
     }
-
-    protected virtual void OnMouseDown(MouseButton btn, int mouseX, int mouseY){
+    
+    public void HandleKeyInput(Key key, bool down){
+        OnKeyDown(key);
     }
+    
+    public void HandleCharInput(char chr){
+        OnCharTyped(chr);
+    }
+
+    protected virtual void OnMouseDown(MouseButton btn, int mouseX, int mouseY){}
+    
+    protected virtual void OnKeyDown(Key key){}
+    
+    protected virtual void OnCharTyped(char chr){}
 
     private static void GetScaledMousePos(out int mouseX, out int mouseY){
         Vector2D<float> mousePos = GameClient.Instance.InputHandler.MousePosition;

@@ -1,4 +1,5 @@
 ﻿using BrainWithNoSkull.Client.World;
+using BrainWithNoSkull.Commands.Components;
 using BrainWithNoSkull.Net;
 using BrainWithNoSkull.Net.Pckt.Cb;
 using BrainWithNoSkull.World.Entities.Player;
@@ -9,10 +10,13 @@ namespace BrainWithNoSkull.Server;
 public class GameServerBase {
 
     public ServerWorld World;
+    private readonly CommandRegistry _commandRegistry;
     private readonly List<ConnectedClientBase> _clients = [];
     
     public GameServerBase(){
-        World = new ServerWorld(new WorldSettings(){ WorldSize = 512 });
+        World = new ServerWorld(new WorldSettings{ WorldSize = 512 });
+        _commandRegistry = new CommandRegistry(this);
+        _commandRegistry.Init();
     }
 
     public virtual void Tick(double delta){
@@ -24,6 +28,7 @@ public class GameServerBase {
     }
 
     public void Connect(ConnectedClientBase client){
+        client.Server = this;
         _clients.Add(client);
         client.SendPacket(new CbWorldInfoPacket(World.Settings));
         ServerPlayerEntity player = new ServerPlayerEntity(client, World);
@@ -31,5 +36,9 @@ public class GameServerBase {
         float center = (World.Settings.WorldSize * 16) / 2;
         World.AddEntity(player, new Vector3D<float>(center/2, Constants.SeaLevel + 5, center));
     }
-    
+
+    public void ExecuteCommand(ICommandExecutor executor, string text){
+        Console.WriteLine("Got command /" + text);
+        _commandRegistry.Execute(executor, new CommandInput(text));
+    }
 }

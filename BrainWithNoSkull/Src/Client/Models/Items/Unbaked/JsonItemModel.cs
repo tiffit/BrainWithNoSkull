@@ -9,7 +9,7 @@ public class JsonItemModel: UnbakedItemModel {
     
     public Dictionary<ItemModelTransformType, ItemModelTransforms> Transforms = new Dictionary<ItemModelTransformType, ItemModelTransforms>{
         {
-            ItemModelTransformType.Gui, new ItemModelTransforms(){
+            ItemModelTransformType.Gui, new ItemModelTransforms {
                 Translation = new Vector3D<float>(-0.5f, -0.5f, -0.5f),
                 Rotation = new Vector3D<float>(180+30, -125, 0),
                 Scale = new Vector3D<float>(40, 40, 1)

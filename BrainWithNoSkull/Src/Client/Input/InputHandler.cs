@@ -16,6 +16,7 @@ public class InputHandler {
     public readonly HashSet<MouseButton> PressedMouseButtons = [];
     public readonly HashSet<MouseButton> MouseDownThisFrame = [];
     public readonly HashSet<Key> KeysDownThisFrame = [];
+    public readonly HashSet<char> CharsDownThisFrame = [];
     
     public InputHandler(GameClient client, IInputContext context){
         _client = client;
@@ -30,6 +31,7 @@ public class InputHandler {
         foreach (IKeyboard keyboard in _context.Keyboards) {
             keyboard.KeyDown += OnKeyDown;
             keyboard.KeyUp += OnKeyUp;
+            keyboard.KeyChar += OnKeyChar;
         }
         
         SetCursorMode(CursorMode.Disabled);
@@ -57,6 +59,10 @@ public class InputHandler {
     private void OnKeyUp(IKeyboard keyboard, Key key, int scanCode){
         PressedKeys.Remove(key);
     }
+    
+    private void OnKeyChar(IKeyboard keyboard, char chr){
+        CharsDownThisFrame.Add(chr);
+    }
 
     public void Tick(double delta, out Vector2D<float> mouseMovement){
         mouseMovement = MousePosition - (_previousMousePositon ?? MousePosition);
@@ -66,6 +72,7 @@ public class InputHandler {
     public void Reset(){
         MouseDownThisFrame.Clear();
         KeysDownThisFrame.Clear();
+        CharsDownThisFrame.Clear();
     }
 
     public bool IsKeyDown(Key key){

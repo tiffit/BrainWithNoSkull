@@ -11,13 +11,15 @@ public class GuiRenderer {
     private readonly Gui _gui;
     private readonly IRenderEngine _renderEngine;
     public uint Color = 0xff_ff_ff_ff;
+    private readonly uint _solidTexture;
 
     public GuiRenderer(Gui gui, IRenderEngine renderEngine){
         _gui = gui;
         _renderEngine = renderEngine;
+        _solidTexture = ClientAssetLoader.BlockTextureAtlas.LookupGui("Solid");
     }
     
-        public void DrawTexture(VertexBuilder vb, float x, float y, int u, int v, int width, int height, int textureSize, uint textureIndex){
+    public void DrawTexture(VertexBuilder vb, float x, float y, int u, int v, int width, int height, int textureSize, uint textureIndex){
         DrawTexture(vb, x, y, 0, u, v, width, height, textureSize, textureIndex);
     }
 
@@ -72,7 +74,14 @@ public class GuiRenderer {
             Uv = new Vector2D<float>(u0, v0)
         });
     }
-    
+
+    public void DrawSolid(VertexBuilder vb, float x, float y, float z, int width, int height, uint color){
+        uint oldColor = Color;
+        Color = color;
+        DrawTexture(vb, x, y, z, 0, 0, width, height, Math.Max(width, height), _solidTexture);
+        Color = oldColor;
+    }
+
     public void DrawLine(float x1, float y1, float x2, float y2, float z, float width, uint color){
         VertexBuilder vb = _renderEngine.GetVertexBuilder(ShaderType.GuiColor);
         Vector2D<float> in1 = GameClient.Instance.GetScreenPos(x1, y1);

@@ -5,8 +5,6 @@ using BrainWithNoSkull.Client.Render.RenderEngine;
 using BrainWithNoSkull.Client.World;
 using BrainWithNoSkull.Util;
 using BrainWithNoSkull.World.Entities.Player;
-using BrainWithNoSkull.World.ItemStacks;
-using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.Client.Guis;
 

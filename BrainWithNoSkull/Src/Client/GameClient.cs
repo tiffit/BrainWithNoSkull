@@ -107,7 +107,7 @@ public class GameClient {
         GlfwInput.RegisterPlatform();
         GameWindow = Window.Create(windowOptions);
         GameWindow.UpdatesPerSecond = Constants.TicksPerSecond;
-        // GameWindow.FramesPerSecond = 100;
+        GameWindow.FramesPerSecond = 100;
         GameWindow.Resize += OnWindowResize;
         GameWindow.Load += OnWindowLoad;
         GameWindow.Initialize();

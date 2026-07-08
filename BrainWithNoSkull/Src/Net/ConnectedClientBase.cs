@@ -10,6 +10,7 @@ namespace BrainWithNoSkull.Net;
 
 public abstract class ConnectedClientBase {
 
+    public GameServerBase Server = null!;
     public ServerPlayerEntity? Entity;
     private readonly HashSet<Vector2D<int>> _loadedChunks = [];
     private int ViewDistance = 8;

@@ -1,6 +1,4 @@
-﻿using BrainWithNoSkull.Registries;
-using BrainWithNoSkull.World.Items;
-using BrainWithNoSkull.World.ItemStacks;
+﻿using BrainWithNoSkull.World.ItemStacks;
 
 namespace BrainWithNoSkull.World.Entities.Player;
 
