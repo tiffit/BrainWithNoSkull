@@ -79,7 +79,7 @@ public class GameClient {
             Target = new Vector3D<float>(0, 0, 1)
         };
 
-        _server = new LocalGameServer();
+        _server = new LocalGameServer(this);
         LocalServerConnection localServerConnection = new LocalServerConnection(_server);
         localServerConnection.Connect();
         ServerConnection = localServerConnection;
@@ -94,6 +94,7 @@ public class GameClient {
         Hud = new HudGui();
         Hud.Init(RenderEngine, FontRenderer, ScaledWindowSize.X, ScaledWindowSize.Y);
 
+        _server.StartTicking();
         GameWindow.Run();
         RenderEngine.Cleanup();
     }
@@ -202,7 +203,6 @@ public class GameClient {
 
         World?.Tick(delta);
         ServerConnection.Tick(delta);
-        _server.Tick(delta);
     }
 
     public float GetPartialTick(){

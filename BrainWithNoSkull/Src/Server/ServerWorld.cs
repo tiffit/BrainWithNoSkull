@@ -79,9 +79,14 @@ public class ServerWorld : WorldBase {
     public override void Tick(double delta){
         base.Tick(delta);
 
-        if(_chunkGenerationQueue.TryDequeue(out Vector2D<int> chunkCoords, out int _)) {
-            GetChunk(chunkCoords);
-            _generatingChunks.Remove(chunkCoords);
+        for (int i = 0; i < 5; i++) {
+            if(_chunkGenerationQueue.TryDequeue(out Vector2D<int> chunkCoords, out int _)) {
+                GetChunk(chunkCoords);
+                _generatingChunks.Remove(chunkCoords);
+            }
+            else {
+                break;
+            }
         }
     }
 }
