@@ -15,4 +15,5 @@ public interface IClientPacketHandler {
     public void HandleOpenContainer(CbOpenContainerPacket packet);
     public void HandleUpdateContainer(CbUpdateContainerPacket packet);
     public void HandleBlock(CbBlockPacket packet);
+    public void HandleFullLight(CbFullLightPacket packet);
 }

@@ -9,6 +9,15 @@ public class LightEngine {
     public void FullRebuild(ChunkStorage storage, Chunk chunk){
         chunk.HasPopulatedLighting = true;
         byte[,,] lightArray = chunk.GetPackedLight();
+
+        for (int x = 0; x < Constants.ChunkSize; x++) {
+            for (int z = 0; z < Constants.ChunkSize; z++) {
+                for (int y = 0; y < Constants.MaxWorldHeight; y++) {
+                    lightArray[x, y, z] = 0;
+                }
+            }
+        }
+
         Queue<Vector3D<int>> queue = new Queue<Vector3D<int>>(Constants.ChunkSize * Constants.ChunkSize * (Constants.MaxWorldHeight/2));
         // Skylight downward cast
         for (int x = 0; x < Constants.ChunkSize; x++) {
@@ -25,7 +34,11 @@ public class LightEngine {
             }
         }
 
-        // Propagate
+        RebuildLighting(queue, storage, chunk);
+    }
+
+    public void RebuildLighting(Queue<Vector3D<int>> queue, ChunkStorage storage, Chunk chunk){
+        byte[,,] lightArray = chunk.GetPackedLight();
         while (queue.TryDequeue(out Vector3D<int> result)) {
             byte lightLevel = (byte)((lightArray[result[0], result[1], result[2]] >> 4) - 1);
             AddToQueue(queue, storage, chunk, result[0] - 1, result[1], result[2], lightArray, lightLevel);

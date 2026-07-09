@@ -117,4 +117,14 @@ public class ClientPacketHandler : IClientPacketHandler {
         WorldBase? world = _serverConnection.PlayerEntity?.World;
         world?.SetBlock(packet.Position, packet.Block, packet.Config);
     }
+
+    public void HandleFullLight(CbFullLightPacket packet){
+        ClientWorld? world = _client.World;
+        Chunk? chunk = world?.GetChunk(packet.ChunkCoords) ?? null;
+        if (chunk != null) {
+            byte[,,] packedLight = chunk.GetPackedLight();
+            Array.Copy(packet.Light, packedLight, packedLight.Length);
+            world?.RebuildMesh(packet.ChunkCoords);
+        }
+    }
 }

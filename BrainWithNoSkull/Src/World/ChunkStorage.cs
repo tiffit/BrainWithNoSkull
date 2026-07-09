@@ -1,4 +1,7 @@
 ﻿using BrainWithNoSkull.Client.World;
+using BrainWithNoSkull.Net;
+using BrainWithNoSkull.Net.Pckt.Cb;
+using BrainWithNoSkull.Server;
 using BrainWithNoSkull.World.Gen;
 using Silk.NET.Maths;
 
@@ -49,6 +52,11 @@ public class ChunkStorage {
             Chunk chunk = GetChunk(chunkCoords)!;
             if (!chunk.HasPopulatedLighting && AdjacentGenerated(chunkCoords)) {
                 _lightEngine.FullRebuild(this, chunk);
+                if (_world is ServerWorld serverWorld) {
+                    foreach (ConnectedClientBase client in serverWorld.GetAllListeners(chunkCoords)) {
+                        client.SendPacket(new CbFullLightPacket(chunk.GetPackedLight(), chunkCoords));
+                    }
+                }
             }
         }
     }

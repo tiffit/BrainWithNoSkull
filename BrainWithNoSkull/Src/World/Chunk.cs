@@ -84,6 +84,9 @@ public class Chunk {
                 return;
         }
         SetBlockEntity(x, y, z, (block as IBlockEntityProvider)?.GetBlockEntity());
+        if (_world is ServerWorld) {
+            HasPopulatedLighting = false;
+        }
     }
 
     public void SetBlockEntity(int x, int y, int z, BlockEntity? entity){

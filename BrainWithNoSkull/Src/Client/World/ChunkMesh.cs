@@ -87,7 +87,7 @@ public class ChunkMesh {
                         if(!GetBlock(chunk, storage, blockX + 1, blockY, blockZ, ref light).ShouldCullFace(Direction.South)) visible.Add(ValueTuple.Create(Direction.North, light));
                         if(!GetBlock(chunk, storage, blockX - 1, blockY, blockZ, ref light).ShouldCullFace(Direction.North)) visible.Add(ValueTuple.Create(Direction.South, light));
                         
-                        builder.AddAll(model.GetVertices(blockPos, block, chunk.GetBlockConfig(blockX, blockY, blockZ), packedLight[x, y, z], visible));
+                        builder.AddAll(model.GetVertices(blockPos, block, chunk.GetBlockConfig(blockX, blockY, blockZ), packedLight[blockX, blockY, blockZ], visible));
                     }
                 }
             }

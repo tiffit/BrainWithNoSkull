@@ -110,6 +110,14 @@ public class ClientWorld : WorldBase {
         _newChunkLoaded = true;
     }
 
+    public void RebuildMesh(Vector2D<int> chunkCoords){
+        if (_chunkMeshes.TryGetValue(chunkCoords, out ChunkMesh? mesh)) {
+            mesh.Unload();
+            _chunkMeshes.Remove(chunkCoords);
+            _chunkMeshQueue.Enqueue(chunkCoords, -1);
+        }
+    }
+
     private bool TryGenerateMesh(Vector2D<int> chunkCoords){
         if (!_chunkMeshes.ContainsKey(chunkCoords)) {
             ChunkMesh mesh = new ChunkMesh(chunkCoords);
