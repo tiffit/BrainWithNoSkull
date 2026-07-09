@@ -15,7 +15,8 @@ public enum FuelType {
 
 public enum MachineTier : byte {
     None,
-    Crude
+    Crude,
+    Steel
 }
 
 public class MachineContainerSync: ContainerSync {

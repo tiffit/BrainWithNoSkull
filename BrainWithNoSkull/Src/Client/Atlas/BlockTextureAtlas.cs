@@ -9,10 +9,18 @@ public class BlockTextureAtlas : TextureAtlas {
     private uint _nextIndex;
     
     public void Create(ICollection<string> paths){
+        _nextIndex = 0;
+        
+        SKBitmap missing = SKBitmap.Decode("./Assets/Textures/missing.png");
+        Textures.Add(missing);
+        _nextIndex++;
+        
         foreach (string path in paths) {
             SKBitmap bitmap = SKBitmap.Decode($"./Assets/Textures/{path}.png");
-            Textures.Add(bitmap);
-            _blockIndices[path] = _nextIndex++;
+            if (bitmap != null) {
+                Textures.Add(bitmap);
+                _blockIndices[path] = _nextIndex++;
+            }
         }
     }
     
@@ -27,7 +35,7 @@ public class BlockTextureAtlas : TextureAtlas {
     }
 
     public uint LookupBlock(string path){
-        return _blockIndices[path];
+        return _blockIndices.TryGetValue(path, out uint value) ? value : 0;
     }
     
     public uint LookupGui(string path){

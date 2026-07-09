@@ -30,10 +30,13 @@ public static class RecipeRegistry {
         ));
         
         IronBarSmelt = Registry.Register(new Recipe("IronBarSmelt", RecipeType.Smelting,
-            new ItemStack(BlockRegistry.Magnetite, 1), new ItemStack(ItemRegistry.IronBar, 1), 5f));
+            new ItemStack(BlockRegistry.Magnetite, 1), new ItemStack(ItemRegistry.IronBar, 1), 10f));
         IronScrew = Registry.Register(new Recipe("IronScrew", RecipeType.Crafting,
             new ItemStack(ItemRegistry.IronBar, 1), new ItemStack(ItemRegistry.IronScrew, 2), 1f
         ));
+        
+        IronBarSmelt = Registry.Register(new Recipe("SteelBarSmelt", RecipeType.Smelting,
+            new ItemStack(ItemRegistry.IronBar, 1), new ItemStack(ItemRegistry.SteelBar, 1), 30f));
 
         Lookups[RecipeType.Crafting] = new RecipeLookup();
         Lookups[RecipeType.Smelting] = new RecipeLookup();

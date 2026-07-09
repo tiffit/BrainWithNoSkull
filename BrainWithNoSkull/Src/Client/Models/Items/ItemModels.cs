@@ -20,6 +20,8 @@ public class ItemModels {
         UnbakedModels[ItemRegistry.StonePickaxe] = new FlatItemModel("Item/Stone_Pickaxe");
         UnbakedModels[ItemRegistry.IronBar] = new JsonItemModel("Bar", "Item/Iron_Bar");
         UnbakedModels[ItemRegistry.IronScrew] = new JsonItemModel("Screw", "Item/Iron_Screw");
+        
+        UnbakedModels[ItemRegistry.SteelBar] = new JsonItemModel("Bar", "Item/Steel_Bar");
 
         HashSet<string> deps = [];
         foreach (UnbakedItemModel model in UnbakedModels.Values) {
