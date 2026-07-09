@@ -8,7 +8,7 @@ namespace BrainWithNoSkull.Client.Guis;
 
 public class ChatGui : Gui {
 
-    private String _input = "";
+    private string _input = "";
     
     public override void Init(IRenderEngine renderEngine, FontRenderer font, int scaledWidth, int scaledHeight){
         base.Init(renderEngine, font, scaledWidth, scaledHeight);

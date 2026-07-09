@@ -46,7 +46,7 @@ float textureProj(vec4 shadowCoord, vec2 offset, uint cascadeIndex)
     if ( shadowCoord.z > -1.0 && shadowCoord.z < 1.0 ) {
         float dist = texture(shadowSampler, vec3(shadowCoord.st + offset, cascadeIndex)).r;
         if (shadowCoord.w > 0 && dist < shadowCoord.z - bias) {
-            shadow = 0.3;
+            shadow = 0.0;
         }
     }
     return shadow;
@@ -98,11 +98,14 @@ void main() {
     float darken = (clamp(dot(lightDir, vec3(0, -1, 0)), -0.1, 0.1) + 0.1)*5;
     shadow = mix(shadow, 0.1, 1 - darken);
     
-    float diffuse = max(normalLightDot, 0.3);
+    float diffuse = max(normalLightDot, 0.0);
+    float ambient = 0.2;
     
     vec3 lightColor = vec3(1);
-    outColor.rgb = max(lightColor * (diffuse * color.rgb), vec3(0));
-    outColor.rgb *= shadow;
+    
+    float totalLight = ambient + max(diffuse * shadow, 0.0);
+    
+    outColor.rgb = max(color.rgb * lightColor * totalLight, vec3(0));
     
     const float fogStart = 112.0f;
     const float fogEnd = 128.0f;
