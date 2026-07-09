@@ -16,6 +16,7 @@ layout (location = 1) in uint inColor;
 layout (location = 2) in vec2 inUV;
 layout (location = 3) in vec3 inNormal;
 layout (location = 4) in uint inTextureIndex;
+layout (location = 5) in uint inBlockLight;
 
 layout (location = 0) out vec4 fragColor;
 layout (location = 1) out vec2 fragUV;
@@ -23,6 +24,7 @@ layout (location = 2) out vec4 fragViewPos;
 layout (location = 3) out vec4 fragPos;
 layout (location = 4) out vec3 fragNormal;
 layout (location = 5) flat out uint fragTextureIndex;
+layout (location = 6) flat out uint fragBlockLight;
 
 out gl_PerVertex {
     vec4 gl_Position;
@@ -37,4 +39,5 @@ void main() {
     fragColor = unpackUnorm4x8(inColor);
     fragUV = inUV;
     fragNormal = inNormal;
+    fragBlockLight = inBlockLight;
 }

@@ -9,6 +9,7 @@ public class GenChunk {
     public readonly WorldBase World;
     public readonly Block[,,] Blocks;
     public readonly uint[,,] BlockConfigs;
+    public readonly byte[,,] Light;
     public readonly Dictionary<Vector3D<int>, BlockEntity> BlockEntities = new Dictionary<Vector3D<int>, BlockEntity>();
     public readonly Dictionary<Vector3D<int>, ITickingBlockEntity> TickingBlocks = new Dictionary<Vector3D<int>, ITickingBlockEntity>();
     private readonly int _size;
@@ -20,6 +21,7 @@ public class GenChunk {
         _size = size;
         Blocks = new Block[size, Constants.MaxWorldHeight, size];
         BlockConfigs = new uint[size, Constants.MaxWorldHeight, size];
+        Light = new byte[size, Constants.MaxWorldHeight, size];
         for (int x = 0; x < size; x++) {
             for (int y = 0; y < Constants.MaxWorldHeight; y++) {
                 for (int z = 0; z < size; z++) {
@@ -62,7 +64,7 @@ public class GenChunk {
     }
 
     public Chunk ToChunk(){
-        Chunk chunk = new Chunk(World, _chunkCoords, Blocks, BlockConfigs, BlockEntities, TickingBlocks);
+        Chunk chunk = new Chunk(World, _chunkCoords, Blocks, BlockConfigs, Light, BlockEntities, TickingBlocks);
         return chunk;
     }
 }

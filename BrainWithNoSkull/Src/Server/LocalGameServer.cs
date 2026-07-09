@@ -20,7 +20,7 @@ public class LocalGameServer : GameServerBase {
         _gameTotalTime = 0;
         _thread = new Thread(Run){
             Name = "Server Thread",
-            IsBackground = false
+            IsBackground = true
         };
         _thread.Start();
     }

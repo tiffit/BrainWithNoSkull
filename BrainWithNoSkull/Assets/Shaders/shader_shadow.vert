@@ -23,6 +23,7 @@ layout (location = 1) in uint inColor;
 layout (location = 2) in vec2 inUV;
 layout (location = 3) in vec3 inNormal;
 layout (location = 4) in uint inTextureIndex;
+layout (location = 5) in uint inBlockLight;
 
 layout (location = 0) out vec4 fragColor;
 layout (location = 1) out vec2 fragUV;

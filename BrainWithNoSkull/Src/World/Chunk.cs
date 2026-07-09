@@ -19,16 +19,19 @@ public class Chunk {
     public readonly Vector2D<int> Coords;
     private readonly Block[,,] _blocks;
     private readonly uint[,,] _blockConfigs;
+    private readonly byte[,,] _light;
     private readonly Dictionary<Vector3D<int>, BlockEntity> _blockEntities;
     private readonly Dictionary<Vector3D<int>, ITickingBlockEntity> _tickingBlocks;
     private readonly Dictionary<uint, Entity> _entities = [];
+    public bool HasPopulatedLighting = false;
     
-    public Chunk(WorldBase world, Vector2D<int> chunkCoords, Block[,,] blocks, uint[,,] blockConfigs, Dictionary<Vector3D<int>, BlockEntity> blockEntities, 
+    public Chunk(WorldBase world, Vector2D<int> chunkCoords, Block[,,] blocks, uint[,,] blockConfigs, byte[,,] light, Dictionary<Vector3D<int>, BlockEntity> blockEntities, 
         Dictionary<Vector3D<int>, ITickingBlockEntity> tickingBlocks){
         _world = world;
         Coords = chunkCoords;
         _blocks = blocks;
         _blockConfigs = blockConfigs;
+        _light = light;
         _blockEntities = blockEntities;
         _tickingBlocks = tickingBlocks;
     }
@@ -118,13 +121,17 @@ public class Chunk {
     }
 
     public CbChunkPacket ToChunkPacket(){
-        return new CbChunkPacket(_blocks, _blockConfigs, Coords);
+        return new CbChunkPacket(_blocks, _blockConfigs, _light, Coords);
     }
 
     public void SendAllBlockEntities(ConnectedClientBase client){
         foreach (BlockEntity entity in _blockEntities.Values) {
             client.SendPacket(new CbNewBlockEntityPacket(entity));
         }
+    }
+
+    public byte[,,] GetPackedLight(){
+        return _light;
     }
 
     public void Tick(){

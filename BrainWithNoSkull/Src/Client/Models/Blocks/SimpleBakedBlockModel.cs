@@ -6,7 +6,7 @@ using Silk.NET.Maths;
 namespace BrainWithNoSkull.Client.Models.Blocks;
 
 public interface IBakedBlockModel {
-    IEnumerable<Vertex> GetVertices(Vector3D<float> posOffset, Block block, uint packedConfig, List<Direction> visible);
+    IEnumerable<Vertex> GetVertices(Vector3D<float> posOffset, Block block, uint packedConfig, uint packedLight, List<ValueTuple<Direction, uint>> visible);
     IEnumerable<Vertex> GetVerticesForDirection(Direction? direction, Block block, uint packedConfig);
     
     public void GetAllVertices(List<Vertex> vertices, Dictionary<Direction, List<Vertex>> directional, Block block, uint packedConfig){
@@ -30,18 +30,20 @@ public class SimpleBakedBlockModel: IBakedBlockModel {
         _directionalVertices = directionalVertices;
     }
 
-    public IEnumerable<Vertex> GetVertices(Vector3D<float> posOffset, Block block, uint packedConfig, List<Direction> visible){
+    public IEnumerable<Vertex> GetVertices(Vector3D<float> posOffset, Block block, uint packedConfig, uint packedLight, List<ValueTuple<Direction, uint>> visible){
         foreach (Vertex v in _vertices) {
             yield return v with{
-                Pos = v.Pos + posOffset
+                Pos = v.Pos + posOffset,
+                BlockLight = packedLight
             };
         }
         
-        foreach (Direction dir in visible) {
+        foreach ((Direction dir, uint dirLight) in visible) {
             if (_directionalVertices.TryGetValue(dir, out List<Vertex>? list)) {
                 foreach (Vertex v in list) {
                     yield return v with{
-                        Pos = v.Pos + posOffset
+                        Pos = v.Pos + posOffset,
+                        BlockLight = dirLight
                     };
                 }
             }

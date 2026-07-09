@@ -5,6 +5,7 @@ using BrainWithNoSkull.Client.Render.RenderEngine;
 using BrainWithNoSkull.Client.World;
 using BrainWithNoSkull.Util;
 using BrainWithNoSkull.World.Entities.Player;
+using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.Client.Guis;
 
@@ -38,11 +39,17 @@ public class HudGui : Gui {
         const int fpsPos = 6;
         ClientPlayerEntity? player = GameClient.Instance.ServerConnection.PlayerEntity;
         string fps = $"FPS {_fps}";
+        string lightValue = "_";
         if (player != null) {
             int x = (int)player.Position.X;
             int y = (int)player.Position.Y;
             int z = (int)player.Position.Z;
             fps = $"{fps} ({x}, {y}, {z})";
+            if (player.Chunk != null) {
+                Vector3D<int> blockPos = ChunkUtils.ToBlockInChunk(new Vector3D<int>(x, y, z));
+                byte packedLight = player.Chunk.GetPackedLight()[blockPos.X, blockPos.Y, blockPos.Z];
+                lightValue = $"SL: {packedLight >> 4}, BL: {packedLight & 15}";
+            }
         }
         Font.RenderString(fpsPos - 1, fpsPos, 0.999f, fps, ColorUtil.FromBytes(0, 0, 0));
         Font.RenderString(fpsPos + 1, fpsPos, 0.999f, fps, ColorUtil.FromBytes(0, 0, 0));
@@ -64,5 +71,6 @@ public class HudGui : Gui {
         Font.RenderString(fpsPos, fpsPos + 10, 0, chunkCount, ColorUtil.FromBytes(255, 255, 255));
         string shadowCount = $"{counts[1]} {counts[2]} {counts[3]} {counts[4]}";
         Font.RenderString(fpsPos, fpsPos + 20, 0, shadowCount, ColorUtil.FromBytes(255, 255, 255));
+        Font.RenderString(fpsPos, fpsPos + 30, 0, lightValue, ColorUtil.FromBytes(255, 255, 255));
     }
 }

@@ -9,7 +9,7 @@ public class ShaderType {
     public static readonly ShaderType Skybox = new ShaderType("skybox", 1024, [VertexParam.Position], 
         ShaderFlag.Skybox, PushConstantType.Skybox);
     
-    public static readonly ShaderType Shader = new ShaderType("shader", 0x100000*1024, [VertexParam.Position, VertexParam.Color, VertexParam.Uv, VertexParam.Normal, VertexParam.TextureIndex], 
+    public static readonly ShaderType Shader = new ShaderType("shader", 0x100000*1024, [VertexParam.Position, VertexParam.Color, VertexParam.Uv, VertexParam.Normal, VertexParam.TextureIndex, VertexParam.BlockLight], 
         ShaderFlag.Mesh | ShaderFlag.CastShadow, PushConstantType.Transform);
     
     public static readonly ShaderType WorldEntity = new ShaderType("worldEntity", 0x100*1024, [VertexParam.Position, VertexParam.Color, VertexParam.Uv, VertexParam.Normal, VertexParam.TextureIndex], 

@@ -23,6 +23,9 @@ public record Direction(Vector3D<int> Offset, Rotation Rotation) {
 
     public static readonly Direction[] All = [Up, Down, North, South, East, West];
     public static readonly Direction[] Horizontal = [North, South, East, West];
+    
+    
+    public static readonly int[] Opposite = [1, 0, 3, 2, 5, 4];
 
     private static int _nextIndex;
     public readonly int Index = _nextIndex++;
@@ -73,6 +76,10 @@ public record Direction(Vector3D<int> Offset, Rotation Rotation) {
             }
         }
         return this;
+    }
+
+    public Direction GetOpposite(){
+        return All[Opposite[Index]];
     }
     
     public static void RotateAround<T>(Rotation rotation, ref T x, ref T z) where T: INumber<T>{

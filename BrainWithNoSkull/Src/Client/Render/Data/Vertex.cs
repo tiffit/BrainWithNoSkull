@@ -9,6 +9,7 @@ public struct Vertex {
     public Vector2D<float> Uv;
     public Vector3D<float> Normal;
     public uint TextureIndex;
+    public uint BlockLight;
 
     public void Pack(float[] buffer, ref int index, HashSet<VertexParam> vParams){
         if (vParams.Contains(VertexParam.Position)) {
@@ -40,6 +41,13 @@ public struct Vertex {
             unsafe {
                 uint textureIndex = TextureIndex;
                 uint* ptr = &textureIndex;
+                buffer[index++] = *(float*)ptr;
+            }
+        }
+        if (vParams.Contains(VertexParam.BlockLight)) {
+            unsafe {
+                uint blockLight = BlockLight;
+                uint* ptr = &blockLight;
                 buffer[index++] = *(float*)ptr;
             }
         }

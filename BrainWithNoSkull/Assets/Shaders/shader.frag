@@ -28,6 +28,7 @@ layout (location = 2) in vec4 inViewPos;
 layout (location = 3) in vec4 inPos;
 layout (location = 4) in vec3 inNormal;
 layout (location = 5) flat in uint inTextureIndex;
+layout (location = 6) flat in uint inBlockLight;
 
 layout (location = 0) out vec4 outColor;
 
@@ -101,7 +102,8 @@ void main() {
     float diffuse = max(normalLightDot, 0.0);
     float ambient = 0.2;
     
-    vec3 lightColor = vec3(1);
+    float skyLight = (inBlockLight >> 4) / 15.0;
+    vec3 lightColor = vec3(skyLight);
     
     float totalLight = ambient + max(diffuse * shadow, 0.0);
     

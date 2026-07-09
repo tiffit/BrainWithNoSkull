@@ -16,9 +16,9 @@ public class ConfigDepBakedBlockModel<T>: IBakedBlockModel where T : notnull {
         _configType = configType;
     }
     
-    public IEnumerable<Vertex> GetVertices(Vector3D<float> posOffset, Block block, uint packedConfig, List<Direction> visible){
+    public IEnumerable<Vertex> GetVertices(Vector3D<float> posOffset, Block block, uint packedConfig, uint packedLight, List<ValueTuple<Direction, uint>> visible){
         T val = block.ConfigContainer.GetValue(packedConfig, _configType);
-        return _children[val].GetVertices(posOffset, block, packedConfig, visible);
+        return _children[val].GetVertices(posOffset, block, packedConfig, packedLight, visible);
     }
 
     public IEnumerable<Vertex> GetVerticesForDirection(Direction? direction, Block block, uint packedConfig){

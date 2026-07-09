@@ -11,6 +11,8 @@ namespace BrainWithNoSkull.Client.Models.Items.Unbaked;
 
 public class BlockItemModel: UnbakedItemModel {
 
+    private static readonly List<ValueTuple<Direction, uint>> StaticDirections = Direction.All.Select(direction => new ValueTuple<Direction, uint>(direction, 15 << 4)).ToList();
+
     public Dictionary<ItemModelTransformType, ItemModelTransforms> Transforms = new Dictionary<ItemModelTransformType, ItemModelTransforms>{
         {
             ItemModelTransformType.Gui, new ItemModelTransforms(){
@@ -54,7 +56,7 @@ public class BlockItemModel: UnbakedItemModel {
         List<Vertex> vertices = [];
         
         foreach (var (translation, config) in configs) {
-            vertices.AddRange(model.GetVertices(new Vector3D<float>(-0.5f, -0.5f, -0.5f) + translation, _block, config, [..Direction.All]));
+            vertices.AddRange(model.GetVertices(new Vector3D<float>(-0.5f, -0.5f, -0.5f) + translation, _block, config, 15 << 4, StaticDirections));
         }
         
         Dictionary<ItemModelTransformType, ItemModelTransform> transforms = Transforms

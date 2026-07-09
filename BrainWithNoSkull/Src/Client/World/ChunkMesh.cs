@@ -61,15 +61,13 @@ public class ChunkMesh {
     }
 
     private bool CanGenerate(ChunkStorage storage){
-        return storage.IsChunkLoaded(_wrappedChunkCoords + Vector2D<int>.UnitX) &&
-               storage.IsChunkLoaded(_wrappedChunkCoords - Vector2D<int>.UnitX) &&
-               storage.IsChunkLoaded(_wrappedChunkCoords + Vector2D<int>.UnitY) &&
-               storage.IsChunkLoaded(_wrappedChunkCoords - Vector2D<int>.UnitY);
+        return storage.AdjacentGenerated(_wrappedChunkCoords);
     }
 
     private ChunkMeshSection GenerateSection(ChunkStorage storage, Chunk chunk, int sectionIndex){
         IRenderEngine renderEngine = GameClient.Instance.RenderEngine;
         VertexBuilder builder = new VertexBuilder(renderEngine, ShaderType.Shader);
+        byte[,,] packedLight = chunk.GetPackedLight();
         for (int x = 0; x < Constants.ChunkSize; x++) {
             for (int y = 0; y < Constants.ChunkSize; y++) {
                 for (int z = 0; z < Constants.ChunkSize; z++) {
@@ -79,16 +77,17 @@ public class ChunkMesh {
                     Vector3D<float> blockPos = new Vector3D<float>(blockX, blockY, blockZ);
                     Block block = chunk.GetBlock(blockX, blockY, blockZ);
                     if (!block.IsAir() && BlockModels.BakedModels.TryGetValue(block, out IBakedBlockModel? model)) {
-                        List<Direction> visible = new List<Direction>(6);
+                        List<ValueTuple<Direction, uint>> visible = new List<ValueTuple<Direction, uint>>(6);
+
+                        uint light = 0;
+                        if(!GetBlock(chunk, storage, blockX, blockY, blockZ + 1, ref light).ShouldCullFace(Direction.West))  visible.Add(ValueTuple.Create(Direction.East, light));
+                        if(!GetBlock(chunk, storage, blockX, blockY, blockZ - 1, ref light).ShouldCullFace(Direction.East))  visible.Add(ValueTuple.Create(Direction.West, light));
+                        if(!GetBlock(chunk, storage, blockX, blockY + 1, blockZ, ref light).ShouldCullFace(Direction.Down))  visible.Add(ValueTuple.Create(Direction.Up, light));
+                        if(!GetBlock(chunk, storage, blockX, blockY - 1, blockZ, ref light).ShouldCullFace(Direction.Up))    visible.Add(ValueTuple.Create(Direction.Down, light));
+                        if(!GetBlock(chunk, storage, blockX + 1, blockY, blockZ, ref light).ShouldCullFace(Direction.South)) visible.Add(ValueTuple.Create(Direction.North, light));
+                        if(!GetBlock(chunk, storage, blockX - 1, blockY, blockZ, ref light).ShouldCullFace(Direction.North)) visible.Add(ValueTuple.Create(Direction.South, light));
                         
-                        if(!GetBlock(chunk, storage, blockX, blockY, blockZ + 1).ShouldCullFace(Direction.West))  visible.Add(Direction.East);
-                        if(!GetBlock(chunk, storage, blockX, blockY, blockZ - 1).ShouldCullFace(Direction.East))  visible.Add(Direction.West);
-                        if(!GetBlock(chunk, storage, blockX, blockY + 1, blockZ).ShouldCullFace(Direction.Down))  visible.Add(Direction.Up);
-                        if(!GetBlock(chunk, storage, blockX, blockY - 1, blockZ).ShouldCullFace(Direction.Up))    visible.Add(Direction.Down);
-                        if(!GetBlock(chunk, storage, blockX + 1, blockY, blockZ).ShouldCullFace(Direction.South)) visible.Add(Direction.North);
-                        if(!GetBlock(chunk, storage, blockX - 1, blockY, blockZ).ShouldCullFace(Direction.North)) visible.Add(Direction.South);
-                        
-                        builder.AddAll(model.GetVertices(blockPos, block, chunk.GetBlockConfig(blockX, blockY, blockZ), visible));
+                        builder.AddAll(model.GetVertices(blockPos, block, chunk.GetBlockConfig(blockX, blockY, blockZ), packedLight[x, y, z], visible));
                     }
                 }
             }
@@ -109,28 +108,14 @@ public class ChunkMesh {
         return new ChunkMeshSection();
     }
 
-    private Block GetBlock(Chunk chunk, ChunkStorage storage, int x, int y, int z){
-        if (x < 0) {
-            chunk = storage.GetChunk(chunk.Coords - Vector2D<int>.UnitX);
-            x += Constants.ChunkSize;
-        }
-        if (x >= Constants.ChunkSize) {
-            chunk = storage.GetChunk(chunk.Coords + Vector2D<int>.UnitX);
-            x -= Constants.ChunkSize;
-        }
-        if (z < 0) {
-            chunk = storage.GetChunk(chunk.Coords - Vector2D<int>.UnitY);
-            z += Constants.ChunkSize;
-        }
-        if (z >= Constants.ChunkSize) {
-            chunk = storage.GetChunk(chunk.Coords + Vector2D<int>.UnitY);
-            z -= Constants.ChunkSize;
-        }
-        
-        if (y < 0 || y >= Constants.MaxWorldHeight) {
+    private Block GetBlock(Chunk chunk, ChunkStorage storage, int x, int y, int z, ref uint light){
+        storage.GetChunkRelativeBlock(ref chunk, ref x, ref y, ref z);
+        if (y is < 0 or >= Constants.MaxWorldHeight) {
+            light = 15 << 4;
             return BlockRegistry.Air;
         }
-        
+
+        light = chunk.GetPackedLight()[x, y, z];
         return chunk.GetBlock(x, y, z);
     }
 
