@@ -31,8 +31,10 @@ public class SbStartCraftPacket : IPacket {
 
         if (player?.World != null) {
             PlayerInventory inv = player.Inventory;
-            if (Recipe.CanCraft(inv) && Recipe.CanOutput(inv)) {
-                Recipe.ConsumeIngredients(inv);
+            if ((player.InfiniteEnabled || Recipe.CanCraft(inv)) && Recipe.CanOutput(inv)) {
+                if (!player.InfiniteEnabled) {
+                    Recipe.ConsumeIngredients(inv);
+                }
                 Recipe.ProduceOutput(inv);
             }
         }

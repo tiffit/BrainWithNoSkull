@@ -13,6 +13,7 @@ public class CommandRegistry {
 
     public void Init(){
         GiveCommand.Init(this);
+        InfiniteCommand.Init(this);
     }
 
     public CommandBranchLiteral Register(CommandBranchLiteral branch){

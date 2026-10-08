@@ -2,6 +2,7 @@
 using BrainWithNoSkull.Client.Render.Data;
 using BrainWithNoSkull.Client.Render.RenderEngine;
 using BrainWithNoSkull.Net.Pckt.Sb;
+using BrainWithNoSkull.Util;
 using Silk.NET.Input;
 
 namespace BrainWithNoSkull.Client.Guis;
@@ -9,14 +10,23 @@ namespace BrainWithNoSkull.Client.Guis;
 public class ChatGui : Gui {
 
     private string _input = "";
+    private readonly RingBuffer<string?> _chatlog = new RingBuffer<string?>(5);
     
     public override void Init(IRenderEngine renderEngine, FontRenderer font, int scaledWidth, int scaledHeight){
         base.Init(renderEngine, font, scaledWidth, scaledHeight);
+        _input = "";
     }
     
     public override void Render(VertexBuilder vb, int mouseX, int mouseY){
         GuiRenderer.DrawSolid(vb, 0, ScaledHeight/2, 0.99f, ScaledWidth/2, ScaledHeight/2, 0x50_20_20_20);
         Font.RenderString(5, ScaledHeight - 15, 0.98f, _input, 0xff_ff_ff_ff);
+
+        for (int i = 0; i < 5; i++) {
+            string? chat = _chatlog.Get(i);
+            if (chat != null) {
+                Font.RenderString(5, ScaledHeight - 15 + i*15, 0.98f, chat, 0xff_ff_ff_ff);
+            }
+        }
     }
 
     protected override void OnKeyDown(Key key){

@@ -23,6 +23,7 @@ public enum PacketType: ushort{
     WorldInfo,
     Chunk,
     PlayerInfo,
+    PlayerFlags,
     PlayerInventory,
     NewEntity,
     EntityMove,
@@ -55,6 +56,7 @@ public static class PacketRegistry {
         Registry[PacketType.WorldInfo] = () => new CbWorldInfoPacket();
         Registry[PacketType.Chunk] = () => new CbChunkPacket();
         Registry[PacketType.PlayerInfo] = () => new CbPlayerInfoPacket();
+        Registry[PacketType.PlayerFlags] = () => new CbPlayerFlagsPacket();
         Registry[PacketType.PlayerInventory] = () => new CbPlayerInventoryPacket();;
         Registry[PacketType.NewEntity] = () => new CbNewEntityPacket();
         Registry[PacketType.EntityMove] = () => new CbEntityMovePacket();

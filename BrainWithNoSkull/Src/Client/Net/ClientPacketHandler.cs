@@ -45,6 +45,10 @@ public class ClientPacketHandler : IClientPacketHandler {
         }
     }
 
+    public void HandlePlayerFlags(CbPlayerFlagsPacket packet){
+        _serverConnection.PlayerEntity!.InfiniteEnabled = true;
+    }
+
     public void HandlePlayerInventory(CbPlayerInventoryPacket packet){
         if (_serverConnection.PlayerEntity != null) {
             foreach ((short slot, ItemStack? stack) in packet.Slots) {

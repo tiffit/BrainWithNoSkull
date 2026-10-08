@@ -17,6 +17,7 @@ public class PlayerController {
     private readonly GameClient _client;
     private readonly ClientPlayerEntity _player;
     private readonly InputHandler _inputHandler;
+    private readonly ChatGui _chatGui = new ChatGui();
 
     public float Pitch;
     public float Yaw;
@@ -245,7 +246,7 @@ public class PlayerController {
         }
         else if (_keybindChat.IsPressed(context, _inputHandler)) {
             if (_client.Gui == null) {
-                _client.SetGui(new ChatGui());
+                _client.SetGui(_chatGui);
             }
         }
         else if (_keybindPause.IsPressed(context, _inputHandler)) {
