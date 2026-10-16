@@ -52,6 +52,10 @@ public class Chunk {
     public IEnumerable<Entity> GetEntities(){
         return _entities.Values;
     }
+    
+    public IEnumerable<BlockEntity> GetBlockEntities(){
+        return _blockEntities.Values;
+    }
 
     public uint GetBlockConfig(int x, int y, int z){
         if (OutsideChunkBounds(x, y, z)) {
@@ -177,5 +181,4 @@ public class Chunk {
             blockEntity.Tick();
         }
     }
-    
 }

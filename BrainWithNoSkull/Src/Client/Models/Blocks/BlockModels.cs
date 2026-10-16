@@ -1,4 +1,5 @@
 ﻿using BrainWithNoSkull.Client.Models.Blocks.Unbaked;
+using BrainWithNoSkull.Client.Models.Blocks.Unbaked.Specific;
 using BrainWithNoSkull.Registries;
 using BrainWithNoSkull.Util;
 using BrainWithNoSkull.World.Blocks;
@@ -29,6 +30,7 @@ public class BlockModels {
             {Vector3D<uint>.Zero, new JsonBlockModel("CrudeFurnaceBottom", "Block/CrudeFurnace")},
             {Vector3D<uint>.UnitY, new JsonBlockModel("CrudeFurnaceTop", "Block/CrudeFurnace")}
         });
+        UnbakedModels[BlockRegistry.Conveyor] = ConveyorBlockModel.Instance;
 
         HashSet<string> deps = [];
         foreach (UnbakedBlockModel model in UnbakedModels.Values) {

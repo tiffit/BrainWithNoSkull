@@ -27,6 +27,14 @@ public class MatrixStack {
         _stack.Last!.Value *= Matrix4X4.CreateTranslation(x, y, z);
     }
     
+    public void Translate(Vector3D<float> vec){
+        Translate(vec.X, vec.Y, vec.Z);
+    }
+    
+    public void Translate(Vector3D<int> vec){
+        Translate(vec.X, vec.Y, vec.Z);
+    }
+    
     public void Scale(float scale){
         Scale(scale, scale, scale);
     }

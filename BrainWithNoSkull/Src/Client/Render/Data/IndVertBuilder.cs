@@ -1,4 +1,5 @@
-﻿using Silk.NET.Maths;
+﻿using BrainWithNoSkull.Client.Render.RenderEngine;
+using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.Client.Render.Data;
 
@@ -33,6 +34,10 @@ public class IndVertBuilder {
     public IndVertBuilder Normal(Vector3D<float> normal){
         _normal = normal;
         return this;
+    }
+    
+    public IndVertBuilder Normal(Vector3D<float> normal, MatrixStack stack){
+        return Normal(stack.Transform(normal));
     }
 
     public void Build(){

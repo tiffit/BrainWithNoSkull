@@ -25,7 +25,7 @@ public class EntityRendererRegistry {
         Renderers[EntityTypeRegistry.ItemStack] = new ItemStackEntityRenderer();
     }
     
-    public static IEntityRenderer? GetRenderer<T>(EntityType type) where T : Entity{
+    public static IEntityRenderer? GetRenderer(EntityType type) {
         Renderers.TryGetValue(type, out IEntityRenderer? renderer);
         return renderer;
     }

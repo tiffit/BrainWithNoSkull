@@ -44,13 +44,13 @@ public class ItemRenderer {
         IBakedItemModel model = ItemModels.BakedModels[stack.Item];
         
         ItemModelTransform transform = model.GetItemModelTransform(ItemModelTransformType.World);
-        Matrix4X4<float> finalTransform = transform.Transform;
-        finalTransform *= ms.GetLast();
+        Matrix4X4<float> posTransform = transform.Transform * ms.GetLast();
+        Matrix4X4<float> normTransform = transform.Rotation * ms.GetLast();
         
         foreach (Vertex v in model.GetVertices(stack)) {
             vb.Add(v with{
-                Pos = Vector3D.Transform(v.Pos, finalTransform),
-                Normal = Vector3D.Normalize(Vector3D.Transform(v.Normal, transform.Rotation))
+                Pos = Vector3D.Transform(v.Pos, posTransform),
+                Normal = Vector3D.Transform(v.Normal, normTransform)
             });
         }
     }

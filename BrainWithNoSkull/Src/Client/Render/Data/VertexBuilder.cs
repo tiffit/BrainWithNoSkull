@@ -43,6 +43,13 @@ public class VertexBuilder {
         _vertices.AddLast(v);
     }
     
+    public void Add(MatrixStack ms, Vertex v){
+        _vertices.AddLast(v with{
+            Pos = ms.Transform(v.Pos),
+            Normal = ms.Transform(v.Normal)
+        });
+    }
+    
     public ulong GetMeshSize(){
         return (ulong)(_vertices.Count * _shaderProgram.VertexSize * 4);
     }

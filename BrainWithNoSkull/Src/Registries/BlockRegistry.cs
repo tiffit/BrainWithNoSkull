@@ -21,6 +21,7 @@ public static class BlockRegistry {
     public static LitterBlock Stick;
     public static Block Magnetite;
     public static CrudeFurnaceBlock CrudeFurnace;
+    public static ConveyorBlock Conveyor;
     
     public static void Init(){
         Air = Registry.Register(new AirBlock("Air"));
@@ -34,6 +35,7 @@ public static class BlockRegistry {
         Stick = Registry.Register(new LitterBlock("Stick"){BreakTime = 0.1f});
         Magnetite = Registry.Register(new Block("Magnetite"){BreakTime = 4.5f});
         CrudeFurnace = Registry.Register(new CrudeFurnaceBlock("CrudeFurnace"){BreakTime = 4.5f});
+        Conveyor = Registry.Register(new ConveyorBlock("Conveyor"){BreakTime = 1.0f});
     }
 
 }

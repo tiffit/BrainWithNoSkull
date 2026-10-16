@@ -3,6 +3,7 @@ using BrainWithNoSkull.Client.Guis;
 using BrainWithNoSkull.Client.Input;
 using BrainWithNoSkull.Client.Net;
 using BrainWithNoSkull.Client.Render;
+using BrainWithNoSkull.Client.Render.BlockEntities;
 using BrainWithNoSkull.Client.Render.Data;
 using BrainWithNoSkull.Client.Render.Entities;
 using BrainWithNoSkull.Client.Render.RenderEngine;
@@ -68,6 +69,7 @@ public class GameClient {
 
         ClientAssetLoader.Load();
         EntityRendererRegistry.RegisterAll();
+        BlockEntityRendererRegistry.RegisterAll();
 
         ContainerGuis[ContainerSyncRegistry.Machine] = sync => new MachineGui(sync);
 

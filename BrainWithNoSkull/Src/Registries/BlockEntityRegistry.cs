@@ -11,10 +11,14 @@ public class BlockEntityRegistry {
     public static readonly Registry<BlockEntityType> Registry = new Registry<BlockEntityType>();
 
     public static BlockEntityType CrudeFurnace;
+    public static BlockEntityType Conveyor;
 
     public static void Init(){
         CrudeFurnace = Registry.Register(new BlockEntityTypeBuilder(typeof(MachineBlockEntity), "CrudeFurnace",
                 type => new MachineBlockEntity(type, RecipeType.Smelting, FuelType.Solid, MachineTier.Crude, true))
+            .Build());
+        Conveyor = Registry.Register(new BlockEntityTypeBuilder(typeof(ConveyorBlockEntity), "Conveyor",
+                type => new ConveyorBlockEntity(type))
             .Build());
     }
 }

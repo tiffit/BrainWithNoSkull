@@ -1,4 +1,5 @@
-﻿using BrainWithNoSkull.Client.Render.Data;
+﻿using BrainWithNoSkull.Client.Render.BlockEntities;
+using BrainWithNoSkull.Client.Render.Data;
 using BrainWithNoSkull.Client.Render.Entities;
 using BrainWithNoSkull.Client.Render.RenderEngine;
 using BrainWithNoSkull.Client.Render.Shader;
@@ -7,6 +8,7 @@ using BrainWithNoSkull.Net.Pckt.Cb;
 using BrainWithNoSkull.Net.Pckt.Sb;
 using BrainWithNoSkull.Util;
 using BrainWithNoSkull.World;
+using BrainWithNoSkull.World.BlockEntities;
 using BrainWithNoSkull.World.Blocks;
 using BrainWithNoSkull.World.Entities;
 using Silk.NET.Maths;
@@ -74,18 +76,28 @@ public class ClientWorld : WorldBase {
                 TryGenerateMesh(generateCoords);
             }
 
-            //Entity rendering
+            
             float partialTick = _gameClient.GetPartialTick();
             foreach (Vector2D<int> chunkCoords in _chunkMeshes.Keys) {
                 Chunk? chunk = Chunks.GetChunk(chunkCoords);
                 if (chunk != null) {
+                    //Entity rendering
                     VertexBuilder vb = GameClient.Instance.RenderEngine.GetVertexBuilder(ShaderType.WorldEntity);
                     foreach (Entity entity in chunk.GetEntities()) {
-                        IEntityRenderer? renderer = EntityRendererRegistry.GetRenderer<Entity>(entity.Type);
+                        IEntityRenderer? renderer = EntityRendererRegistry.GetRenderer(entity.Type);
                         if (renderer != null && (camera.Frustum?.IsBoxInside(entity.GetBoundingBox()) ?? false)) {
                             MatrixStack ms = new MatrixStack();
                             renderer.Render(entity, ms, vb, partialTick);
                             // DrawBoundingBox(entity.GetBoundingBox());
+                        }
+                    }
+                    //Block entity rendering
+                    //TODO: frustum culling
+                    foreach (BlockEntity be in chunk.GetBlockEntities()) {
+                        IBlockEntityRenderer? renderer = BlockEntityRendererRegistry.GetRenderer(be.Type);
+                        if (renderer != null) {
+                            MatrixStack ms = new MatrixStack();
+                            renderer.Render(be, ms, vb, partialTick);
                         }
                     }
                 }
