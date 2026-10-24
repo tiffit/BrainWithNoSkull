@@ -29,6 +29,9 @@ public interface IItemContainer {
         }
     }
 
+    /**
+     * Returns true if any action was performed.
+     */
     public bool CombineStacks(int slot, ref ItemStack? other, bool swap, bool simulate = false){
         if (ItemStack.IsNull(other))
             return false;

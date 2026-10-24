@@ -17,7 +17,7 @@ public class ConveyorRenderer: BlockEntityRenderer<ConveyorBlockEntity> {
         stack.Translate(0.5f, 4/8f, 0.5f);
         Block b = entity.World.GetBlock(entity.BlockPosition, out uint config);
         Direction dir = BlockRegistry.Conveyor.ConfigContainer.GetValue(config, HorizontalFacingBlockConfigType.Instance);
-        float rot = (int)dir.Rotation * (MathF.PI/2f);
+        float rot = (int)(dir.Rotation + 1) * (MathF.PI/2f);
         stack.Rotate(Quaternion<float>.CreateFromAxisAngle(Vector3D<float>.UnitY, rot));
 
         float conveyorAnim = ((float)GameClient.Instance.GameWindow.Time) % 2;
