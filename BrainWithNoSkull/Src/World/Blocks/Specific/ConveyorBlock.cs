@@ -2,6 +2,8 @@
 using BrainWithNoSkull.Util;
 using BrainWithNoSkull.World.BlockEntities;
 using BrainWithNoSkull.World.Blocks.BlockConfigs;
+using BrainWithNoSkull.World.Entities.Player;
+using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.World.Blocks.Specific;
 
@@ -19,5 +21,11 @@ public class ConveyorBlock: NonFullBlock, IBlockEntityProvider {
 
     public BlockEntity GetBlockEntity(){
         return BlockEntityRegistry.Conveyor.Create();
+    }
+    
+    public override uint GetPlaceConfig(PlayerEntity player, Vector3D<int> blockPos){
+        uint config = base.GetPlaceConfig(player, blockPos);
+        config = HorizontalFacingBlockConfigType.SetPlaceDirection(config, ConfigContainer, player, blockPos);
+        return config;
     }
 }

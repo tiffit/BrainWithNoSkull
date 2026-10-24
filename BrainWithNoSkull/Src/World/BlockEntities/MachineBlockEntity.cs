@@ -75,7 +75,7 @@ public class MachineContainer: IItemContainer {
     
 }
 
-public class MachineBlockEntity: BlockEntity, ITickingBlockEntity {
+public class MachineBlockEntity: BlockEntity, ITickingBlockEntity, IContainerBlockEntity {
 
     public readonly RecipeType RecipeType;
     public readonly FuelType FuelType;
@@ -155,5 +155,17 @@ public class MachineBlockEntity: BlockEntity, ITickingBlockEntity {
         if (CurrentRecipe == null)
             return 0;
         return _craftTime / CurrentRecipe.Time;
+    }
+
+    public IItemContainer GetContainer(){
+        return Container;
+    }
+
+    public IItemContainer GetInputContainer(){
+        return Container.GetInputContainer();
+    }
+
+    public IItemContainer GetOutputContainer(){
+        return Container.GetOutputContainer();
     }
 }

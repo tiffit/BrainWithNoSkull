@@ -97,4 +97,15 @@ public record Direction(Vector3D<int> Offset, Rotation Rotation) {
                 break;
         }
     }
+
+    public static Direction FromAngle(float angle){
+        angle = (angle / (MathF.PI * 2)) * 360f;
+        int i = (int)MathF.Floor((angle * 4.0F / 360.0F) + 0.5F) & 3;
+        return i switch{
+            0 => West,
+            1 => North,
+            2 => East,
+            _ => South,
+        };
+    }
 }

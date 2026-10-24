@@ -1,4 +1,5 @@
 ﻿using BrainWithNoSkull.Util;
+using BrainWithNoSkull.World.Entities.Player;
 using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.World.Blocks.BlockConfigs;
@@ -54,6 +55,13 @@ public class HorizontalFacingBlockConfigType: BlockConfigType<Direction> {
 
     public override Direction GetDefault(){
         return Direction.North;
+    }
+
+    public static uint SetPlaceDirection(uint config, BlockConfigContainer container, PlayerEntity player, Vector3D<int> blockPos){
+        float xdiff = player.Position.X - (blockPos.X + 0.5f);
+        float zdiff = player.Position.Z - (blockPos.Z + 0.5f);
+        float angle = MathF.Atan2(xdiff, zdiff);
+        return container.SetValue(config, Instance, Direction.FromAngle(angle));
     }
 }
 

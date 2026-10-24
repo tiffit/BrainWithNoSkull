@@ -56,6 +56,10 @@ public class Block : IRegistryEntry {
     public virtual void BlockUpdate(ServerWorld world, Vector3D<int> pos, uint config, Vector3D<int> updated){
         
     }
+
+    public virtual uint GetPlaceConfig(PlayerEntity player, Vector3D<int> blockPos){
+        return ConfigContainer.GetDefault();
+    }
 }
 
 public interface IMultiblock {

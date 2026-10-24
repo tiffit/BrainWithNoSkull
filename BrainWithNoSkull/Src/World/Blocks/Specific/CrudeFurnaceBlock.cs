@@ -14,7 +14,7 @@ public class CrudeFurnaceBlock: NonFullBlock, IMultiblock, IBlockEntityProvider,
     private static readonly AABB CollisionBox = new AABB(1/8f, 0, 1/8f, 7/8f, 1 + 6/8f, 7/8f);
     
     public CrudeFurnaceBlock(string id) : base(id){
-        ConfigContainer.With(MultiblockBlockConfigType.Instance);
+        ConfigContainer.With(MultiblockBlockConfigType.Instance).With(HorizontalFacingBlockConfigType.Instance);
     }
 
     public Vector3D<int> GetMultiblockSize(){
@@ -39,5 +39,11 @@ public class CrudeFurnaceBlock: NonFullBlock, IMultiblock, IBlockEntityProvider,
             ContainerSync sync = new MachineContainerSync(player.Client.GetNextContainerId(), machine, player);
             player.Client.OpenContainer(ContainerSyncRegistry.Machine, sync);
         }
+    }
+
+    public override uint GetPlaceConfig(PlayerEntity player, Vector3D<int> blockPos){
+        uint config = base.GetPlaceConfig(player, blockPos);
+        config = HorizontalFacingBlockConfigType.SetPlaceDirection(config, ConfigContainer, player, blockPos);
+        return config;
     }
 }

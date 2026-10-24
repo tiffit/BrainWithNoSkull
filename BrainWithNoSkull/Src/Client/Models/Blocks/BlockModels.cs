@@ -27,8 +27,8 @@ public class BlockModels {
             BlockRegistry.Stick, HorizontalFacingBlockConfigType.Instance, Direction.Horizontal);
         UnbakedModels[BlockRegistry.Magnetite] = new CubeBlockModel("Block/Magnetite");
         UnbakedModels[BlockRegistry.CrudeFurnace] = new MultiblockBlockModel(BlockRegistry.CrudeFurnace, new Dictionary<Vector3D<uint>, UnbakedBlockModel>(){
-            {Vector3D<uint>.Zero, new JsonBlockModel("CrudeFurnaceBottom", "Block/CrudeFurnace")},
-            {Vector3D<uint>.UnitY, new JsonBlockModel("CrudeFurnaceTop", "Block/CrudeFurnace")}
+            {Vector3D<uint>.Zero, new RotatingBlockModel(new JsonBlockModel("CrudeFurnaceBottom", "Block/CrudeFurnace"), BlockRegistry.CrudeFurnace, HorizontalFacingBlockConfigType.Instance, Direction.Horizontal)},
+            {Vector3D<uint>.UnitY, new RotatingBlockModel(new JsonBlockModel("CrudeFurnaceTop", "Block/CrudeFurnace"), BlockRegistry.CrudeFurnace, HorizontalFacingBlockConfigType.Instance, Direction.Horizontal)}
         });
         UnbakedModels[BlockRegistry.Conveyor] = ConveyorBlockModel.Instance;
 

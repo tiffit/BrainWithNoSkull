@@ -1,10 +1,12 @@
-﻿using BrainWithNoSkull.Client.World;
+﻿using BrainWithNoSkull.Client.Input;
+using BrainWithNoSkull.Client.World;
 using BrainWithNoSkull.Registries;
 using BrainWithNoSkull.Util;
 using BrainWithNoSkull.World.BlockEntities;
 using BrainWithNoSkull.World.Blocks;
 using BrainWithNoSkull.World.Blocks.BlockConfigs;
 using BrainWithNoSkull.World.Entities;
+using BrainWithNoSkull.World.Entities.Player;
 using BrainWithNoSkull.World.Gen;
 using BrainWithNoSkull.World.Gen.Chunks;
 using Silk.NET.Maths;
@@ -115,20 +117,21 @@ public class WorldBase {
         return blockPos;
     }
 
-    public virtual void PlaceBlock(Vector3D<int> blockPos, Block block){
+    public virtual void PlaceBlock(Vector3D<int> blockPos, Block block, PlayerEntity player){
+        uint config = block.GetPlaceConfig(player, blockPos);
         if (block is IMultiblock multiblock) {
             Vector3D<int> size = multiblock.GetMultiblockSize();
             for (uint x = 0; x < size.X; x++) {
                 for (uint y = 0; y < size.Y; y++) {
                     for (uint z = 0; z < size.Z; z++) {
-                        uint config = block.ConfigContainer.SetValue(0, MultiblockBlockConfigType.Instance, new Vector3D<uint>(x, y, z));
-                        SetBlock(blockPos + new Vector3D<int>((int)x, (int)y, (int)z), block, config);
+                        uint localConfig = block.ConfigContainer.SetValue(config, MultiblockBlockConfigType.Instance, new Vector3D<uint>(x, y, z));
+                        SetBlock(blockPos + new Vector3D<int>((int)x, (int)y, (int)z), block, localConfig);
                     }
                 }
             }
         }
         else {
-            SetBlock(blockPos, block);
+            SetBlock(blockPos, block, config);
         }
     }
 
