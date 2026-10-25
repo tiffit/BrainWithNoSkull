@@ -7,6 +7,7 @@ using BrainWithNoSkull.World;
 using BrainWithNoSkull.World.BlockEntities;
 using BrainWithNoSkull.World.Entities;
 using BrainWithNoSkull.World.ItemStacks;
+using Silk.NET.Maths;
 
 namespace BrainWithNoSkull.Client.Net;
 
@@ -129,6 +130,19 @@ public class ClientPacketHandler : IClientPacketHandler {
             byte[,,] packedLight = chunk.GetPackedLight();
             Array.Copy(packet.Light, packedLight, packedLight.Length);
             world?.RebuildMesh(packet.ChunkCoords);
+        }
+    }
+
+    public void HandleConveyorSync(CbConveyorSyncPacket packet){
+        ClientWorld? world = _client.World;
+        Chunk? chunk = world?.GetChunk(packet.ChunkCoords) ?? null;
+        if (chunk != null) {
+            foreach (ConveyorSyncEntry entry in packet.Entries) {
+                Vector3D<int> pos = ChunkUtils.UnpackInChunk(entry.Location);
+                if (chunk.GetBlockEntity(pos.X, pos.Y, pos.Z) is IConveyor conveyor) {
+                    conveyor.FromSyncEntry(entry);
+                }
+            }
         }
     }
 }

@@ -50,6 +50,10 @@ public class VertexBuilder {
         });
     }
     
+    public void Repeat(){
+        _vertices.AddLast(_vertices.Last());
+    }
+    
     public ulong GetMeshSize(){
         return (ulong)(_vertices.Count * _shaderProgram.VertexSize * 4);
     }

@@ -33,6 +33,7 @@ public enum PacketType: ushort{
     UpdateContainer,
     Block,
     FullLight,
+    ConveyorSync,
     
     //Server-bound
     PlayerMove,
@@ -66,6 +67,7 @@ public static class PacketRegistry {
         Registry[PacketType.UpdateContainer] = () => new CbUpdateContainerPacket();
         Registry[PacketType.Block] = () => new CbBlockPacket();
         Registry[PacketType.FullLight] = () => new CbFullLightPacket();
+        Registry[PacketType.ConveyorSync] = () => new CbConveyorSyncPacket();
         
         //Server-bound
         Registry[PacketType.PlayerMove] = () => new SbPlayerMovePacket();

@@ -18,8 +18,8 @@ public record Direction(Vector3D<int> Offset, Rotation Rotation) {
     public static readonly Direction North = new Direction(Vector3D<int>.UnitX, Rotation.R0);
     public static readonly Direction South = new Direction(-Vector3D<int>.UnitX, Rotation.R180);
     
-    public static readonly Direction East = new Direction(Vector3D<int>.UnitZ, Rotation.R90);
-    public static readonly Direction West = new Direction(-Vector3D<int>.UnitZ, Rotation.R270);
+    public static readonly Direction East = new Direction(-Vector3D<int>.UnitZ, Rotation.R90);
+    public static readonly Direction West = new Direction(Vector3D<int>.UnitZ, Rotation.R270);
 
     public static readonly Direction[] All = [Up, Down, North, South, East, West];
     public static readonly Direction[] Horizontal = [North, South, East, West];
@@ -107,5 +107,14 @@ public record Direction(Vector3D<int> Offset, Rotation Rotation) {
             2 => East,
             _ => South,
         };
+    }
+
+
+    public virtual bool Equals(Direction? other){
+        return other != null && ReferenceEquals(this, other);
+    }
+
+    public override int GetHashCode(){
+        return HashCode.Combine(Index);
     }
 }

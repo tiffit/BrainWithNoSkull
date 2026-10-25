@@ -30,7 +30,7 @@ public class PacketWriter : BinaryWriter{
             Write(false);
         } else {
             Write(true);
-            stack!.Write(this);
+            stack.Write(this);
         }
     }
 

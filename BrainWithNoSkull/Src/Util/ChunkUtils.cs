@@ -27,5 +27,16 @@ public static class ChunkUtils {
         }
         return val;
     }
+
+    public static int PackInChunk(Vector3D<int> pos){
+        return (pos.X & 15) | ((pos.Z & 15) << 4) | ((pos.Y & 511) << 8);
+    }
+    
+    public static Vector3D<int> UnpackInChunk(int packed){
+        int x = packed & 15;
+        int z = packed >> 4 & 15;
+        int y = packed >> 8;
+        return new Vector3D<int>(x, y, z);
+    }
     
 }

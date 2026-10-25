@@ -94,8 +94,8 @@ public class WorldRay {
         {// Z Axis
             float start = _start.Z;
             float slope = _end.Z - start;
-            float intersectEast = (aabb.MaxZ - start) / slope;
-            float intersectWest = (aabb.MinZ - start) / slope;
+            float intersectEast = (aabb.MinZ - start) / slope;
+            float intersectWest = (aabb.MaxZ - start) / slope;
             Vector3D<float> intersectPointEast = Vector3D.Lerp(_start, _end, intersectEast);
             Vector3D<float> intersectPointWest = Vector3D.Lerp(_start, _end, intersectWest);
 

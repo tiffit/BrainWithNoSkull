@@ -17,54 +17,62 @@ public class ConveyorRenderer: BlockEntityRenderer<ConveyorBlockEntity> {
         stack.Translate(0.5f, 4/8f, 0.5f);
         Block b = entity.World.GetBlock(entity.BlockPosition, out uint config);
         Direction dir = BlockRegistry.Conveyor.ConfigContainer.GetValue(config, HorizontalFacingBlockConfigType.Instance);
-        float rot = (int)(dir.Rotation + 1) * (MathF.PI/2f);
+        float rot = (int)dir.Rotation * (MathF.PI/2f);
         stack.Rotate(Quaternion<float>.CreateFromAxisAngle(Vector3D<float>.UnitY, rot));
 
-        float conveyorAnim = ((float)GameClient.Instance.GameWindow.Time) % 2;
+        float conveyorAnim = (float)GameClient.Instance.GameWindow.Time % 2;
+
+        Vector3D<float> norm = new Vector3D<float>(0, 1, 0);
+        uint texture = ConveyorBlockModel.Instance.ConveyorBelt;
         
         vb.Add(stack, new Vertex{
             Pos = new Vector3D<float>(-0.5f, 0, -0.5f),
-            Uv = new Vector2D<float>(0, 0 + conveyorAnim),
+            Uv = new Vector2D<float>(0, 1 + conveyorAnim),
             Color = 0xff_ff_ff_ff,
-            TextureIndex = ConveyorBlockModel.Instance.ConveyorBelt,
-            Normal = new Vector3D<float>(0, 1, 0)
+            TextureIndex = texture,
+            Normal = norm
         });
         vb.Add(stack, new Vertex{
             Pos = new Vector3D<float>(0.5f, 0, -0.5f),
-            Uv = new Vector2D<float>(1, 0 + conveyorAnim),
+            Uv = new Vector2D<float>(0, 0 + conveyorAnim),
             Color = 0xff_ff_ff_ff,
-            TextureIndex = ConveyorBlockModel.Instance.ConveyorBelt,
-            Normal = new Vector3D<float>(0, 1, 0)
+            TextureIndex = texture,
+            Normal = norm
         });
         vb.Add(stack, new Vertex{
             Pos = new Vector3D<float>(0.5f, 0, 0.5f),
-            Uv = new Vector2D<float>(1, 1 + conveyorAnim),
+            Uv = new Vector2D<float>(1, 0 + conveyorAnim),
             Color = 0xff_ff_ff_ff,
-            TextureIndex = ConveyorBlockModel.Instance.ConveyorBelt,
-            Normal = new Vector3D<float>(0, 1, 0)
+            TextureIndex = texture,
+            Normal = norm
         });
         
         vb.Add(stack, new Vertex{
             Pos = new Vector3D<float>(0.5f, 0, 0.5f),
-            Uv = new Vector2D<float>(1, 1 + conveyorAnim),
+            Uv = new Vector2D<float>(1, 0 + conveyorAnim),
             Color = 0xff_ff_ff_ff,
-            TextureIndex = ConveyorBlockModel.Instance.ConveyorBelt,
-            Normal = new Vector3D<float>(0, 1, 0)
+            TextureIndex = texture,
+            Normal = norm
         });
         vb.Add(stack, new Vertex{
             Pos = new Vector3D<float>(-0.5f, 0, 0.5f),
-            Uv = new Vector2D<float>(0, 1 + conveyorAnim),
+            Uv = new Vector2D<float>(1, 1 + conveyorAnim),
             Color = 0xff_ff_ff_ff,
-            TextureIndex = ConveyorBlockModel.Instance.ConveyorBelt,
-            Normal = new Vector3D<float>(0, 1, 0)
+            TextureIndex = texture,
+            Normal = norm
         });
         vb.Add(stack, new Vertex{
             Pos = new Vector3D<float>(-0.5f, 0, -0.5f),
-            Uv = new Vector2D<float>(0, 0 + conveyorAnim),
+            Uv = new Vector2D<float>(0, 1 + conveyorAnim),
             Color = 0xff_ff_ff_ff,
-            TextureIndex = ConveyorBlockModel.Instance.ConveyorBelt,
-            Normal = new Vector3D<float>(0, 1, 0)
+            TextureIndex = texture,
+            Normal = norm
         });
+
+        if (entity.Stack != null) {
+            stack.Translate(-1 + entity.Progress, 2/8f, -0.5f);
+            GameClient.Instance.ItemRenderer.RenderItemInWorld(vb, stack, entity.Stack);
+        }
     }
     
 }

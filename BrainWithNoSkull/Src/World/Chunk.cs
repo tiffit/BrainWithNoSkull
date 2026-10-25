@@ -176,9 +176,24 @@ public class Chunk {
                 }
             }
         }
-        
+
+        List<ConveyorSyncEntry> entries = [];
         foreach ((Vector3D<int> pos, ITickingBlockEntity blockEntity) in _tickingBlocks) {
             blockEntity.Tick();
+            
+            if (_world.OnServer && blockEntity is IConveyor conveyor) {
+                ConveyorSyncEntry? entry = conveyor.GetSyncEntry();
+                if(entry != null){
+                    entries.Add(entry);
+                }
+            }
+        }
+
+        if (entries.Count > 0) {
+            ServerWorld server = (ServerWorld) _world;
+            foreach (ConnectedClientBase client in server.GetAllListeners(Coords)) {
+                client.SendPacket(new CbConveyorSyncPacket(Coords, entries));
+            }
         }
     }
 }
